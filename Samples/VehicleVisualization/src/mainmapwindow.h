@@ -133,7 +133,7 @@ private:
     void removeTrafficLights();
 
     void deleteLogWidgets();
-    void deleteLogWidgetByID(long id);
+    void deleteLogWidgetByID(long id, QString protocol);
 
     void positionChanged(const PointWorldCoord& point);
     void setupLayoutTrafficLights();

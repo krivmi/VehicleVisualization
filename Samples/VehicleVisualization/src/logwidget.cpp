@@ -45,6 +45,15 @@ void LogWidget::setWidgetInfo(std::shared_ptr <Message> message) {
         this->message = message;
         lastUpdateTime = QTime::currentTime();
         timerRunning = true;
+
+        if(message->GetProtocol() == "Denm"){
+            lifeTimeOfUnit = 10;
+        } else if(message->GetProtocol() == "Mapem"){
+            lifeTimeOfUnit = 120;
+        } else {
+            lifeTimeOfUnit = 60;
+        }
+
     } else {
         timerRunning = false;
         lblProtocol->clear();
@@ -78,7 +87,6 @@ QPixmap LogWidget::getPixmap(std::shared_ptr <Message> message){
     QString protocol = message->GetProtocol();
 
     if(protocol == "Cam"){
-        //std::shared_ptr<Cam> newCam = std::make_shared<Cam>(std::static_pointer_cast<Cam>(message));
         return QPixmap(std::static_pointer_cast<Cam>(message)->imgSrc);
     } else if(protocol == "Mapem"){
         return QPixmap(":/resources/images/crossroadIcon.png");

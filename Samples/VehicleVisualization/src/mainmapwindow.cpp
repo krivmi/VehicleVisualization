@@ -57,6 +57,9 @@ MainMapWindow::MainMapWindow(QWidget *parent) : QMainWindow(parent) {
     QObject::connect(dataHandler.get(), &DataHandler::changeInfo, this, &MainMapWindow::changeInfo);
     QObject::connect(dataHandler.get(), &DataHandler::MessageToLog, this, &MainMapWindow::newMessageToLog);
 
+    QObject::connect(dataHandler.get(), &DataHandler::openTLW, this, &MainMapWindow::openTLW);
+    QObject::connect(dataHandler.get(), &DataHandler::closeTLW, this, &MainMapWindow::closeTLW);
+
     // connect message parsed event
     QObject::connect(&MessageParser::getInstance(), &MessageParser::messageParsed, dataHandler.get(), &DataHandler::MessageReceived);
 
@@ -75,8 +78,6 @@ MainMapWindow::MainMapWindow(QWidget *parent) : QMainWindow(parent) {
 
     processHandler.startLoading();
     eventCounter.messagesSize = dataHandler->allMessages.size();
-
-    m_map_control->setMapFocusPointAnimated(PointWorldCoord(18.2867483, 49.8327366));
 
     statusBar()->showMessage(tr("Ready"));
 }
@@ -135,10 +136,22 @@ void MainMapWindow::modeSelected(QAction* action){
         statusBar()->showMessage("Mode manual...");
         toggleFollowGPS(false);
         topBar->setVisible(true);
+        dataHandler->autoModeOn = false;
     } else if(mode_auto){
         statusBar()->showMessage("Mode auto...");
-        toggleFollowGPS(true);
         topBar->setVisible(false);
+
+        // start GPS
+        if(!gpsEnabled){
+            toogleGPS();
+        }
+
+        // start following GPS
+        toggleFollowGPS(true);
+
+        // clear data from playing
+        dataHandler->clearData();
+        dataHandler->autoModeOn = true;
     } else {
         qInfo() << "Something went wrong";
     }
@@ -292,7 +305,7 @@ void MainMapWindow::setupLeftMiddleLayout(){
     lastMessageLogW = new LogWidget();
 
     // STATION UNITS LABEL
-    QLabel * lblUnitLog = new QLabel("<strong>Station log</strong>");
+    QLabel * lblUnitLog = new QLabel("<strong>Station and warning log</strong>");
     // STATION UNITS HODLER
     QScrollArea* techScroll = new QScrollArea();
     techScroll->setBackgroundRole(QPalette::Window);
@@ -459,6 +472,7 @@ void MainMapWindow::closeTLW(){
     currentDisplayedStructIndex = -1;
 }
 void MainMapWindow::openTLW(){
+    qInfo() << "HURRA";
     trafficLightsW->setVisible(true);
 }
 
@@ -538,7 +552,7 @@ void MainMapWindow::newMessageToLog(std::shared_ptr<Message> message){
     QString protocol = message->GetProtocol();
 
     if(protocol != "Cam" && protocol != "Mapem" && protocol != "Denm"){
-        qInfo() << "Not a good protocol";
+        //qInfo() << "Not a good protocol";
         return;
     }
 
@@ -584,14 +598,18 @@ void MainMapWindow::unitLifeTimeExceeded(std::shared_ptr<Message> message){
             }
          }
         dataHandler->deleteMapemUnitByID(message->stationID);
+    } else if(protocol == "Denm"){
+        std::shared_ptr <Denm> hazard = std::static_pointer_cast<Denm>(message);
+        dataHandler->deleteDenmUnitByTimeAndCode(hazard->detectionTime, hazard->causeCode);
     }
-    deleteLogWidgetByID(message->stationID);
+
+    deleteLogWidgetByID(message->stationID, message->GetProtocol());
 }
-void MainMapWindow::deleteLogWidgetByID(long id){
+void MainMapWindow::deleteLogWidgetByID(long id, QString protocol){
 
     for (int i = 0; i < scrollVerticalLayout->count(); i++) {
       LogWidget * tmp = (LogWidget*) scrollVerticalLayout->itemAt(i)->widget();
-      if (tmp->message->stationID == id) {
+      if (tmp->message->stationID == id && tmp->message->GetProtocol() == protocol) {
           scrollVerticalLayout->removeWidget(tmp);
           tmp->setVisible(false);
           delete tmp;

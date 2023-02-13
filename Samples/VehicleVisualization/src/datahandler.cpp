@@ -5,11 +5,15 @@
 #include <algorithm>
 #include <memory>
 
+# define M_PI 3.14159265358979323846  /* pi */
+
 DataHandler::DataHandler(Visualizer * visualizer, QWidget* parent) : QObject(parent)
 {
     this->visualizer = visualizer;
     this->gpsInfo.longitude = -1;
     this->gpsInfo.latitude = -1;
+
+    QTimer::singleShot(1000, this, SLOT(handleCrossroadProximity()));
 }
 DataHandler::~DataHandler(){
     for(int i = 0; i < trafficLightStructVector.size(); i++){
@@ -67,7 +71,6 @@ void DataHandler::deleteAllMessages(){
     allMessages.clear();
 }
 
-
 void DataHandler::CAMReceived(std::shared_ptr<Cam> newCam){
 
     Cam * oldCam = this->getCamUnitByID(newCam->stationID);
@@ -102,6 +105,58 @@ void DataHandler::CAMReceived(std::shared_ptr<Cam> newCam){
                 emit changeInfo(oldCam->stationID);
             }
         }
+    }
+}
+void DataHandler::handleCrossroadProximity(){
+    if(autoModeOn){
+        Mapem * nearerCrossroad = getClosestCrossroad();
+
+        if(nearerCrossroad != nullptr){
+            emit openTLW();
+        } else{
+            emit closeTLW();
+        }
+    }
+
+    QTimer::singleShot(1000, this, SLOT(handleCrossroadProximity()));
+}
+double measure(qreal lat1, qreal lon1, qreal lat2, qreal lon2){  // generally used geo measurement function
+    double R = 6378.137; // Radius of earth in KM
+    double dLat = lat2 * M_PI / 180 - lat1 * M_PI / 180;
+    double dLon = lon2 * M_PI / 180 - lon1 * M_PI / 180;
+    double a = sin(dLat/2) * sin(dLat/2) +
+    cos(lat1 * M_PI / 180) * cos(lat2 * M_PI / 180) *
+    sin(dLon/2) * sin(dLon/2);
+    double c = 2 * atan2(sqrt(a), sqrt(1-a));
+    double d = R * c;
+    return d * 1000; // meters
+}
+Mapem * DataHandler::getClosestCrossroad(){
+    QMutex mutex;
+
+    Mapem * crossroad = nullptr;
+    double minDistance = 10000000000;
+    // ensure integrity if mapem is to be deleted
+    mutex.lock();
+    for(int i = 0; i < mapemUnits.size(); i++){
+        PointWorldCoord gpsPosn = PointWorldCoord(gpsInfo.longitude, gpsInfo.latitude);
+        PointWorldCoord crossPos = mapemUnits.at(i)->refPoint;
+
+        double distance = measure(gpsPosn.latitude(), gpsPosn.longitude(), crossPos.latitude(), crossPos.longitude());
+
+        if(distance < minDistance){
+            crossroad = mapemUnits.at(i).get();
+            minDistance = distance;
+        }
+    }
+    mutex.unlock();
+
+
+    if(minDistance < 60.0){
+        qInfo() << crossroad;
+        return crossroad;
+    } else {
+        return nullptr;
     }
 }
 
@@ -353,6 +408,15 @@ void DataHandler::deleteMapemUnitByID(long id){
             }
 
             mapemUnits.removeAt(i);
+            break;
+        }
+    }
+}
+void DataHandler::deleteDenmUnitByTimeAndCode(long detectionTime, int causeCode){
+    for(int i = 0; i < denmMessages.size(); i++){
+        if(denmMessages.at(i)->detectionTime == detectionTime && denmMessages.at(i)->causeCode == causeCode){
+            visualizer->removeGeometry(denmMessages.at(i)->geometryPoint);
+            denmMessages.removeAt(i);
             break;
         }
     }

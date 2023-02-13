@@ -58,6 +58,7 @@ public:
 
     void deleteCamUnitByID(long id);
     void deleteMapemUnitByID(long id);
+    void deleteDenmUnitByTimeAndCode(long detectionTime, int causeCode);
 
     QVector <std::shared_ptr<Message>> allMessages;
     QVector <std::shared_ptr<Cam>> camUnits;
@@ -71,9 +72,15 @@ public:
 
     GPSInfo gpsInfo;
 
+    bool autoModeOn = true;
+
     void GPSPositionReceived(PointWorldCoord position);
 
+    Mapem * getClosestCrossroad();
+
 signals:
+    void openTLW();
+    void closeTLW();
     void changeInfo(long stationID);
     void MessageToLog(std::shared_ptr<Message> message);
 
@@ -85,6 +92,7 @@ public slots:
     void SREMReceived(std::shared_ptr<Srem> newSREM);
     void DENMReceived(std::shared_ptr<Denm> newDENM);
     void messagePlay(int index);
+    void handleCrossroadProximity();
 private:
     Visualizer * visualizer;
 };

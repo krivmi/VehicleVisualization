@@ -8,10 +8,10 @@
 ProcessHandler::ProcessHandler(QObject *parent): QObject{parent}
 {
     this->fileChanged = false;
-    //this->currentFile = "/home/krivmi/QT_projects/QMapControl/QMapControl/Samples/resources/trafficFiles/ukazka_80211p.pcap";
+    //this->currentFile = "/home/krivmi/QT_projects/QMapControl/Samples/resources/trafficFiles/ukazka_80211p.pcap";
 
-    //this->currentFile = "/home/krivmi/QT_projects/QMapControl/QMapControl/Samples/resources/trafficFiles/capture_X1_02.pcap";
-    this->currentFile = "/home/krivmi/Desktop/message_testing/denm_test.pcap";
+    this->currentFile = "/home/krivmi/QT_projects/QMapControl/Samples/resources/trafficFiles/capture_X1_02.pcap";
+
 }
 int ProcessHandler::startReceiving(){
     //QString cmd2 = "/bin/sh -c \"echo krivanek | sudo -S stdbuf -i0 -o0 -e0 tshark -i hwsim0 -T json"; //
