@@ -1,0 +1,44 @@
+<RCC>
+    <qresource prefix="/resources">
+        <file>images/note.png</file>
+        <file>images/bus.png</file>
+        <file>images/tram.png</file>
+        <file>images/rsu.png</file>
+        <file>images/unknown.png</file>
+        <file>images/bus_black.png</file>
+        <file>images/rsu_black.png</file>
+        <file>images/tram_black.png</file>
+        <file>images/unknown_black.png</file>
+        <file>images/greenPermission.png</file>
+        <file>images/redPermission.png</file>
+        <file>images/trafficLights.png</file>
+        <file>images/yellowPermission.png</file>
+        <file>images/car_black.png</file>
+        <file>images/navigationBlue.png</file>
+        <file>images/navigationGray.png</file>
+        <file>images/left.png</file>
+        <file>images/right.png</file>
+        <file>images/straight.png</file>
+        <file>images/straight_left.png</file>
+        <file>images/straight_right.png</file>
+        <file>images/straight_left_right.png</file>
+        <file>images/redYellowPermission.png</file>
+        <file>trafficFiles/capture_J0_02.pcap</file>
+        <file>trafficFiles/capture_J0_03_test.pcap</file>
+        <file>trafficFiles/capture_X1_02.pcap</file>
+        <file>trafficFiles/capture_Z1_00.pcap</file>
+        <file>trafficFiles/capture_Z1_01.pcap</file>
+        <file>trafficFiles/ukazka_80211p.pcap</file>
+        <file>images/close.png</file>
+        <file>images/location.png</file>
+        <file>images/gps_off.png</file>
+        <file>images/gps_on.png</file>
+        <file>images/crossroadIcon.png</file>
+        <file>images/DENM_icon.png</file>
+        <file>images/SPATEM_icon.png</file>
+        <file>images/next.png</file>
+        <file>images/pause.png</file>
+        <file>images/play.png</file>
+        <file>images/reset.png</file>
+    </qresource>
+</RCC>
