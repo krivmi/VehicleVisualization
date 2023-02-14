@@ -22,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainMapWindow_t {
-    QByteArrayData data[42];
-    char stringdata0[540];
+    QByteArrayData data[43];
+    char stringdata0[552];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -38,59 +38,60 @@ QT_MOC_LITERAL(2, 27, 0), // ""
 QT_MOC_LITERAL(3, 28, 19), // "GPSPositionReceived"
 QT_MOC_LITERAL(4, 48, 15), // "PointWorldCoord"
 QT_MOC_LITERAL(5, 64, 8), // "position"
-QT_MOC_LITERAL(6, 73, 11), // "resizeEvent"
-QT_MOC_LITERAL(7, 85, 13), // "QResizeEvent*"
-QT_MOC_LITERAL(8, 99, 12), // "resize_event"
-QT_MOC_LITERAL(9, 112, 12), // "playMessages"
-QT_MOC_LITERAL(10, 125, 12), // "resetPlaying"
-QT_MOC_LITERAL(11, 138, 10), // "tooglePlay"
-QT_MOC_LITERAL(12, 149, 15), // "playNextMessage"
-QT_MOC_LITERAL(13, 165, 14), // "messagesPlayed"
-QT_MOC_LITERAL(14, 180, 7), // "openTLW"
-QT_MOC_LITERAL(15, 188, 8), // "closeTLW"
-QT_MOC_LITERAL(16, 197, 10), // "changeInfo"
-QT_MOC_LITERAL(17, 208, 11), // "unitClicked"
-QT_MOC_LITERAL(18, 220, 9), // "stationID"
-QT_MOC_LITERAL(19, 230, 13), // "hazardClicked"
-QT_MOC_LITERAL(20, 244, 4), // "time"
-QT_MOC_LITERAL(21, 249, 4), // "code"
-QT_MOC_LITERAL(22, 254, 17), // "trafficLightClick"
-QT_MOC_LITERAL(23, 272, 11), // "crossroadID"
-QT_MOC_LITERAL(24, 284, 25), // "adjacentIngressLanesIndex"
-QT_MOC_LITERAL(25, 310, 16), // "sameTrafficLight"
-QT_MOC_LITERAL(26, 327, 13), // "handleGPSData"
-QT_MOC_LITERAL(27, 341, 9), // "longitude"
-QT_MOC_LITERAL(28, 351, 8), // "latitude"
-QT_MOC_LITERAL(29, 360, 22), // "startReceivingMessages"
-QT_MOC_LITERAL(30, 383, 15), // "newMessageToLog"
-QT_MOC_LITERAL(31, 399, 24), // "std::shared_ptr<Message>"
-QT_MOC_LITERAL(32, 424, 7), // "message"
-QT_MOC_LITERAL(33, 432, 9), // "toogleGPS"
-QT_MOC_LITERAL(34, 442, 10), // "toogleInfo"
-QT_MOC_LITERAL(35, 453, 4), // "open"
-QT_MOC_LITERAL(36, 458, 16), // "recenterGPSPoint"
-QT_MOC_LITERAL(37, 475, 12), // "modeSelected"
-QT_MOC_LITERAL(38, 488, 8), // "QAction*"
-QT_MOC_LITERAL(39, 497, 6), // "action"
-QT_MOC_LITERAL(40, 504, 14), // "logUnitClicked"
-QT_MOC_LITERAL(41, 519, 20) // "unitLifeTimeExceeded"
+QT_MOC_LITERAL(6, 73, 11), // "orientation"
+QT_MOC_LITERAL(7, 85, 11), // "resizeEvent"
+QT_MOC_LITERAL(8, 97, 13), // "QResizeEvent*"
+QT_MOC_LITERAL(9, 111, 12), // "resize_event"
+QT_MOC_LITERAL(10, 124, 12), // "playMessages"
+QT_MOC_LITERAL(11, 137, 12), // "resetPlaying"
+QT_MOC_LITERAL(12, 150, 10), // "tooglePlay"
+QT_MOC_LITERAL(13, 161, 15), // "playNextMessage"
+QT_MOC_LITERAL(14, 177, 14), // "messagesPlayed"
+QT_MOC_LITERAL(15, 192, 7), // "openTLW"
+QT_MOC_LITERAL(16, 200, 8), // "closeTLW"
+QT_MOC_LITERAL(17, 209, 10), // "changeInfo"
+QT_MOC_LITERAL(18, 220, 11), // "unitClicked"
+QT_MOC_LITERAL(19, 232, 9), // "stationID"
+QT_MOC_LITERAL(20, 242, 13), // "hazardClicked"
+QT_MOC_LITERAL(21, 256, 4), // "time"
+QT_MOC_LITERAL(22, 261, 4), // "code"
+QT_MOC_LITERAL(23, 266, 17), // "trafficLightClick"
+QT_MOC_LITERAL(24, 284, 11), // "crossroadID"
+QT_MOC_LITERAL(25, 296, 25), // "adjacentIngressLanesIndex"
+QT_MOC_LITERAL(26, 322, 16), // "sameTrafficLight"
+QT_MOC_LITERAL(27, 339, 13), // "handleGPSData"
+QT_MOC_LITERAL(28, 353, 9), // "longitude"
+QT_MOC_LITERAL(29, 363, 8), // "latitude"
+QT_MOC_LITERAL(30, 372, 22), // "startReceivingMessages"
+QT_MOC_LITERAL(31, 395, 15), // "newMessageToLog"
+QT_MOC_LITERAL(32, 411, 24), // "std::shared_ptr<Message>"
+QT_MOC_LITERAL(33, 436, 7), // "message"
+QT_MOC_LITERAL(34, 444, 9), // "toogleGPS"
+QT_MOC_LITERAL(35, 454, 10), // "toogleInfo"
+QT_MOC_LITERAL(36, 465, 4), // "open"
+QT_MOC_LITERAL(37, 470, 16), // "recenterGPSPoint"
+QT_MOC_LITERAL(38, 487, 12), // "modeSelected"
+QT_MOC_LITERAL(39, 500, 8), // "QAction*"
+QT_MOC_LITERAL(40, 509, 6), // "action"
+QT_MOC_LITERAL(41, 516, 14), // "logUnitClicked"
+QT_MOC_LITERAL(42, 531, 20) // "unitLifeTimeExceeded"
 
     },
     "MainMapWindow\0startTracker\0\0"
     "GPSPositionReceived\0PointWorldCoord\0"
-    "position\0resizeEvent\0QResizeEvent*\0"
-    "resize_event\0playMessages\0resetPlaying\0"
-    "tooglePlay\0playNextMessage\0messagesPlayed\0"
-    "openTLW\0closeTLW\0changeInfo\0unitClicked\0"
-    "stationID\0hazardClicked\0time\0code\0"
-    "trafficLightClick\0crossroadID\0"
-    "adjacentIngressLanesIndex\0sameTrafficLight\0"
-    "handleGPSData\0longitude\0latitude\0"
-    "startReceivingMessages\0newMessageToLog\0"
-    "std::shared_ptr<Message>\0message\0"
-    "toogleGPS\0toogleInfo\0open\0recenterGPSPoint\0"
-    "modeSelected\0QAction*\0action\0"
-    "logUnitClicked\0unitLifeTimeExceeded"
+    "position\0orientation\0resizeEvent\0"
+    "QResizeEvent*\0resize_event\0playMessages\0"
+    "resetPlaying\0tooglePlay\0playNextMessage\0"
+    "messagesPlayed\0openTLW\0closeTLW\0"
+    "changeInfo\0unitClicked\0stationID\0"
+    "hazardClicked\0time\0code\0trafficLightClick\0"
+    "crossroadID\0adjacentIngressLanesIndex\0"
+    "sameTrafficLight\0handleGPSData\0longitude\0"
+    "latitude\0startReceivingMessages\0"
+    "newMessageToLog\0std::shared_ptr<Message>\0"
+    "message\0toogleGPS\0toogleInfo\0open\0"
+    "recenterGPSPoint\0modeSelected\0QAction*\0"
+    "action\0logUnitClicked\0unitLifeTimeExceeded"
 };
 #undef QT_MOC_LITERAL
 
@@ -109,37 +110,37 @@ static const uint qt_meta_data_MainMapWindow[] = {
 
  // signals: name, argc, parameters, tag, flags
        1,    0,  129,    2, 0x06 /* Public */,
-       3,    1,  130,    2, 0x06 /* Public */,
+       3,    2,  130,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       6,    1,  133,    2, 0x0a /* Public */,
-       9,    0,  136,    2, 0x0a /* Public */,
-      10,    0,  137,    2, 0x0a /* Public */,
-      11,    0,  138,    2, 0x0a /* Public */,
-      12,    0,  139,    2, 0x0a /* Public */,
-      13,    0,  140,    2, 0x0a /* Public */,
-      14,    0,  141,    2, 0x0a /* Public */,
-      15,    0,  142,    2, 0x0a /* Public */,
-      16,    0,  143,    2, 0x0a /* Public */,
-      17,    1,  144,    2, 0x0a /* Public */,
-      19,    2,  147,    2, 0x0a /* Public */,
-      22,    3,  152,    2, 0x0a /* Public */,
-      26,    2,  159,    2, 0x0a /* Public */,
-      29,    0,  164,    2, 0x0a /* Public */,
-      30,    1,  165,    2, 0x0a /* Public */,
-      33,    0,  168,    2, 0x0a /* Public */,
-      34,    1,  169,    2, 0x0a /* Public */,
-      36,    0,  172,    2, 0x0a /* Public */,
-      37,    1,  173,    2, 0x0a /* Public */,
-      40,    1,  176,    2, 0x0a /* Public */,
-      41,    1,  179,    2, 0x0a /* Public */,
+       7,    1,  135,    2, 0x0a /* Public */,
+      10,    0,  138,    2, 0x0a /* Public */,
+      11,    0,  139,    2, 0x0a /* Public */,
+      12,    0,  140,    2, 0x0a /* Public */,
+      13,    0,  141,    2, 0x0a /* Public */,
+      14,    0,  142,    2, 0x0a /* Public */,
+      15,    0,  143,    2, 0x0a /* Public */,
+      16,    0,  144,    2, 0x0a /* Public */,
+      17,    0,  145,    2, 0x0a /* Public */,
+      18,    1,  146,    2, 0x0a /* Public */,
+      20,    2,  149,    2, 0x0a /* Public */,
+      23,    3,  154,    2, 0x0a /* Public */,
+      27,    3,  161,    2, 0x0a /* Public */,
+      30,    0,  168,    2, 0x0a /* Public */,
+      31,    1,  169,    2, 0x0a /* Public */,
+      34,    0,  172,    2, 0x0a /* Public */,
+      35,    1,  173,    2, 0x0a /* Public */,
+      37,    0,  176,    2, 0x0a /* Public */,
+      38,    1,  177,    2, 0x0a /* Public */,
+      41,    1,  180,    2, 0x0a /* Public */,
+      42,    1,  183,    2, 0x0a /* Public */,
 
  // signals: parameters
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 4,    5,
+    QMetaType::Void, 0x80000000 | 4, QMetaType::Float,    5,    6,
 
  // slots: parameters
-    QMetaType::Void, 0x80000000 | 7,    8,
+    QMetaType::Void, 0x80000000 | 8,    9,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -148,18 +149,18 @@ static const uint qt_meta_data_MainMapWindow[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Long,   18,
-    QMetaType::Void, QMetaType::Long, QMetaType::Int,   20,   21,
-    QMetaType::Void, QMetaType::Int, QMetaType::Int, QMetaType::Bool,   23,   24,   25,
-    QMetaType::Void, QMetaType::Float, QMetaType::Float,   27,   28,
+    QMetaType::Void, QMetaType::Long,   19,
+    QMetaType::Void, QMetaType::Long, QMetaType::Int,   21,   22,
+    QMetaType::Void, QMetaType::Int, QMetaType::Int, QMetaType::Bool,   24,   25,   26,
+    QMetaType::Void, QMetaType::Float, QMetaType::Float, QMetaType::Float,   28,   29,    6,
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 31,   32,
+    QMetaType::Void, 0x80000000 | 32,   33,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Bool,   35,
+    QMetaType::Void, QMetaType::Bool,   36,
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 38,   39,
-    QMetaType::Void, 0x80000000 | 31,   32,
-    QMetaType::Void, 0x80000000 | 31,   32,
+    QMetaType::Void, 0x80000000 | 39,   40,
+    QMetaType::Void, 0x80000000 | 32,   33,
+    QMetaType::Void, 0x80000000 | 32,   33,
 
        0        // eod
 };
@@ -171,7 +172,7 @@ void MainMapWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _i
         (void)_t;
         switch (_id) {
         case 0: _t->startTracker(); break;
-        case 1: _t->GPSPositionReceived((*reinterpret_cast< PointWorldCoord(*)>(_a[1]))); break;
+        case 1: _t->GPSPositionReceived((*reinterpret_cast< PointWorldCoord(*)>(_a[1])),(*reinterpret_cast< float(*)>(_a[2]))); break;
         case 2: _t->resizeEvent((*reinterpret_cast< QResizeEvent*(*)>(_a[1]))); break;
         case 3: _t->playMessages(); break;
         case 4: _t->resetPlaying(); break;
@@ -184,7 +185,7 @@ void MainMapWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _i
         case 11: _t->unitClicked((*reinterpret_cast< long(*)>(_a[1]))); break;
         case 12: _t->hazardClicked((*reinterpret_cast< long(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
         case 13: _t->trafficLightClick((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2])),(*reinterpret_cast< bool(*)>(_a[3]))); break;
-        case 14: _t->handleGPSData((*reinterpret_cast< float(*)>(_a[1])),(*reinterpret_cast< float(*)>(_a[2]))); break;
+        case 14: _t->handleGPSData((*reinterpret_cast< float(*)>(_a[1])),(*reinterpret_cast< float(*)>(_a[2])),(*reinterpret_cast< float(*)>(_a[3]))); break;
         case 15: _t->startReceivingMessages(); break;
         case 16: _t->newMessageToLog((*reinterpret_cast< std::shared_ptr<Message>(*)>(_a[1]))); break;
         case 17: _t->toogleGPS(); break;
@@ -216,7 +217,7 @@ void MainMapWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _i
             }
         }
         {
-            using _t = void (MainMapWindow::*)(PointWorldCoord );
+            using _t = void (MainMapWindow::*)(PointWorldCoord , float );
             if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&MainMapWindow::GPSPositionReceived)) {
                 *result = 1;
                 return;
@@ -272,9 +273,9 @@ void MainMapWindow::startTracker()
 }
 
 // SIGNAL 1
-void MainMapWindow::GPSPositionReceived(PointWorldCoord _t1)
+void MainMapWindow::GPSPositionReceived(PointWorldCoord _t1, float _t2)
 {
-    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))) };
+    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))), const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t2))) };
     QMetaObject::activate(this, &staticMetaObject, 1, _a);
 }
 QT_WARNING_POP

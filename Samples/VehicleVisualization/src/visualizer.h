@@ -43,8 +43,7 @@ public:
     QColor getColorByApproach(bool isIngress);
     long getConnectedLaneID(ConnectingLane lane, QVector <Lane> lanes);
     std::vector <PointWorldCoord> getLanePoints(Lane lane, PointWorldCoord refPoint);
-    PointWorldCoord getFirstPointOfLane(Lane lane, PointWorldCoord refPoint);
-    PointWorldCoord getLastPointOfLane(Lane lane, PointWorldCoord refPoint);
+
     void drawLanes(QVector<Lane> & lanes, PointWorldCoord refPoint, int laneType, bool drawPointsOfLane = false);
     //void drawReferencePoint(PointWorldCoord point, QColor color = QColor(0, 0, 0));
     void drawVehiclePath(Cam * cam);

@@ -1,4 +1,5 @@
 #include "mapem.h"
+#include <math.h>
 
 QVector<QString> Mapem::laneTypes = {"Vehicle", "CrossWalk", "BikeLane", "Unknown", "Unknown", "Unknown", "TrackedVehicle"};
 
@@ -12,6 +13,51 @@ QVector <Lane> Mapem::getAllIngressVehicleLanes(){
         }
     }
     return ingressVehicleLanes;
+}
+
+PointWorldCoord Mapem::getFirstPointOfLane(Lane lane, PointWorldCoord refPoint){
+    qreal f_long = refPoint.longitude() + (qreal)lane.nodes[0].x / 10000000.0;
+    qreal f_lat = refPoint.latitude() + (qreal)lane.nodes[0].y / 10000000.0;
+    return PointWorldCoord(f_long, f_lat);
+}
+PointWorldCoord Mapem::getLastPointOfLane(Lane lane, PointWorldCoord refPoint){
+    qreal f_long = refPoint.longitude() + (float)lane.nodes[1].x / 10000000.0;
+    qreal f_lat = refPoint.latitude() + (float)lane.nodes[1].y / 10000000.0;
+    return PointWorldCoord(f_long, f_lat);
+}
+
+int Mapem::findAdjIngVehLaneByOrientation(float orientation){
+    int index = -1;
+    float minimalDifference = 361.0f;
+    for(int i = 0; i < adjacentIngressLanes.size(); i++){
+        // take the first lane
+        Lane lane = adjacentIngressLanes.at(i).at(0);
+        PointWorldCoord ptFrom = getFirstPointOfLane(lane, refPoint);
+        PointWorldCoord ptTo = getLastPointOfLane(lane, refPoint);
+
+        const PointWorldPx ptFromPx(projection::get().toPointWorldPx(ptFrom, 17)); // 2
+        const PointWorldPx ptToPx(projection::get().toPointWorldPx(ptTo, 17)); // 3
+
+        QVector <qreal> toNorth = {0.0, 1.0};
+        QVector <qreal> toEndOfLane = {ptToPx.x() - ptFromPx.x(), ptToPx.y() - ptFromPx.y()}; // x2
+
+        qreal dot = toNorth[0] * toEndOfLane[0] + toNorth[1] * toEndOfLane[1];
+        qreal det = toNorth[0] * toEndOfLane[1] - toNorth[1] * toEndOfLane[0];
+        qreal angle = atan2(det, dot);
+        qreal deg = angle * 180.0 / M_PI;
+
+        if(deg < 0){ deg = 360 - deg; }
+
+        float diff = abs(orientation - deg);
+        qInfo() << "Lane or: " << deg << "orientation: " << orientation << "diff: " << diff;
+
+        if(diff < minimalDifference){
+            minimalDifference = diff;
+            index = i;
+        }
+    }
+    qInfo() << "Winner Minimal diff: " << minimalDifference;
+    return index;
 }
 
 QVector <QVector<Lane>> Mapem::findAdjacentIngressVehicleLanes(){

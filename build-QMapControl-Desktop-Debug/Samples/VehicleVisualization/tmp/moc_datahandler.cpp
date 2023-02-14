@@ -22,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_DataHandler_t {
-    QByteArrayData data[28];
-    char stringdata0[377];
+    QByteArrayData data[31];
+    char stringdata0[449];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -33,37 +33,42 @@ struct qt_meta_stringdata_DataHandler_t {
 static const qt_meta_stringdata_DataHandler_t qt_meta_stringdata_DataHandler = {
     {
 QT_MOC_LITERAL(0, 0, 11), // "DataHandler"
-QT_MOC_LITERAL(1, 12, 7), // "openTLW"
-QT_MOC_LITERAL(2, 20, 0), // ""
-QT_MOC_LITERAL(3, 21, 8), // "closeTLW"
-QT_MOC_LITERAL(4, 30, 10), // "changeInfo"
-QT_MOC_LITERAL(5, 41, 9), // "stationID"
-QT_MOC_LITERAL(6, 51, 12), // "MessageToLog"
-QT_MOC_LITERAL(7, 64, 24), // "std::shared_ptr<Message>"
-QT_MOC_LITERAL(8, 89, 7), // "message"
-QT_MOC_LITERAL(9, 97, 15), // "MessageReceived"
-QT_MOC_LITERAL(10, 113, 11), // "CAMReceived"
-QT_MOC_LITERAL(11, 125, 20), // "std::shared_ptr<Cam>"
-QT_MOC_LITERAL(12, 146, 6), // "newCam"
-QT_MOC_LITERAL(13, 153, 13), // "MAPEMReceived"
-QT_MOC_LITERAL(14, 167, 22), // "std::shared_ptr<Mapem>"
-QT_MOC_LITERAL(15, 190, 8), // "newMAPEM"
-QT_MOC_LITERAL(16, 199, 14), // "SPATEMReceived"
-QT_MOC_LITERAL(17, 214, 23), // "std::shared_ptr<Spatem>"
-QT_MOC_LITERAL(18, 238, 9), // "newSPATEM"
-QT_MOC_LITERAL(19, 248, 12), // "SREMReceived"
-QT_MOC_LITERAL(20, 261, 21), // "std::shared_ptr<Srem>"
-QT_MOC_LITERAL(21, 283, 7), // "newSREM"
-QT_MOC_LITERAL(22, 291, 12), // "DENMReceived"
-QT_MOC_LITERAL(23, 304, 21), // "std::shared_ptr<Denm>"
-QT_MOC_LITERAL(24, 326, 7), // "newDENM"
-QT_MOC_LITERAL(25, 334, 11), // "messagePlay"
-QT_MOC_LITERAL(26, 346, 5), // "index"
-QT_MOC_LITERAL(27, 352, 24) // "handleCrossroadProximity"
+QT_MOC_LITERAL(1, 12, 16), // "trafficLightShow"
+QT_MOC_LITERAL(2, 29, 0), // ""
+QT_MOC_LITERAL(3, 30, 11), // "crossroadID"
+QT_MOC_LITERAL(4, 42, 25), // "adjacentIngressLanesIndex"
+QT_MOC_LITERAL(5, 68, 16), // "sameTrafficLight"
+QT_MOC_LITERAL(6, 85, 16), // "trafficLightHide"
+QT_MOC_LITERAL(7, 102, 10), // "changeInfo"
+QT_MOC_LITERAL(8, 113, 9), // "stationID"
+QT_MOC_LITERAL(9, 123, 12), // "MessageToLog"
+QT_MOC_LITERAL(10, 136, 24), // "std::shared_ptr<Message>"
+QT_MOC_LITERAL(11, 161, 7), // "message"
+QT_MOC_LITERAL(12, 169, 15), // "MessageReceived"
+QT_MOC_LITERAL(13, 185, 11), // "CAMReceived"
+QT_MOC_LITERAL(14, 197, 20), // "std::shared_ptr<Cam>"
+QT_MOC_LITERAL(15, 218, 6), // "newCam"
+QT_MOC_LITERAL(16, 225, 13), // "MAPEMReceived"
+QT_MOC_LITERAL(17, 239, 22), // "std::shared_ptr<Mapem>"
+QT_MOC_LITERAL(18, 262, 8), // "newMAPEM"
+QT_MOC_LITERAL(19, 271, 14), // "SPATEMReceived"
+QT_MOC_LITERAL(20, 286, 23), // "std::shared_ptr<Spatem>"
+QT_MOC_LITERAL(21, 310, 9), // "newSPATEM"
+QT_MOC_LITERAL(22, 320, 12), // "SREMReceived"
+QT_MOC_LITERAL(23, 333, 21), // "std::shared_ptr<Srem>"
+QT_MOC_LITERAL(24, 355, 7), // "newSREM"
+QT_MOC_LITERAL(25, 363, 12), // "DENMReceived"
+QT_MOC_LITERAL(26, 376, 21), // "std::shared_ptr<Denm>"
+QT_MOC_LITERAL(27, 398, 7), // "newDENM"
+QT_MOC_LITERAL(28, 406, 11), // "messagePlay"
+QT_MOC_LITERAL(29, 418, 5), // "index"
+QT_MOC_LITERAL(30, 424, 24) // "handleCrossroadProximity"
 
     },
-    "DataHandler\0openTLW\0\0closeTLW\0changeInfo\0"
-    "stationID\0MessageToLog\0std::shared_ptr<Message>\0"
+    "DataHandler\0trafficLightShow\0\0crossroadID\0"
+    "adjacentIngressLanesIndex\0sameTrafficLight\0"
+    "trafficLightHide\0changeInfo\0stationID\0"
+    "MessageToLog\0std::shared_ptr<Message>\0"
     "message\0MessageReceived\0CAMReceived\0"
     "std::shared_ptr<Cam>\0newCam\0MAPEMReceived\0"
     "std::shared_ptr<Mapem>\0newMAPEM\0"
@@ -89,35 +94,35 @@ static const uint qt_meta_data_DataHandler[] = {
        4,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    0,   74,    2, 0x06 /* Public */,
-       3,    0,   75,    2, 0x06 /* Public */,
-       4,    1,   76,    2, 0x06 /* Public */,
-       6,    1,   79,    2, 0x06 /* Public */,
+       1,    3,   74,    2, 0x06 /* Public */,
+       6,    0,   81,    2, 0x06 /* Public */,
+       7,    1,   82,    2, 0x06 /* Public */,
+       9,    1,   85,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       9,    1,   82,    2, 0x0a /* Public */,
-      10,    1,   85,    2, 0x0a /* Public */,
-      13,    1,   88,    2, 0x0a /* Public */,
-      16,    1,   91,    2, 0x0a /* Public */,
-      19,    1,   94,    2, 0x0a /* Public */,
-      22,    1,   97,    2, 0x0a /* Public */,
-      25,    1,  100,    2, 0x0a /* Public */,
-      27,    0,  103,    2, 0x0a /* Public */,
+      12,    1,   88,    2, 0x0a /* Public */,
+      13,    1,   91,    2, 0x0a /* Public */,
+      16,    1,   94,    2, 0x0a /* Public */,
+      19,    1,   97,    2, 0x0a /* Public */,
+      22,    1,  100,    2, 0x0a /* Public */,
+      25,    1,  103,    2, 0x0a /* Public */,
+      28,    1,  106,    2, 0x0a /* Public */,
+      30,    0,  109,    2, 0x0a /* Public */,
 
  // signals: parameters
+    QMetaType::Void, QMetaType::Int, QMetaType::Int, QMetaType::Bool,    3,    4,    5,
     QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void, QMetaType::Long,    5,
-    QMetaType::Void, 0x80000000 | 7,    8,
+    QMetaType::Void, QMetaType::Long,    8,
+    QMetaType::Void, 0x80000000 | 10,   11,
 
  // slots: parameters
-    QMetaType::Void, 0x80000000 | 7,    8,
-    QMetaType::Void, 0x80000000 | 11,   12,
+    QMetaType::Void, 0x80000000 | 10,   11,
     QMetaType::Void, 0x80000000 | 14,   15,
     QMetaType::Void, 0x80000000 | 17,   18,
     QMetaType::Void, 0x80000000 | 20,   21,
     QMetaType::Void, 0x80000000 | 23,   24,
-    QMetaType::Void, QMetaType::Int,   26,
+    QMetaType::Void, 0x80000000 | 26,   27,
+    QMetaType::Void, QMetaType::Int,   29,
     QMetaType::Void,
 
        0        // eod
@@ -129,8 +134,8 @@ void DataHandler::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id,
         auto *_t = static_cast<DataHandler *>(_o);
         (void)_t;
         switch (_id) {
-        case 0: _t->openTLW(); break;
-        case 1: _t->closeTLW(); break;
+        case 0: _t->trafficLightShow((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2])),(*reinterpret_cast< bool(*)>(_a[3]))); break;
+        case 1: _t->trafficLightHide(); break;
         case 2: _t->changeInfo((*reinterpret_cast< long(*)>(_a[1]))); break;
         case 3: _t->MessageToLog((*reinterpret_cast< std::shared_ptr<Message>(*)>(_a[1]))); break;
         case 4: _t->MessageReceived((*reinterpret_cast< std::shared_ptr<Message>(*)>(_a[1]))); break;
@@ -146,15 +151,15 @@ void DataHandler::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id,
     } else if (_c == QMetaObject::IndexOfMethod) {
         int *result = reinterpret_cast<int *>(_a[0]);
         {
-            using _t = void (DataHandler::*)();
-            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&DataHandler::openTLW)) {
+            using _t = void (DataHandler::*)(int , int , bool );
+            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&DataHandler::trafficLightShow)) {
                 *result = 0;
                 return;
             }
         }
         {
             using _t = void (DataHandler::*)();
-            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&DataHandler::closeTLW)) {
+            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&DataHandler::trafficLightHide)) {
                 *result = 1;
                 return;
             }
@@ -217,13 +222,14 @@ int DataHandler::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 }
 
 // SIGNAL 0
-void DataHandler::openTLW()
+void DataHandler::trafficLightShow(int _t1, int _t2, bool _t3)
 {
-    QMetaObject::activate(this, &staticMetaObject, 0, nullptr);
+    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))), const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t2))), const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t3))) };
+    QMetaObject::activate(this, &staticMetaObject, 0, _a);
 }
 
 // SIGNAL 1
-void DataHandler::closeTLW()
+void DataHandler::trafficLightHide()
 {
     QMetaObject::activate(this, &staticMetaObject, 1, nullptr);
 }

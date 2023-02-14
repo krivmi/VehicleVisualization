@@ -13,6 +13,7 @@ DataHandler::DataHandler(Visualizer * visualizer, QWidget* parent) : QObject(par
     this->gpsInfo.longitude = -1;
     this->gpsInfo.latitude = -1;
 
+    // create timer that is going to handle crossroad proximity every second
     QTimer::singleShot(1000, this, SLOT(handleCrossroadProximity()));
 }
 DataHandler::~DataHandler(){
@@ -109,12 +110,32 @@ void DataHandler::CAMReceived(std::shared_ptr<Cam> newCam){
 }
 void DataHandler::handleCrossroadProximity(){
     if(autoModeOn){
-        Mapem * nearerCrossroad = getClosestCrossroad();
+        Mapem * currentCrossroad = getClosestCrossroad();
 
-        if(nearerCrossroad != nullptr){
-            emit openTLW();
+        if(currentCrossroad != nullptr ){
+            if(!trafficLightShown){
+                int orientations[gpsHistory.size()];
+                for(int i = 0; i < gpsHistory.size(); i++){
+                     orientations[i] = gpsHistory.at(i).orientation;
+                }
+                std::sort(orientations, orientations + gpsHistory.size());
+                // take median of sorted orientations
+                float median = orientations[(int)gpsHistory.size() / 2];
+
+                if(median > 0){
+                    int index = currentCrossroad->findAdjIngVehLaneByOrientation(median);
+
+                    if(index != -1){
+                        trafficLightShown = true;
+                        emit trafficLightShow(currentCrossroad->crossroadID, index, true);
+                    }
+                }
+            }
         } else{
-            emit closeTLW();
+            if(trafficLightShown){
+                trafficLightShown = false;
+                emit trafficLightHide();
+            }
         }
     }
 
@@ -162,6 +183,7 @@ Mapem * DataHandler::getClosestCrossroad(){
 
 void DataHandler::MAPEMReceived(std::shared_ptr<Mapem> newMapem){
     Mapem * oldMapem = getMapemByCrossroadID(newMapem->crossroadID);
+    qInfo() << "Mapem";
 
     if(oldMapem == nullptr){
         this->addMapemUnit(newMapem);
@@ -448,16 +470,24 @@ Spatem * DataHandler::findSpatemByTime(int moy, int timeStamp){
     return nullptr;
 }
 
-void DataHandler::GPSPositionReceived(PointWorldCoord position){
-    if(position.longitude() == gpsInfo.longitude && position.latitude() == gpsInfo.latitude){
-        //visualizer->darkenGPSPositionPoint();
-    } else{
-        gpsInfo.longitude = position.longitude();
-        gpsInfo.latitude = position.latitude();
-        gettimeofday(&gpsInfo.lastUpdate, NULL);
+void DataHandler::GPSPositionReceived(PointWorldCoord position, float orientation){
+    qInfo() << "Longitude: " << position.longitude() << "latitude: " << position.latitude() << "orientation: " << orientation;
 
-        visualizer->updateGPSPositionPoint(position);
+    gpsInfo.longitude = position.longitude();
+    gpsInfo.latitude = position.latitude();
+    gpsInfo.orientation = orientation;
+    gettimeofday(&gpsInfo.lastUpdate, NULL);
+
+    GPSInfo newGpsInfo = gpsInfo;
+    gpsHistory.enqueue(newGpsInfo);
+
+    if(gpsHistory.size() > 5){
+        gpsHistory.dequeue();
     }
+    //qInfo() << gpsHistory.size();
+
+    visualizer->updateGPSPositionPoint(position);
+
 }
 
 void DataHandler::messagePlay(int index){

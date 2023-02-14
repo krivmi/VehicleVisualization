@@ -72,6 +72,11 @@ class Mapem : public Message {
             this->crossroadName = crossroadName;
             this->lanes = lanes;            
         };
+        int findAdjIngVehLaneByOrientation(float orientation);
+
+        static PointWorldCoord getFirstPointOfLane(Lane lane, PointWorldCoord refPoint);
+        static PointWorldCoord getLastPointOfLane(Lane lane, PointWorldCoord refPoint);
+
         bool haveAdjacentLanesSameSignalGroup(QVector<Lane> adjacentIngressLanes);
         void prepareCrossroadSignalGroups();
         QVector <QVector<Lane>> findAdjacentIngressVehicleLanes();

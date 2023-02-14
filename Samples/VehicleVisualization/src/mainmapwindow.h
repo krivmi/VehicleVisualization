@@ -61,7 +61,7 @@ public slots:
     void unitClicked(long stationID);
     void hazardClicked(long time, int code);
     void trafficLightClick(int crossroadID, int adjacentIngressLanesIndex, bool sameTrafficLight);
-    void handleGPSData(float longitude, float latitude);
+    void handleGPSData(float longitude, float latitude, float orientation);
     void startReceivingMessages();
     void newMessageToLog(std::shared_ptr<Message> message);
     void toogleGPS();
@@ -73,7 +73,7 @@ public slots:
 
 signals:
     void startTracker();
-    void GPSPositionReceived(PointWorldCoord position);
+    void GPSPositionReceived(PointWorldCoord position, float orientation);
 private:    
     ProcessHandler processHandler;
     EventCounter eventCounter;

@@ -57,8 +57,9 @@ MainMapWindow::MainMapWindow(QWidget *parent) : QMainWindow(parent) {
     QObject::connect(dataHandler.get(), &DataHandler::changeInfo, this, &MainMapWindow::changeInfo);
     QObject::connect(dataHandler.get(), &DataHandler::MessageToLog, this, &MainMapWindow::newMessageToLog);
 
-    QObject::connect(dataHandler.get(), &DataHandler::openTLW, this, &MainMapWindow::openTLW);
-    QObject::connect(dataHandler.get(), &DataHandler::closeTLW, this, &MainMapWindow::closeTLW);
+
+    QObject::connect(dataHandler.get(), &DataHandler::trafficLightHide, this, &MainMapWindow::closeTLW);
+    QObject::connect(dataHandler.get(), &DataHandler::trafficLightShow, this, &MainMapWindow::trafficLightClick);
 
     // connect message parsed event
     QObject::connect(&MessageParser::getInstance(), &MessageParser::messageParsed, dataHandler.get(), &DataHandler::MessageReceived);
@@ -77,16 +78,14 @@ MainMapWindow::MainMapWindow(QWidget *parent) : QMainWindow(parent) {
     gpsThread.start();
 
     processHandler.startLoading();
+    //processHandler.startReceiving();
     eventCounter.messagesSize = dataHandler->allMessages.size();
 
     statusBar()->showMessage(tr("Ready"));
 }
-void MainMapWindow::handleGPSData(float longitude, float latitude){
-    qInfo() << "Longitude: " << longitude << "latitude: " << latitude;
-
+void MainMapWindow::handleGPSData(float longitude, float latitude, float orientation){
     PointWorldCoord GPSPosition = PointWorldCoord(longitude, latitude);
-
-    emit GPSPositionReceived(GPSPosition);
+    emit GPSPositionReceived(GPSPosition, orientation);
 }
 void MainMapWindow::startReceivingMessages(){
     this->dataHandler->clearData();
@@ -469,10 +468,10 @@ void MainMapWindow::toogleInfo(bool open){
 }
 void MainMapWindow::closeTLW(){
     trafficLightsW->setVisible(false);
+    removeTrafficLights();
     currentDisplayedStructIndex = -1;
 }
 void MainMapWindow::openTLW(){
-    qInfo() << "HURRA";
     trafficLightsW->setVisible(true);
 }
 

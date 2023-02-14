@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <sys/time.h>
+#include <QQueue>
 
 #include "visualizer.h"
 #include "message.h"
@@ -16,6 +17,7 @@
 struct GPSInfo {
     float longitude;
     float latitude;
+    float orientation;
     struct timeval lastUpdate;
 };
 
@@ -67,6 +69,8 @@ public:
     QVector <std::shared_ptr<Denm>> denmMessages;
 
     Cam * currentInfoStation = nullptr;
+    Mapem * currentCrossroad = nullptr;
+    bool trafficLightShown = false;
 
     QVector <TrafficLightStruct> trafficLightStructVector;
 
@@ -74,13 +78,13 @@ public:
 
     bool autoModeOn = true;
 
-    void GPSPositionReceived(PointWorldCoord position);
+    void GPSPositionReceived(PointWorldCoord position, float orientation);
 
     Mapem * getClosestCrossroad();
 
 signals:
-    void openTLW();
-    void closeTLW();
+    void trafficLightShow(int crossroadID, int adjacentIngressLanesIndex, bool sameTrafficLight);
+    void trafficLightHide();
     void changeInfo(long stationID);
     void MessageToLog(std::shared_ptr<Message> message);
 
@@ -95,6 +99,7 @@ public slots:
     void handleCrossroadProximity();
 private:
     Visualizer * visualizer;
+    QQueue <GPSInfo> gpsHistory;
 };
 
 #endif // DATAHANDLER_H

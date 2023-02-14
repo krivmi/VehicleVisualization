@@ -17,7 +17,7 @@ public:
 public slots:
     void trackGPS();
 signals:
-    void resultReady(float longitude, float latitude);
+    void resultReady(float longitude, float latitude, float orientation);
 private:
     bool m_running = false;
 };

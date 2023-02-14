@@ -59,8 +59,8 @@ void Visualizer::addTrafficLight(Mapem * crossroad, std::shared_ptr<GeometryPoin
     // image is set to the first lane if the traffic lights have the same signal group
     Lane lane = crossroad->adjacentIngressLanes[adjacentIngressLanesIndex][0];
 
-    PointWorldCoord ptFrom = this->getFirstPointOfLane(lane, crossroad->refPoint);
-    PointWorldCoord ptTo = this->getLastPointOfLane(lane, crossroad->refPoint);
+    PointWorldCoord ptFrom = Mapem::getFirstPointOfLane(lane, crossroad->refPoint);
+    PointWorldCoord ptTo = Mapem::getLastPointOfLane(lane, crossroad->refPoint);
 
     //visualizer->drawPoint(ptFrom, QColor(230, 180, 230), QSize(15.0, 15.0));
     //visualizer->drawPoint(ptTo, QColor(50, 180, 230), QSize(15.0, 15.0));
@@ -173,20 +173,11 @@ long Visualizer::getConnectedLaneID(ConnectingLane lane, QVector <Lane> lanes){
     }
     return foundLaneId;
 }
-PointWorldCoord Visualizer::getFirstPointOfLane(Lane lane, PointWorldCoord refPoint){
-    qreal f_long = refPoint.longitude() + (qreal)lane.nodes[0].x / 10000000.0;
-    qreal f_lat = refPoint.latitude() + (qreal)lane.nodes[0].y / 10000000.0;
-    return PointWorldCoord(f_long, f_lat);
-}
-PointWorldCoord Visualizer::getLastPointOfLane(Lane lane, PointWorldCoord refPoint){
-    qreal f_long = refPoint.longitude() + (float)lane.nodes[1].x / 10000000.0;
-    qreal f_lat = refPoint.latitude() + (float)lane.nodes[1].y / 10000000.0;
-    return PointWorldCoord(f_long, f_lat);
-}
+
 void Visualizer::drawLanesConnections(QVector<Lane> lanes, PointWorldCoord refPoint, QColor color){
     for (int i = 0; i < lanes.size(); i++){
         // get the first point of the crossroad lane (thus the starting point)
-        PointWorldCoord ptFrom = getFirstPointOfLane(lanes[i], refPoint);
+        PointWorldCoord ptFrom = Mapem::getFirstPointOfLane(lanes[i], refPoint);
 
         // find all the connection lines connected to the line[i]
         for (int j = 0; j < lanes[i].connectingLanes.size(); j++){
@@ -195,7 +186,7 @@ void Visualizer::drawLanesConnections(QVector<Lane> lanes, PointWorldCoord refPo
 
             if(connectedLaneId >= 0){
                 Lane connectionLane = getLaneByID(connectedLaneId, lanes);
-                PointWorldCoord ptTo = getFirstPointOfLane(connectionLane, refPoint);
+                PointWorldCoord ptTo = Mapem::getFirstPointOfLane(connectionLane, refPoint);
 
                 std::vector<PointWorldCoord> raw_points;
                 raw_points.emplace_back(ptFrom);

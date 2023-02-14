@@ -455,6 +455,7 @@ resources/qrc_Resources.cpp: ../../../Samples/resources/Resources.qrc \
 		../../../Samples/resources/images/pause.png \
 		../../../Samples/resources/images/navigationBlue.png \
 		../../../Samples/resources/images/close.png \
+		../../../Samples/resources/images/SREM_icon.png \
 		../../../Samples/resources/images/tram_black.png \
 		../../../Samples/resources/images/play.png \
 		../../../Samples/resources/images/tram.png \
