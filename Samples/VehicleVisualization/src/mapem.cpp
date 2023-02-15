@@ -49,14 +49,14 @@ int Mapem::findAdjIngVehLaneByOrientation(float orientation){
         if(deg < 0){ deg = 360 - deg; }
 
         float diff = abs(orientation - deg);
-        qInfo() << "Lane or: " << deg << "orientation: " << orientation << "diff: " << diff;
+        //qInfo() << "Lane or: " << deg << "orientation: " << orientation << "diff: " << diff;
 
         if(diff < minimalDifference){
             minimalDifference = diff;
             index = i;
         }
     }
-    qInfo() << "Winner Minimal diff: " << minimalDifference;
+    //qInfo() << "Winner Minimal diff: " << minimalDifference;
     return index;
 }
 
@@ -147,7 +147,7 @@ QVector <QPair<int, QVector<SignalGroupInfo>>> Mapem::getLaneSignalGroupsVector(
         }
 
         for (int j = 0; j < signalGroupPairVector.size(); j++){
-            qInfo() << &currentPair.first << ", " << &signalGroupPairVector[j].first;
+            //qInfo() << &currentPair.first << ", " << &signalGroupPairVector[j].first;
 
             if(&signalGroupPairVector[i].first == &signalGroupPairVector[j].first /*|| iteratedGroups.contains(signalGroupPairVector[j].first)*/){
                 continue;

@@ -9,9 +9,7 @@ ProcessHandler::ProcessHandler(QObject *parent): QObject{parent}
 {
     this->fileChanged = false;
     //this->currentFile = "/home/krivmi/QT_projects/QMapControl/Samples/resources/trafficFiles/ukazka_80211p.pcap";
-
     this->currentFile = "/home/krivmi/QT_projects/QMapControl/Samples/resources/trafficFiles/capture_X1_02.pcap";
-
 }
 int ProcessHandler::startReceiving(){
     //QString cmd2 = "/bin/sh -c \"echo krivanek | sudo -S stdbuf -i0 -o0 -e0 tshark -i hwsim0 -T json"; //
@@ -25,8 +23,8 @@ int ProcessHandler::startReceiving(){
         MessageParser::getInstance().findMessagesInStream((QString)receiveDataProcess.readAllStandardOutput());
     });
     QObject::connect(&receiveDataProcess, &QProcess::readyReadStandardError, [=]{
-        //qDebug() << "read error";
-        qDebug() << receiveDataProcess.readAllStandardError();
+        //qDebug() << receiveDataProcess.readAllStandardError();
+        emit error(receiveDataProcess.readAllStandardError());
     });
 
     receiveDataProcess.start(cmd2);

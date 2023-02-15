@@ -31,7 +31,7 @@ class Visualizer : public QObject
 public:
     Visualizer(QMapControl * mapWidget);
 
-    std::shared_ptr<LayerGeometry> custom_layer;
+
     std::shared_ptr<GeometryPointImageScaled> GPSpositionPoint;
 
     void visualizeCrossroad();
@@ -58,8 +58,8 @@ public:
 
     void updateGPSPositionPoint(PointWorldCoord position);
     void drawGPSPositionPoint(PointWorldCoord position);
-    void darkenGPSPositionPoint();
     void removeGPSPositionPoint();
+    void removeAllGeometries(bool deletePointGPS);
 
     void drawBoundingBox(RectWorldCoord rect, Cam * cam);
 
@@ -74,6 +74,8 @@ private:
     QPen pointPen;
     QPen linePen;
 
+    std::shared_ptr<LayerGeometry> custom_layer;
+    std::shared_ptr<LayerGeometry> navigation_layer;
 
 };
 

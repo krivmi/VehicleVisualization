@@ -4,6 +4,7 @@
 #include "message.h"
 
 #include "QVector"
+#include "QTime"
 #include <QMapControl/QMapControl.h>
 #include <QMapControl/LayerGeometry.h>
 #include <QMapControl/GeometryPointImage.h>
@@ -38,6 +39,7 @@ class Cam: public Message {
         bool fogLightOn;
         bool parkingLightsOn;
         double timeEpoch; // last update
+        QTime lastSremUpdate;
 
         QString typeStr;
         QString imgSrc;

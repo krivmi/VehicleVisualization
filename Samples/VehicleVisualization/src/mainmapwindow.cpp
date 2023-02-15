@@ -47,6 +47,7 @@ MainMapWindow::MainMapWindow(QWidget *parent) : QMainWindow(parent) {
     setupMainLayout();
 
     QObject::connect(m_map_control, &QMapControl::recenterGPSPoint, this, &MainMapWindow::recenterGPSPoint);
+    QObject::connect(m_map_control, &QMapControl::scrollViewChangedByMouse, this, &MainMapWindow::focusPointChanged);
 
     visualizer = std::make_shared<Visualizer>(m_map_control);
     QObject::connect(visualizer.get(), &Visualizer::unitClick, this, &MainMapWindow::unitClicked);
@@ -67,6 +68,7 @@ MainMapWindow::MainMapWindow(QWidget *parent) : QMainWindow(parent) {
     QObject::connect(this, &MainMapWindow::GPSPositionReceived, dataHandler.get(), &DataHandler::GPSPositionReceived);
 
     QObject::connect(&eventCounter, &EventCounter::messageShow, dataHandler.get(), &DataHandler::messagePlay);
+    QObject::connect(&eventCounter, &EventCounter::messageShow, this, &MainMapWindow::messageEmitted);
     QObject::connect(&eventCounter, &EventCounter::messagesPlayed, this, &MainMapWindow::messagesPlayed);
 
     tracker = new GPSTracker();
@@ -77,11 +79,18 @@ MainMapWindow::MainMapWindow(QWidget *parent) : QMainWindow(parent) {
     QObject::connect(tracker, &GPSTracker::resultReady, this, &MainMapWindow::handleGPSData);
     gpsThread.start();
 
-    processHandler.startLoading();
-    //processHandler.startReceiving();
-    eventCounter.messagesSize = dataHandler->allMessages.size();
+    QObject::connect(&processHandler, &ProcessHandler::error, this, &MainMapWindow::handleError);
 
-    statusBar()->showMessage(tr("Ready"));
+    processHandler.startLoading();
+    eventCounter.setMessageSize(dataHandler->allMessages.size());
+}
+void MainMapWindow::focusPointChanged(){
+    if(dataHandler->autoModeOn){
+        toggleFollowGPS(false);
+    }
+}
+void MainMapWindow::handleError(QString error){
+    statusBar()->showMessage("Error: " + error);
 }
 void MainMapWindow::handleGPSData(float longitude, float latitude, float orientation){
     PointWorldCoord GPSPosition = PointWorldCoord(longitude, latitude);
@@ -132,12 +141,15 @@ void MainMapWindow::toogleGPS()
 }
 void MainMapWindow::modeSelected(QAction* action){
     if(action == mode_manual){
-        statusBar()->showMessage("Mode manual...");
+        // stop following GPS point
         toggleFollowGPS(false);
+        // show top bar
         topBar->setVisible(true);
+
         dataHandler->autoModeOn = false;
+
+        statusBar()->showMessage("Mode manual...");
     } else if(mode_auto){
-        statusBar()->showMessage("Mode auto...");
         topBar->setVisible(false);
 
         // start GPS
@@ -145,12 +157,27 @@ void MainMapWindow::modeSelected(QAction* action){
             toogleGPS();
         }
 
+        // clear data from playing
+        eventCounter.reset();
+        eventCounter.setMessageSize(0);
+        eventCounter.newPlayingCycle = true;
+
+        // clear data on canvas
+        visualizer->removeAllGeometries(false);
+
+        dataHandler->clearData();
+        deleteLogWidgets();
+        lblFileName->setText("Current file: none");
+
+        // start auto mode for crossroads
+        dataHandler->autoModeOn = true;
+
         // start following GPS
         toggleFollowGPS(true);
 
-        // clear data from playing
-        dataHandler->clearData();
-        dataHandler->autoModeOn = true;
+        // start receiving process
+        processHandler.startReceiving();
+        statusBar()->showMessage("Mode auto, GPS started, receiving started...");
     } else {
         qInfo() << "Something went wrong";
     }
@@ -246,9 +273,13 @@ void MainMapWindow::setupTopBar(){
     //btn_resetPlaying->setFont(QFont("Verdana", 12));
     QObject::connect(btn_resetPlaying, &QPushButton::clicked, this, &MainMapWindow::resetPlaying);
 
-    lb_file = new QLabel("Current file: " + getFileNameFromPath(processHandler.currentFile));
-    lb_file->setMaximumHeight(40);
-    lb_file->setFont(QFont("Verdana", 12));
+    lblFileName = new QLabel("Current file: " + getFileNameFromPath(processHandler.currentFile));
+    lblFileName->setFont(QFont("Verdana", 12));
+
+    lblMessageIndex = new QLabel("Message: 0");
+    lblMessageIndex->setAlignment(Qt::AlignCenter);
+    lblMessageIndex->setMaximumWidth(130);
+    lblMessageIndex->setFont(QFont("Verdana", 12));
 
     QLabel * line1 = new QLabel();
     line1->setStyleSheet("border: 1px solid gray");
@@ -256,13 +287,18 @@ void MainMapWindow::setupTopBar(){
     QLabel * line2 = new QLabel();
     line2->setStyleSheet("border: 1px solid gray");
     line2->setFixedWidth(1);
+    QLabel * line3 = new QLabel();
+    line3->setStyleSheet("border: 1px solid gray");
+    line3->setFixedWidth(1);
 
     topBarLayout->addWidget(btn_play);
     topBarLayout->addWidget(btn_nextMsg);
     topBarLayout->addWidget(line1);
     topBarLayout->addWidget(btn_resetPlaying);
     topBarLayout->addWidget(line2);
-    topBarLayout->addWidget(lb_file);
+    topBarLayout->addWidget(lblMessageIndex);
+    topBarLayout->addWidget(line3);
+    topBarLayout->addWidget(lblFileName);
 
 }
 void MainMapWindow::setupLeftMiddleLayout(){
@@ -563,6 +599,7 @@ void MainMapWindow::newMessageToLog(std::shared_ptr<Message> message){
           widget = tmp;
           break;
       }
+      // problem je ten, že se vytvoří jedna stanice, ale pro jednu stanici muze být více DENM zpráv - musím si o tom více načíst
     }
     // if the widget with the corresponding station number is in the list
     if(widget == nullptr){ // add
@@ -632,12 +669,15 @@ void MainMapWindow::logUnitClicked(std::shared_ptr <Message> message){
     QString protocol = message->GetProtocol();
 
     if(protocol != "Cam" && protocol != "Mapem" && protocol != "Denm"){
-        qInfo() << "Not a good protocol";
+        //qInfo() << "Not a good protocol";
         return;
     }
 
     m_map_control->setMapFocusPoint(PointWorldCoord(message->longitude, message->latitude));
 
+}
+void MainMapWindow::messageEmitted(int index){
+    lblMessageIndex->setText("Message: " + QString::number(index));
 }
 void MainMapWindow::resetPlaying(){
     eventCounter.reset();
@@ -656,6 +696,10 @@ void MainMapWindow::messagesPlayed(){
 void MainMapWindow::tooglePlay(){
     if(!eventCounter.isRunning()){
         if(eventCounter.areMessagesPlayed()){
+            if(eventCounter.messagesNotSet() && !eventCounter.newPlayingCycle){
+               statusBar()->showMessage("You have to load a file...");
+               return;
+            }
             playMessages();
         }
         //btn_play->setText("Stop playing");
@@ -670,12 +714,21 @@ void MainMapWindow::tooglePlay(){
 
 }
 void MainMapWindow::playNextMessage(){
+    if(!eventCounter.isRunning()){
+        if(eventCounter.areMessagesPlayed()){
+            if(eventCounter.messagesNotSet()){
+               statusBar()->showMessage("You have to load a file...");
+               return;
+            }
+        }
+    }
     eventCounter.tick();
 }
 
 void MainMapWindow::playMessages(){
+    eventCounter.newPlayingCycle = false;
 
-    visualizer->custom_layer->clearGeometries();
+    visualizer->removeAllGeometries(false);
     dataHandler->deleteCamUnits();
     dataHandler->deleteMapemUnits();
     dataHandler->deleteSpatemMessages();
@@ -691,10 +744,10 @@ void MainMapWindow::playMessages(){
 
         statusBar()->showMessage("Loading messages...");
         processHandler.startLoading();
-        eventCounter.messagesSize = dataHandler->allMessages.size();
+        eventCounter.setMessageSize(dataHandler->allMessages.size());
         statusBar()->showMessage("Messages loaded...");
 
-        visualizer->custom_layer->clearGeometries();
+        visualizer->removeAllGeometries(false);
         dataHandler->deleteCamUnits();
         dataHandler->deleteMapemUnits();
         dataHandler->deleteSpatemMessages();
@@ -719,7 +772,8 @@ void MainMapWindow::openFile(){
         qInfo() << fileName;
         processHandler.fileChanged = true;
         processHandler.currentFile = fileName;
-        lb_file->setText("Current file: " + getFileNameFromPath(fileName));
+        eventCounter.newPlayingCycle = true;
+        lblFileName->setText("Current file: " + getFileNameFromPath(fileName));
     }
 
 }
@@ -779,8 +833,12 @@ void MainMapWindow::recenterGPSPoint(){
         //qInfo() << "You have to start GPS";
         return;
     }
-    if(dataHandler->gpsInfo.latitude != -1 && dataHandler->gpsInfo.longitude != -1){
-        m_map_control->setMapFocusPointAnimated(PointWorldCoord(dataHandler->gpsInfo.longitude, dataHandler->gpsInfo.latitude));
+    if(dataHandler->gpsInfo.latitude != -1 && dataHandler->gpsInfo.longitude != -1){        
+        m_map_control->setMapFocusPoint(PointWorldCoord(dataHandler->gpsInfo.longitude, dataHandler->gpsInfo.latitude));
+
+        if(dataHandler->autoModeOn){
+            toggleFollowGPS(true);
+        }
     } else {
         statusBar()->showMessage("No valid data...");
     }

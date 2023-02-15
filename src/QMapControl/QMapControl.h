@@ -625,12 +625,19 @@ namespace qmapcontrol
          * */
         void mapFocusPointChanged(PointWorldCoord);
 
+        /**
+         * Signal emitted when the user changes the zoom
+         * */
         void zoomChanged(int zoom);
 
         /**
          * Signal emitted when the user wants to recenter GPS point
          * */
         void recenterGPSPoint();
+        /**
+         * Signal emitted when the scroll view is changed
+         * */
+        void scrollViewChangedByMouse();
     private:
         //! Disable copy constructor.
         QMapControl(const QMapControl&); /// @todo remove once MSVC supports default/delete syntax.

@@ -54,7 +54,10 @@ public slots:
     void tooglePlay();
     void playNextMessage();
     void messagesPlayed();
+    void messageEmitted(int index);
 
+    void handleError(QString error);
+    void focusPointChanged();
     void openTLW();
     void closeTLW();
     void changeInfo();
@@ -93,7 +96,8 @@ private:
     QPushButton * btnFollowGeometry;
     QTextEdit * infoTe;
     QLabel * typeTe;
-    QLabel * lb_file;
+    QLabel * lblFileName;
+    QLabel * lblMessageIndex;
 
     QVBoxLayout * logWidgetUnitsLayout;
     QVBoxLayout * mainAppLayout;

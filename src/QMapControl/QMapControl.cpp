@@ -695,6 +695,7 @@ namespace qmapcontrol
 
             // Tell the map control to move and zoom as required by pan ... mode.
             setMapFocusPoint(coords, true);
+
         }
         // Else, are we in select ... mode?
         else if(mouse_mode == QMapControl::MouseButtonMode::SelectBox ||
@@ -830,6 +831,9 @@ namespace qmapcontrol
 
             // Update the left mouse pressed location.
             m_mouse_position_pressed_px = m_mouse_position_current_px;
+
+            // Emit that scrollView was changed by mouse
+            emit scrollViewChangedByMouse();
         }
 
         // Schedule a repaint to remove any potential screen artifacts.
@@ -1210,7 +1214,7 @@ namespace qmapcontrol
 
         // Set the geometries of the follow button
         const int follow_btn_size = 32;
-        qInfo() << this->height();
+        //qInfo() << this->height();
         m_recenter_GPS_point_button.setGeometry(margin_left, m_viewport_size_px.height() - follow_btn_size - margin - 100, follow_btn_size, follow_btn_size);
         m_recenter_GPS_point_button.setIconSize(QSize(32, 32));
         m_recenter_GPS_point_button.setStyleSheet("border: none");

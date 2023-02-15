@@ -26,7 +26,6 @@ HEADERS +=                      \
     src/processhandler.h \
     src/spatem.h \
     src/srem.h \
-    src/tools.h \
     src/trafficlightwidget.h \
     src/visualizer.h
 
@@ -47,7 +46,6 @@ SOURCES +=                      \
     src/processhandler.cpp \
     src/spatem.cpp \
     src/srem.cpp \
-    src/tools.cpp \
     src/trafficlightwidget.cpp \
     src/visualizer.cpp
 

@@ -46,7 +46,10 @@ void DataHandler::MessageReceived(std::shared_ptr<Message> message){
     }
     else{ qInfo() << "Something went wrong"; }
 
-    this->addMessage(message);
+    if(true /* !autoModeOn*/){
+        this->addMessage(message);
+    }
+
     emit MessageToLog(message);
 }
 void DataHandler::clearData(){
@@ -174,7 +177,7 @@ Mapem * DataHandler::getClosestCrossroad(){
 
 
     if(minDistance < 60.0){
-        qInfo() << crossroad;
+        //qInfo() << crossroad;
         return crossroad;
     } else {
         return nullptr;
@@ -183,7 +186,6 @@ Mapem * DataHandler::getClosestCrossroad(){
 
 void DataHandler::MAPEMReceived(std::shared_ptr<Mapem> newMapem){
     Mapem * oldMapem = getMapemByCrossroadID(newMapem->crossroadID);
-    qInfo() << "Mapem";
 
     if(oldMapem == nullptr){
         this->addMapemUnit(newMapem);
@@ -207,7 +209,7 @@ void DataHandler::SPATEMReceived(std::shared_ptr<Spatem> newSPATEM){
     // check if the same SPATEM has been already received
 
     if(oldSpatem != nullptr) {
-        qInfo() << "the same SPATEM has been already received";
+        //qInfo() << "the same SPATEM has been already received";
         return;
     }
 
@@ -249,8 +251,34 @@ void DataHandler::SPATEMReceived(std::shared_ptr<Spatem> newSPATEM){
     }
 }
 void DataHandler::SREMReceived(std::shared_ptr<Srem> newSrem){
-    qInfo() << "SREM received";
+    Cam * senderCam = getCamUnitByID(newSrem->requestorID);
+
+    if(senderCam != nullptr){
+        qInfo() << "Sender found";
+        //cam->geometryPoint->setImage(); // TODO - update shape to !!!
+        senderCam->lastSremUpdate = QTime::currentTime();
+        QTimer::singleShot(1000 * 10 + 500, this, SLOT(updateCamBySREM()));
+    }
+
+    //qInfo() << "SREM received";
 }
+void DataHandler::updateCamBySREM(){
+    Cam * cam;
+    if(!cam->lastSremUpdate.isNull()){ // TODO test this
+        QTime now = QTime::currentTime();
+        int diff = cam->lastSremUpdate.secsTo(now);
+
+        if(diff >= 10){
+            cam->lastSremUpdate = QTime(); // set to null
+            //cam->geometryPoint->setImage(); // TODO - update shape back
+
+
+        } else {
+            QTimer::singleShot(1000 * diff + 500, this, SLOT(updateCamBySREM()));
+        }
+    }
+}
+
 void DataHandler::DENMReceived(std::shared_ptr<Denm> newDENM){
 
     Denm * oldDenm = getDenmByTimeAndCode(newDENM->detectionTime, newDENM->causeCode);

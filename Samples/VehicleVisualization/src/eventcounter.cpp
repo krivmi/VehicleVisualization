@@ -43,10 +43,14 @@ void EventCounter::reset(){
     messagesPlayedFlag = true;
     messagesIndex = 0;
 }
-
+void EventCounter::setMessageSize(int size){
+    messagesSize = size;
+}
+bool EventCounter::messagesNotSet(){
+    return messagesSize == 0;
+}
 void EventCounter::tick()
 {
-
     // Emit next message
     if(messagesIndex < messagesSize){
         emit messageShow(messagesIndex);

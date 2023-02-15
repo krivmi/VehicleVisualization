@@ -9,7 +9,9 @@ Visualizer::Visualizer(QMapControl * mapWidget)
 
     // Vytvoření vlastní vrstvy bodů pro zobrazení vozidel
     custom_layer = std::make_shared<LayerGeometry>("Custom Layer");
+    navigation_layer = std::make_shared<LayerGeometry>("Navigation Layer");
     m_map_control->addLayer(custom_layer);
+    m_map_control->addLayer(navigation_layer);
 
     // Connect click events of the layer to this object.
     QObject::connect(custom_layer.get(), &LayerGeometry::geometryClicked, this, &Visualizer::geometryClickEvent);
@@ -37,7 +39,6 @@ void Visualizer::drawLane(Lane & lane, std::vector <PointWorldCoord> points, QCo
     lane.laneMapPtr = std::make_shared<GeometryLineString>(points);
     lane.laneMapPtr->setPen(linePen);
     custom_layer->addGeometry(lane.laneMapPtr);
-    qInfo() << "Lane: " << lane.laneMapPtr.get();
 
     if(drawPointsOfLane){
         for(int i = 0; i < points.size(); i++){
@@ -50,6 +51,15 @@ void Visualizer::drawLane(Lane & lane, std::vector <PointWorldCoord> points, QCo
             lane.lanePointsVectorPtr.append(nodePoint);
         }
     }
+}
+void Visualizer::removeAllGeometries(bool deletePointGPS){
+    custom_layer->clearGeometries();
+
+    if(deletePointGPS){
+        navigation_layer->clearGeometries();
+    }
+    // I have to redraw canvas, do not know why
+    m_map_control->requestRedraw();
 }
 void Visualizer::removeGeometry(const std::shared_ptr<Geometry> & geometry){
     custom_layer->removeGeometry(geometry);
@@ -104,7 +114,7 @@ void Visualizer::addTrafficLight(Mapem * crossroad, std::shared_ptr<GeometryPoin
     geometryPoint->setMetadata("crossroadID", QVariant::fromValue(crossroad->crossroadID));
     geometryPoint->setMetadata("adjacentIngressLanesIndex", QVariant::fromValue(adjacentIngressLanesIndex));
     geometryPoint->setMetadata("sameTrafficLight", QVariant::fromValue(sameTrafficLight));
-    geometryPoint->setZIndex(1);
+    geometryPoint->setZIndex(2);
     custom_layer->addGeometry(geometryPoint);
 }
 
@@ -217,6 +227,7 @@ void Visualizer::addCamStationToLayer(Cam * cam){
     cam->geometryPoint = std::make_shared<GeometryPointImageScaled>(cam->refPoint, cam->imgSrc, 19);
     //cam->point = std::make_shared<GeometryPointCircle>(cam->refPoint);
     //custom_layer->addGeometry(cam->point);
+    cam->geometryPoint->setZIndex(2);
     cam->geometryPoint->setMetadata("id", QVariant::fromValue(cam->stationID));
     cam->geometryPoint->setMetadata("name", "cam");
     custom_layer->addGeometry(cam->geometryPoint);
@@ -297,13 +308,10 @@ void Visualizer::updateGPSPositionPoint(PointWorldCoord position){
 }
 void Visualizer::drawGPSPositionPoint(PointWorldCoord position){
     GPSpositionPoint = std::make_shared<GeometryPointImageScaled>(position, ":/resources/images/navigationBlue.png", 19);
-    custom_layer->addGeometry(GPSpositionPoint);
-}
-void Visualizer::darkenGPSPositionPoint(){
-    QPixmap newImage = QPixmap(":/resources/images/navigationGray.png");
-    GPSpositionPoint->setImage(newImage);
+    GPSpositionPoint->setZIndex(3);
+    navigation_layer->addGeometry(GPSpositionPoint);
 }
 void Visualizer::removeGPSPositionPoint(){
-    custom_layer->removeGeometry(GPSpositionPoint);
+    navigation_layer->removeGeometry(GPSpositionPoint);
     GPSpositionPoint = nullptr;
 }

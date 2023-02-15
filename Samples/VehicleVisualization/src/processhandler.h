@@ -19,10 +19,11 @@ public:
 
     bool fileChanged;
     QString currentFile;
+signals:
+    void error(QString error);
 private:
     QProcess receiveDataProcess;
     QProcess loadDataProcess;
-signals:
 
 };
 

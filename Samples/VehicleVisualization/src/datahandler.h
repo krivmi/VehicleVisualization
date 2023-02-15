@@ -97,6 +97,7 @@ public slots:
     void DENMReceived(std::shared_ptr<Denm> newDENM);
     void messagePlay(int index);
     void handleCrossroadProximity();
+    void updateCamBySREM();
 private:
     Visualizer * visualizer;
     QQueue <GPSInfo> gpsHistory;

@@ -18,11 +18,12 @@ public:
     void start();
     void stop();
     void reset();
+    void setMessageSize(int size);
     bool isRunning();
+    bool messagesNotSet();
     bool areMessagesPlayed();
-    //void setMessages(QVector <Message*> messages);
-    //void clearMessages();
-    int messagesSize = 0;
+
+    bool newPlayingCycle = true;
 
 public slots:
     void tick();
@@ -35,6 +36,7 @@ private:
     bool m_running = false;
     bool messagesPlayedFlag = true;
     int messagesIndex = 0;
+    int messagesSize = 0;
     int TPS = 10;
 
     //QVector <Message*> messages;
