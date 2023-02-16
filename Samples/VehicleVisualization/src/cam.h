@@ -2,6 +2,7 @@
 #define CAM_H
 
 #include "message.h"
+#include "srem.h"
 
 #include "QVector"
 #include "QTime"
@@ -40,9 +41,11 @@ class Cam: public Message {
         bool parkingLightsOn;
         double timeEpoch; // last update
         QTime lastSremUpdate;
+        bool isSrcAttention = false;
 
         QString typeStr;
-        QString imgSrc;
+        QString imgSrcDefault;
+        QString imgSrcAttention;
         PointWorldCoord refPoint;
         std::shared_ptr<GeometryPointImageScaled> geometryPoint; // musí být shared ptr
         std::shared_ptr<GeometryPoint> point; // musí být shared ptr
@@ -77,27 +80,33 @@ class Cam: public Message {
             } // ...TODO
 
             if(this->stationType == 5){
-                this->imgSrc = ":/resources/images/car_black.png";
+                this->imgSrcDefault = ":/resources/images/car_black.png";
+                this->imgSrcAttention = ":/resources/images/car_black.png";
                 this->typeStr = "Car";                
             }
             else if(this->stationType == 6){
-                this->imgSrc = ":/resources/images/bus_black.png";
+                this->imgSrcDefault = ":/resources/images/bus_black.png";
+                this->imgSrcAttention = ":/resources/images/bus_black.png";
                 this->typeStr = "Bus";
             }
             else if(this->stationType == 11){
-                this->imgSrc = ":/resources/images/tram_black.png";
+                this->imgSrcDefault = ":/resources/images/tram_black.png";
+                this->imgSrcAttention = ":/resources/images/tram_black_srem.png";
                 this->typeStr = "Tram";
             }
             else if(this->stationType == 15){ // ROAD SIDE UNIT
-                this->imgSrc = ":/resources/images/rsu_black.png";
+                this->imgSrcDefault = ":/resources/images/rsu_black.png";
+                this->imgSrcAttention = ":/resources/images/rsu_black.png";
                 this->typeStr = "RSU";
             }
             else if(this->stationType == 0){ // UNKNOWN
-                this->imgSrc = ":/resources/images/unknown_black.png";
+                this->imgSrcDefault = ":/resources/images/unknown_black.png";
+                this->imgSrcAttention = ":/resources/images/unknown_black.png";
                 this->typeStr = "Unknown";
             }
             else {
-                this->imgSrc = ":/resources/images/rsu_black.png";
+                this->imgSrcDefault = ":/resources/images/rsu_black.png";
+                this->imgSrcAttention = ":/resources/images/rsu_black.png";
                 this->typeStr = "Unknown";
                 throw std::invalid_argument("This station type is not known");
             }

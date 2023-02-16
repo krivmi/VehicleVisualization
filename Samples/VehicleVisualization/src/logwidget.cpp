@@ -87,7 +87,7 @@ QPixmap LogWidget::getPixmap(std::shared_ptr <Message> message){
     QString protocol = message->GetProtocol();
 
     if(protocol == "Cam"){
-        return QPixmap(std::static_pointer_cast<Cam>(message)->imgSrc);
+        return QPixmap(std::static_pointer_cast<Cam>(message)->imgSrcDefault);
     } else if(protocol == "Mapem"){
         return QPixmap(":/resources/images/crossroadIcon.png");
     } else if(protocol == "Spatem"){

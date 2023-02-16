@@ -22,34 +22,13 @@ public:
         this->subCauseCode = itsSubCauseCode;
         refPoint = PointWorldCoord(longitude, latitude);
 
-        if(this->causeCode == 94){
-            //this->imgSrc = ":/resources/images/car_black.png";
-            this->causeCodeStr = "Stationary vehicle";
-
-            if(this->subCauseCode == 4){
-                this->subCauseCodeStr = "On public transport stop";
-            }
-        }
-        else if(this->causeCode == 97){
-            //this->imgSrc = ":/resources/images/bus_black.png";
-            this->causeCodeStr = "Collision risk";
-
-            if(this->subCauseCode == 1){
-                this->subCauseCodeStr = "Longitudinal collision risk";
-            }
-        }
-        else {
-            //this->imgSrc = ":/resources/images/rsu_black.png";
-            this->causeCodeStr = "Unknown";
-            this->subCauseCodeStr = "Unknown";
-            //throw std::invalid_argument("This station type is not known");
-        }
+        getCauseCodeStrings();
     }
     long originatingStationID;
     int sequenceNumber;
     long detectionTime;
     long referenceTime;
-    bool termination;
+    bool termination; // for negation of DENM
     int causeCode;
     int subCauseCode;
     PointWorldCoord refPoint;
@@ -58,7 +37,7 @@ public:
 
     std::shared_ptr<GeometryPointImageScaled> geometryPoint;
 
-
+    void getCauseCodeStrings();
     QString GetProtocol() { return "Denm"; };
 };
 

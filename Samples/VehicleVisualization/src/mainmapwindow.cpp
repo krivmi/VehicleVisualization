@@ -70,6 +70,7 @@ MainMapWindow::MainMapWindow(QWidget *parent) : QMainWindow(parent) {
     QObject::connect(&eventCounter, &EventCounter::messageShow, dataHandler.get(), &DataHandler::messagePlay);
     QObject::connect(&eventCounter, &EventCounter::messageShow, this, &MainMapWindow::messageEmitted);
     QObject::connect(&eventCounter, &EventCounter::messagesPlayed, this, &MainMapWindow::messagesPlayed);
+    QObject::connect(&eventCounter, &EventCounter::playingStarted, this, &MainMapWindow::playingStarted);
 
     tracker = new GPSTracker();
     tracker->moveToThread(&gpsThread);
@@ -90,18 +91,27 @@ void MainMapWindow::focusPointChanged(){
     }
 }
 void MainMapWindow::handleError(QString error){
-    statusBar()->showMessage("Error: " + error);
+    statusBar()->showMessage("Receiving could not be started, error: " + error);
 }
 void MainMapWindow::handleGPSData(float longitude, float latitude, float orientation){
     PointWorldCoord GPSPosition = PointWorldCoord(longitude, latitude);
     emit GPSPositionReceived(GPSPosition, orientation);
 }
-void MainMapWindow::startReceivingMessages(){
-    this->dataHandler->clearData();
-    this->processHandler.startReceiving();
-    this->btn_play->setEnabled(false);
-}
+void MainMapWindow::toogleReceivingMessages(){
+    if(!receivingEnabled){
+        if(processHandler.startReceiving() == 0){
+            statusBar()->showMessage("Receiving started...");
+        } else {
+            receivingEnabled = true;
+            btn_toogle_receiving->setText("Stop receiving");
+        }
+    } else {
+        receivingEnabled = false;
+        btn_toogle_receiving->setText("Start receiving");
 
+        processHandler.stopReceiving();
+    }
+}
 void MainMapWindow::setupMaps(){
     m_map_control = new QMapControl(QSizeF(1280.0f, 640.0f));
     //m_map_control = new QMapControl(QSizeF(1520.0, 740.0));
@@ -112,19 +122,6 @@ void MainMapWindow::setupMaps(){
     // nastavení bodu zaměření a přiblížení na Ostravu
     m_map_control->setMapFocusPoint(PointWorldCoord(18.284743, 49.838337));
     m_map_control->setZoom(18);
-    /*
-    // SETUP MINI MAP
-    miniMap = new QMapControl(QSizeF(200.0, 200.0));
-    miniMap->enableZoomControls(false);
-    //miniMap->setStyleSheet("border: 5px solid blue");
-
-    // layer pro openstreet mapy
-    miniMap->addLayer(std::make_shared<LayerMapAdapter>("Map", std::make_shared<MapAdapterOSM>()));
-
-    // nastavení bodu zaměření a přiblížení na Ostravu
-    miniMap->setMapFocusPoint(PointWorldCoord(18.29500961303711, 49.84304428100586));
-    miniMap->setZoom(16);
-    */
 }
 void MainMapWindow::toogleGPS()
 {
@@ -168,6 +165,7 @@ void MainMapWindow::modeSelected(QAction* action){
         dataHandler->clearData();
         deleteLogWidgets();
         lblFileName->setText("Current file: none");
+        lblMessageIndex->setText("Messages: 0");
 
         // start auto mode for crossroads
         dataHandler->autoModeOn = true;
@@ -275,6 +273,7 @@ void MainMapWindow::setupTopBar(){
 
     lblFileName = new QLabel("Current file: " + getFileNameFromPath(processHandler.currentFile));
     lblFileName->setFont(QFont("Verdana", 12));
+    lblFileName->setContentsMargins(15, 0, 0, 0);
 
     lblMessageIndex = new QLabel("Message: 0");
     lblMessageIndex->setAlignment(Qt::AlignCenter);
@@ -322,11 +321,11 @@ void MainMapWindow::setupLeftMiddleLayout(){
     //btnToogleGPS->setStyleSheet("border: none");
     QObject::connect(btnToogleGPS, &QPushButton::clicked, this, &MainMapWindow::toogleGPS);
 
-    btn_start_receiving = new QPushButton("Start\nreceiving");
-    btn_start_receiving->setMinimumSize(80, 80);
+    btn_toogle_receiving = new QPushButton("Start\nreceiving");
+    btn_toogle_receiving->setMinimumSize(80, 80);
     //btn_start_receiving->setMaximumHeight(20);
-    btn_start_receiving->setFont(QFont("Verdana", 12));
-    QObject::connect(btn_start_receiving, &QPushButton::clicked, this, &MainMapWindow::startReceivingMessages);
+    btn_toogle_receiving->setFont(QFont("Verdana", 12));
+    QObject::connect(btn_toogle_receiving, &QPushButton::clicked, this, &MainMapWindow::toogleReceivingMessages);
 
     QWidget * logWidget = new QWidget();
     //logWidget->setMaximumHeight(400);
@@ -365,7 +364,7 @@ void MainMapWindow::setupLeftMiddleLayout(){
     logWidgetLayout->addWidget(techScroll);
 
     gpsToogleLayout->addWidget(btnToogleGPS);
-    gpsToogleLayout->addWidget(btn_start_receiving);
+    gpsToogleLayout->addWidget(btn_toogle_receiving);
 
     leftMiddleLayout->addWidget(gpsToogleWidget);
     leftMiddleLayout->addWidget(logWidget);
@@ -511,8 +510,8 @@ void MainMapWindow::openTLW(){
     trafficLightsW->setVisible(true);
 }
 
-void MainMapWindow::hazardClicked(long time, int code){
-    Denm * hazard = dataHandler->getDenmByTimeAndCode(time, code);
+void MainMapWindow::hazardClicked(long originatingStationID, int sequenceNumber){
+    Denm * hazard = dataHandler->getDenmByActionID(originatingStationID, sequenceNumber);
 
     if(hazard == nullptr){
         return;
@@ -592,15 +591,33 @@ void MainMapWindow::newMessageToLog(std::shared_ptr<Message> message){
     }
 
     LogWidget * widget = nullptr;
-    for (int i = 0; i < scrollVerticalLayout->count(); i++) {
-      LogWidget * tmp = (LogWidget*) scrollVerticalLayout->itemAt(i)->widget();
-      // if it has the same ID and has the same protocol
-      if (tmp->message->stationID == message->stationID && tmp->message->GetProtocol() == protocol) {
-          widget = tmp;
-          break;
-      }
-      // problem je ten, že se vytvoří jedna stanice, ale pro jednu stanici muze být více DENM zpráv - musím si o tom více načíst
+
+    if(protocol == "Denm"){
+        for (int i = 0; i < scrollVerticalLayout->count(); i++) {
+          LogWidget * tmp = (LogWidget*) scrollVerticalLayout->itemAt(i)->widget();
+
+          if(tmp->message->GetProtocol() == "Denm"){
+              std::shared_ptr <Denm> oldDenm = std::static_pointer_cast<Denm>(tmp->message);
+              std::shared_ptr <Denm> newDenm = std::static_pointer_cast<Denm>(message);
+
+              if (oldDenm->originatingStationID == newDenm->originatingStationID &&
+                      oldDenm->sequenceNumber == newDenm->sequenceNumber) {
+                  widget = tmp;
+                  break;
+              }
+          }
+        }
+    } else {
+        for (int i = 0; i < scrollVerticalLayout->count(); i++) {
+          LogWidget * tmp = (LogWidget*) scrollVerticalLayout->itemAt(i)->widget();
+          // if it has the same ID and has the same protocol (for RSUs that send both MAPEM and CAM)
+          if (tmp->message->stationID == message->stationID && tmp->message->GetProtocol() == protocol) {
+              widget = tmp;
+              break;
+          }
+        }
     }
+
     // if the widget with the corresponding station number is in the list
     if(widget == nullptr){ // add
         widget = new LogWidget();
@@ -610,7 +627,6 @@ void MainMapWindow::newMessageToLog(std::shared_ptr<Message> message){
         QObject::connect(widget, &LogWidget::lifeTimeExceeded, this, &MainMapWindow::unitLifeTimeExceeded);
     } else { // update
         widget->setWidgetInfo(message);
-
     }
 }
 void MainMapWindow::unitLifeTimeExceeded(std::shared_ptr<Message> message){
@@ -636,21 +652,42 @@ void MainMapWindow::unitLifeTimeExceeded(std::shared_ptr<Message> message){
         dataHandler->deleteMapemUnitByID(message->stationID);
     } else if(protocol == "Denm"){
         std::shared_ptr <Denm> hazard = std::static_pointer_cast<Denm>(message);
-        dataHandler->deleteDenmUnitByTimeAndCode(hazard->detectionTime, hazard->causeCode);
+        dataHandler->deleteDenmMessageByActionID(hazard->originatingStationID, hazard->sequenceNumber);
     }
 
-    deleteLogWidgetByID(message->stationID, message->GetProtocol());
+    deleteLogWidgetByMessage(message);
 }
-void MainMapWindow::deleteLogWidgetByID(long id, QString protocol){
+void MainMapWindow::deleteLogWidgetByMessage(std::shared_ptr<Message> message){
 
-    for (int i = 0; i < scrollVerticalLayout->count(); i++) {
-      LogWidget * tmp = (LogWidget*) scrollVerticalLayout->itemAt(i)->widget();
-      if (tmp->message->stationID == id && tmp->message->GetProtocol() == protocol) {
-          scrollVerticalLayout->removeWidget(tmp);
-          tmp->setVisible(false);
-          delete tmp;
-          break;
-      }
+    QString protocol = message->GetProtocol();
+
+    if(protocol == "Denm"){
+        for (int i = 0; i < scrollVerticalLayout->count(); i++) {
+            LogWidget * tmp = (LogWidget*) scrollVerticalLayout->itemAt(i)->widget();
+
+            if(tmp->message->GetProtocol() == "Denm"){
+                std::shared_ptr <Denm> oldDenm = std::static_pointer_cast<Denm>(tmp->message);
+                std::shared_ptr <Denm> newDenm = std::static_pointer_cast<Denm>(message);
+
+                if (oldDenm->originatingStationID == newDenm->originatingStationID &&
+                      oldDenm->sequenceNumber == newDenm->sequenceNumber) {
+                    scrollVerticalLayout->removeWidget(tmp);
+                    tmp->setVisible(false);
+                    delete tmp;
+                    break;
+                }
+            }
+        }
+    } else {
+        for (int i = 0; i < scrollVerticalLayout->count(); i++) {
+          LogWidget * tmp = (LogWidget*) scrollVerticalLayout->itemAt(i)->widget();
+          if (tmp->message->stationID == message->stationID && tmp->message->GetProtocol() == protocol) {
+              scrollVerticalLayout->removeWidget(tmp);
+              tmp->setVisible(false);
+              delete tmp;
+              break;
+          }
+        }
     }
 }
 
@@ -676,31 +713,48 @@ void MainMapWindow::logUnitClicked(std::shared_ptr <Message> message){
     m_map_control->setMapFocusPoint(PointWorldCoord(message->longitude, message->latitude));
 
 }
+void MainMapWindow::playingStarted(){
+    visualizer->removeAllGeometries(false);
+    dataHandler->currentInfoStation = nullptr;
+    dataHandler->clearUnitsAndMessages();
+
+    infoW->setVisible(false);
+    lblMessageIndex->setText("Messages: 0");
+
+    deleteLogWidgets();
+}
 void MainMapWindow::messageEmitted(int index){
-    lblMessageIndex->setText("Message: " + QString::number(index));
+    lblMessageIndex->setText("Message: " + QString::number(index + 1));
 }
 void MainMapWindow::resetPlaying(){
     eventCounter.reset();
-    messagesPlayed();
+
+    visualizer->removeAllGeometries(false);
     dataHandler->currentInfoStation = nullptr;
+    dataHandler->clearUnitsAndMessages();
+
     infoW->setVisible(false);
+    lblMessageIndex->setText("Messages: 0");
 
     deleteLogWidgets();
 
 }
 void MainMapWindow::messagesPlayed(){
     statusBar()->showMessage("Messages have been played...");
-    //btn_play->setText("Play messages");
     btn_play->setIcon(QIcon(":/resources/images/play.png"));
 }
 void MainMapWindow::tooglePlay(){
     if(!eventCounter.isRunning()){
         if(eventCounter.areMessagesPlayed()){
+            // check if the mode was switched and
             if(eventCounter.messagesNotSet() && !eventCounter.newPlayingCycle){
                statusBar()->showMessage("You have to load a file...");
                return;
             }
-            playMessages();
+            // play messages
+            eventCounter.newPlayingCycle = false;
+            eventCounter.start();
+            statusBar()->showMessage("Playing messages...");
         }
         //btn_play->setText("Stop playing");
         btn_play->setIcon(QIcon(":/resources/images/pause.png"));
@@ -716,45 +770,13 @@ void MainMapWindow::tooglePlay(){
 void MainMapWindow::playNextMessage(){
     if(!eventCounter.isRunning()){
         if(eventCounter.areMessagesPlayed()){
-            if(eventCounter.messagesNotSet()){
+            if(eventCounter.messagesNotSet() && !eventCounter.newPlayingCycle){
                statusBar()->showMessage("You have to load a file...");
                return;
             }
         }
     }
     eventCounter.tick();
-}
-
-void MainMapWindow::playMessages(){
-    eventCounter.newPlayingCycle = false;
-
-    visualizer->removeAllGeometries(false);
-    dataHandler->deleteCamUnits();
-    dataHandler->deleteMapemUnits();
-    dataHandler->deleteSpatemMessages();
-    dataHandler->deleteDenmMessages();
-
-    // if we changed the current file
-    if(processHandler.fileChanged){
-        resetPlaying();
-
-        processHandler.fileChanged = false;
-
-        dataHandler->deleteAllMessages();
-
-        statusBar()->showMessage("Loading messages...");
-        processHandler.startLoading();
-        eventCounter.setMessageSize(dataHandler->allMessages.size());
-        statusBar()->showMessage("Messages loaded...");
-
-        visualizer->removeAllGeometries(false);
-        dataHandler->deleteCamUnits();
-        dataHandler->deleteMapemUnits();
-        dataHandler->deleteSpatemMessages();
-        dataHandler->deleteDenmMessages();
-    }
-
-    statusBar()->showMessage("Playing messages...");
 }
 
 void MainMapWindow::resizeEvent(QResizeEvent * resize_event)
@@ -772,8 +794,60 @@ void MainMapWindow::openFile(){
         qInfo() << fileName;
         processHandler.fileChanged = true;
         processHandler.currentFile = fileName;
+/*
+        // clear data from playing
+        eventCounter.reset();
+        eventCounter.setMessageSize(0);
         eventCounter.newPlayingCycle = true;
+
+        // clear data on canvas
+        visualizer->removeAllGeometries(false);
+
+        dataHandler->clearData();
+        deleteLogWidgets();
+
         lblFileName->setText("Current file: " + getFileNameFromPath(fileName));
+        lblMessageIndex->setText("Message: 0");
+
+        // load messages here
+        statusBar()->showMessage("Loading messages...");
+        processHandler.startLoading();
+        eventCounter.setMessageSize(dataHandler->allMessages.size());
+        visualizer->removeAllGeometries(false);
+        dataHandler->deleteCamUnits();
+        dataHandler->deleteMapemUnits();
+        dataHandler->deleteSpatemMessages();
+        dataHandler->deleteDenmMessages();
+        deleteLogWidgets();
+        statusBar()->showMessage("Messages loaded...");
+
+        statusBar()->showMessage("Ready for playing...");
+        */
+
+        // clear data from playing
+        eventCounter.reset();
+        eventCounter.setMessageSize(0);
+        eventCounter.newPlayingCycle = true;
+
+        // display info status to user
+        lblFileName->setText("Current file: " + getFileNameFromPath(fileName));
+        lblMessageIndex->setText("Message: 0");
+
+        // delete all stored messages
+        dataHandler->deleteAllMessages();
+
+        // load messages here
+        statusBar()->showMessage("Loading messages...");
+        processHandler.startLoading();
+        eventCounter.setMessageSize(dataHandler->allMessages.size());
+
+        // delete messages so it can be sent again TODO - change
+        visualizer->removeAllGeometries(false);
+        dataHandler->clearUnitsAndMessages();
+
+        // delete log widgets
+        deleteLogWidgets();
+        statusBar()->showMessage("Messages loaded, ready for playing...");
     }
 
 }

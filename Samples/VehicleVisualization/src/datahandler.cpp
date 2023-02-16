@@ -14,7 +14,9 @@ DataHandler::DataHandler(Visualizer * visualizer, QWidget* parent) : QObject(par
     this->gpsInfo.latitude = -1;
 
     // create timer that is going to handle crossroad proximity every second
-    QTimer::singleShot(1000, this, SLOT(handleCrossroadProximity()));
+    //QTimer::singleShot(1000, this, SLOT(handleCrossroadProximity()));
+    handleCrossroadProximity();
+    checkCamsForSrem();
 }
 DataHandler::~DataHandler(){
     for(int i = 0; i < trafficLightStructVector.size(); i++){
@@ -58,6 +60,12 @@ void DataHandler::clearData(){
     deleteSpatemMessages();
     deleteDenmMessages();
     deleteAllMessages();
+}
+void DataHandler::clearUnitsAndMessages(){
+    deleteCamUnits();
+    deleteMapemUnits();
+    deleteSpatemMessages();
+    deleteDenmMessages();
 }
 void DataHandler::deleteCamUnits(){
     camUnits.clear();
@@ -218,8 +226,6 @@ void DataHandler::SPATEMReceived(std::shared_ptr<Spatem> newSPATEM){
     // find according crossroad for SPATEM
     Mapem * crossroad = getMapemByCrossroadID(newSPATEM->crossroadID);
 
-
-
     if(crossroad != nullptr){
         // get the time information of SPATEM
         int timeStamp = newSPATEM->timeStamp;
@@ -250,47 +256,53 @@ void DataHandler::SPATEMReceived(std::shared_ptr<Spatem> newSPATEM){
         }
     }
 }
+
 void DataHandler::SREMReceived(std::shared_ptr<Srem> newSrem){
     Cam * senderCam = getCamUnitByID(newSrem->requestorID);
 
     if(senderCam != nullptr){
-        qInfo() << "Sender found";
-        //cam->geometryPoint->setImage(); // TODO - update shape to !!!
+        QPixmap img(senderCam->imgSrcAttention);
+        senderCam->geometryPoint->setImage(img); // update shape to !!!
         senderCam->lastSremUpdate = QTime::currentTime();
-        QTimer::singleShot(1000 * 10 + 500, this, SLOT(updateCamBySREM()));
+        senderCam->isSrcAttention = true;
     }
 
     //qInfo() << "SREM received";
 }
-void DataHandler::updateCamBySREM(){
-    Cam * cam;
-    if(!cam->lastSremUpdate.isNull()){ // TODO test this
-        QTime now = QTime::currentTime();
-        int diff = cam->lastSremUpdate.secsTo(now);
+void DataHandler::checkCamsForSrem(){
+    //TODO - should I use mutex because of deleting?
+    for(int i = 0 ; i < camUnits.size(); i++){
+        if(!camUnits.at(i)->lastSremUpdate.isNull()){ // TODO test this
+            QTime now = QTime::currentTime();
+            int diff = camUnits.at(i)->lastSremUpdate.secsTo(now);
+            qInfo() << diff;
 
-        if(diff >= 10){
-            cam->lastSremUpdate = QTime(); // set to null
-            //cam->geometryPoint->setImage(); // TODO - update shape back
+            if(diff >= 10){
+                camUnits.at(i)->lastSremUpdate = QTime(); // set to null
+                camUnits.at(i)->isSrcAttention = false;
 
-
-        } else {
-            QTimer::singleShot(1000 * diff + 500, this, SLOT(updateCamBySREM()));
+                QPixmap img(camUnits.at(i)->imgSrcDefault);
+                camUnits.at(i)->geometryPoint->setImage(img); // update shape back
+            }
         }
     }
+    QTimer::singleShot(2000, this, SLOT(checkCamsForSrem()));
 }
-
 void DataHandler::DENMReceived(std::shared_ptr<Denm> newDENM){
 
-    Denm * oldDenm = getDenmByTimeAndCode(newDENM->detectionTime, newDENM->causeCode);
+    Denm * oldDenm = getDenmByActionID(newDENM->stationID, newDENM->sequenceNumber);
+
+    if(newDENM->termination){
+        // terminate denm
+    }
 
     if(oldDenm == nullptr){
         this->addDenmMessage(newDENM);
 
         visualizer->addDenmHazardToLayer(newDENM.get());
-
     }
     else {
-        //qInfo() << "This event message has been already received...";
+        // update denm
     }
 
 }
@@ -411,10 +423,10 @@ Mapem * DataHandler::getMapemUnitByID(long id){
     return nullptr;
 }
 
-Denm * DataHandler::getDenmByTimeAndCode(long detectionTime, int causeCode){
+Denm * DataHandler::getDenmByActionID(long stationID, int sequenceNumber){
     for(int i = 0; i < denmMessages.size(); i++){
-        if(denmMessages.at(i)->detectionTime == detectionTime &&
-                denmMessages.at(i)->causeCode == causeCode){
+        if(denmMessages.at(i)->originatingStationID == stationID &&
+                denmMessages.at(i)->sequenceNumber == sequenceNumber){
             return denmMessages.at(i).get();
         }
     }
@@ -462,9 +474,9 @@ void DataHandler::deleteMapemUnitByID(long id){
         }
     }
 }
-void DataHandler::deleteDenmUnitByTimeAndCode(long detectionTime, int causeCode){
+void DataHandler::deleteDenmMessageByActionID(long stationID, int sequenceNumber){
     for(int i = 0; i < denmMessages.size(); i++){
-        if(denmMessages.at(i)->detectionTime == detectionTime && denmMessages.at(i)->causeCode == causeCode){
+        if(denmMessages.at(i)->originatingStationID == stationID && denmMessages.at(i)->sequenceNumber == sequenceNumber){
             visualizer->removeGeometry(denmMessages.at(i)->geometryPoint);
             denmMessages.removeAt(i);
             break;

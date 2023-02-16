@@ -224,21 +224,18 @@ void Visualizer::removeVehiclePath(Cam * cam){
     }
 }
 void Visualizer::addCamStationToLayer(Cam * cam){
-    cam->geometryPoint = std::make_shared<GeometryPointImageScaled>(cam->refPoint, cam->imgSrc, 19);
-    //cam->point = std::make_shared<GeometryPointCircle>(cam->refPoint);
-    //custom_layer->addGeometry(cam->point);
+    cam->geometryPoint = std::make_shared<GeometryPointImageScaled>(cam->refPoint, (cam->isSrcAttention) ? cam->imgSrcAttention : cam->imgSrcDefault, 19);
     cam->geometryPoint->setZIndex(2);
     cam->geometryPoint->setMetadata("id", QVariant::fromValue(cam->stationID));
     cam->geometryPoint->setMetadata("name", "cam");
     custom_layer->addGeometry(cam->geometryPoint);
 
     //drawBoundingBox(cam->geometryPoint->boundingBox(19), cam);
-
 }
 void Visualizer::addDenmHazardToLayer(Denm * denm){
     denm->geometryPoint = std::make_shared<GeometryPointImageScaled>(denm->refPoint, ":/resources/images/DENM_icon.png", 19);
-    denm->geometryPoint->setMetadata("time", QVariant::fromValue(denm->detectionTime));
-    denm->geometryPoint->setMetadata("code", QVariant::fromValue(denm->causeCode));
+    denm->geometryPoint->setMetadata("originatingStationID", QVariant::fromValue(denm->originatingStationID));
+    denm->geometryPoint->setMetadata("sequenceNumber", QVariant::fromValue(denm->sequenceNumber));
     denm->geometryPoint->setMetadata("name", "denm");
     custom_layer->addGeometry(denm->geometryPoint);
 }
@@ -256,10 +253,10 @@ void Visualizer::geometryClickEvent(const Geometry* geometry)
         }
         else if(geometry->metadata("name").toString() == "denm")
         {
-            long time = geometry->metadata("time").toLongLong();
-            int code = geometry->metadata("code").toInt();
+            long originatingStationID = geometry->metadata("originatingStationID").toLongLong();
+            int sequenceNumber = geometry->metadata("sequenceNumber").toInt();
 
-            emit hazardClick(time, code);
+            emit hazardClick(originatingStationID, sequenceNumber);
         }
         else if(geometry->metadata("name").toString() == "lane")
         {

@@ -17,6 +17,8 @@ public:
     int startReceiving();
     int startLoading();
 
+    void stopReceiving();
+
     bool fileChanged;
     QString currentFile;
 signals:

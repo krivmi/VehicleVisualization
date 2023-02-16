@@ -41,5 +41,6 @@
         <file>images/play.png</file>
         <file>images/reset.png</file>
         <file>images/SREM_icon.png</file>
+        <file>images/tram_black_srem.png</file>
     </qresource>
 </RCC>

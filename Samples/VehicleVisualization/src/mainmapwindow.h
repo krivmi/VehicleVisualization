@@ -49,10 +49,10 @@ public:
 public slots:
     void resizeEvent(QResizeEvent* resize_event);
 
-    void playMessages();
     void resetPlaying();
     void tooglePlay();
     void playNextMessage();
+    void playingStarted();
     void messagesPlayed();
     void messageEmitted(int index);
 
@@ -62,10 +62,10 @@ public slots:
     void closeTLW();
     void changeInfo();
     void unitClicked(long stationID);
-    void hazardClicked(long time, int code);
+    void hazardClicked(long originationgStationID, int sequenceNumber);
     void trafficLightClick(int crossroadID, int adjacentIngressLanesIndex, bool sameTrafficLight);
     void handleGPSData(float longitude, float latitude, float orientation);
-    void startReceivingMessages();
+    void toogleReceivingMessages();
     void newMessageToLog(std::shared_ptr<Message> message);
     void toogleGPS();
     void toogleInfo(bool open);
@@ -91,7 +91,7 @@ private:
     QPushButton * btn_play;
     QPushButton * btn_nextMsg;
     QPushButton * btn_resetPlaying;
-    QPushButton * btn_start_receiving;
+    QPushButton * btn_toogle_receiving;
     QPushButton * btnToogleGPS;
     QPushButton * btnFollowGeometry;
     QTextEdit * infoTe;
@@ -118,6 +118,7 @@ private:
     int currentDisplayedStructIndex = -1;
 
     bool gpsEnabled = false;
+    bool receivingEnabled = false;
     bool gpsRecentered = false;
 
     QAction * mode_manual;
@@ -137,7 +138,7 @@ private:
     void removeTrafficLights();
 
     void deleteLogWidgets();
-    void deleteLogWidgetByID(long id, QString protocol);
+    void deleteLogWidgetByMessage(std::shared_ptr<Message> message);
 
     void positionChanged(const PointWorldCoord& point);
     void setupLayoutTrafficLights();

@@ -62,7 +62,6 @@ public:
     void removeAllGeometries(bool deletePointGPS);
 
     void drawBoundingBox(RectWorldCoord rect, Cam * cam);
-
 signals:
     void unitClick(long stationID);
     void hazardClick(long time, int code);

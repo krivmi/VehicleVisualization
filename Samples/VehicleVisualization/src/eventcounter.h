@@ -31,6 +31,7 @@ public slots:
 signals:
     void messageShow(int index);
     void messagesPlayed();
+    void playingStarted();
 
 private:
     bool m_running = false;

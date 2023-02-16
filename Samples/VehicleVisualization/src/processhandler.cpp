@@ -35,6 +35,10 @@ int ProcessHandler::startReceiving(){
     qInfo() << "Process could not be started.";
     return 1;
 }
+void ProcessHandler::stopReceiving(){
+    receiveDataProcess.close();
+    qDebug() << "Receiving stoped...";
+}
 
 int ProcessHandler::startLoading(){
     qInfo() << this->currentFile;

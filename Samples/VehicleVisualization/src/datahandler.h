@@ -41,7 +41,7 @@ public:
     Mapem * getMapemUnitByID(long id);
     Mapem * getMapemByCrossroadID(long id);
     Spatem * findSpatemByTime(int moy, int timeStamp);
-    Denm * getDenmByTimeAndCode(long detectionTime, int causeCode);
+    Denm * getDenmByActionID(long stationID, int sequenceNumber);
 
     void addTrafficLightsFromSignalGroups(Mapem * crossroad);
     void createTrafficLightWidgets(int crossroadID, int adjacentLaneIndex, bool sameTrafficLight);
@@ -57,10 +57,11 @@ public:
     void deleteDenmMessages();
     void deleteAllMessages();
     void clearData();
+    void clearUnitsAndMessages();
 
     void deleteCamUnitByID(long id);
     void deleteMapemUnitByID(long id);
-    void deleteDenmUnitByTimeAndCode(long detectionTime, int causeCode);
+    void deleteDenmMessageByActionID(long stationID, int sequenceNumber);
 
     QVector <std::shared_ptr<Message>> allMessages;
     QVector <std::shared_ptr<Cam>> camUnits;
@@ -97,7 +98,7 @@ public slots:
     void DENMReceived(std::shared_ptr<Denm> newDENM);
     void messagePlay(int index);
     void handleCrossroadProximity();
-    void updateCamBySREM();
+    void checkCamsForSrem();
 private:
     Visualizer * visualizer;
     QQueue <GPSInfo> gpsHistory;

@@ -16,13 +16,19 @@ void EventCounter::clearMessages(){
 }*/
 void EventCounter::start()
 {
-    if(areMessagesPlayed()){
-        messagesPlayedFlag = false;
-    }
-    m_running = true;
+    // check if we are not already running
+    if(!m_running)
+    {
+        m_running = true;
 
-    // Set a timer to start the 'ticking' (1/TPS of a second).
-    QTimer::singleShot(1000 / TPS, this, SLOT(tick()));
+        if(messagesPlayedFlag)
+        {
+            messagesPlayedFlag = false;
+        }
+
+        // Set a timer to start the 'ticking' (1/TPS of a second).
+        QTimer::singleShot(1000 / TPS, this, SLOT(tick()));
+    }
 
 }
 void EventCounter::stop()
@@ -51,12 +57,17 @@ bool EventCounter::messagesNotSet(){
 }
 void EventCounter::tick()
 {
-    // Emit next message
-    if(messagesIndex < messagesSize){
+    // check if we have a message to send
+    if(messagesIndex < messagesSize)
+    {
+        if(messagesIndex == 0){
+            emit playingStarted();
+        }
         emit messageShow(messagesIndex);
         qInfo() << "TICK" << ++messagesIndex;
     }
-    else{
+    else
+    {
         messagesIndex = 0;
         m_running = false;
         messagesPlayedFlag = true;
@@ -66,7 +77,7 @@ void EventCounter::tick()
     // Are we still running?
     if(m_running)
     {
-        // Schedule the next tick (1/TPS of a second).
+        // Schedule the next tick (1000/TPS of a second).
         QTimer::singleShot(1000 / TPS, this, SLOT(tick()));
     }
 }
