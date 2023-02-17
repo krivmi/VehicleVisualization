@@ -55,10 +55,7 @@ void DataHandler::MessageReceived(std::shared_ptr<Message> message){
     emit MessageToLog(message);
 }
 void DataHandler::clearData(){
-    deleteCamUnits();
-    deleteMapemUnits();
-    deleteSpatemMessages();
-    deleteDenmMessages();
+    clearUnitsAndMessages();
     deleteAllMessages();
 }
 void DataHandler::clearUnitsAndMessages(){
@@ -266,8 +263,6 @@ void DataHandler::SREMReceived(std::shared_ptr<Srem> newSrem){
         senderCam->lastSremUpdate = QTime::currentTime();
         senderCam->isSrcAttention = true;
     }
-
-    //qInfo() << "SREM received";
 }
 void DataHandler::checkCamsForSrem(){
     //TODO - should I use mutex because of deleting?
@@ -275,7 +270,7 @@ void DataHandler::checkCamsForSrem(){
         if(!camUnits.at(i)->lastSremUpdate.isNull()){ // TODO test this
             QTime now = QTime::currentTime();
             int diff = camUnits.at(i)->lastSremUpdate.secsTo(now);
-            qInfo() << diff;
+            //qInfo() << diff;
 
             if(diff >= 10){
                 camUnits.at(i)->lastSremUpdate = QTime(); // set to null

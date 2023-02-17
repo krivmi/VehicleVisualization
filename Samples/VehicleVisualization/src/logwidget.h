@@ -23,6 +23,7 @@ public:
     QTime lastUpdateTime;
 
     bool widgetClickable;
+    bool timerRunning = false;
 
     std::shared_ptr <Message> message;
 
@@ -34,7 +35,7 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
 
 private:
-    bool timerRunning = false;
+
     int lifeTimeOfUnit = 5 * 60; // in seconds
 signals:
     void clicked(std::shared_ptr <Message> message);

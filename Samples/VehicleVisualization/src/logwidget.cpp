@@ -50,6 +50,12 @@ void LogWidget::setWidgetInfo(std::shared_ptr <Message> message) {
             lifeTimeOfUnit = 10;
         } else if(message->GetProtocol() == "Mapem"){
             lifeTimeOfUnit = 120;
+        } else if(message->GetProtocol() == "Srem"){
+            lifeTimeOfUnit = 60;
+        } else if(message->GetProtocol() == "Spatem"){
+            lifeTimeOfUnit = 60;
+        } else if(message->GetProtocol() == "Cam"){
+            lifeTimeOfUnit = 60;
         } else {
             lifeTimeOfUnit = 60;
         }

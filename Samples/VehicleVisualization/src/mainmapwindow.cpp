@@ -101,7 +101,6 @@ void MainMapWindow::toogleReceivingMessages(){
     if(!receivingEnabled){
         if(processHandler.startReceiving() == 0){
             statusBar()->showMessage("Receiving started...");
-        } else {
             receivingEnabled = true;
             btn_toogle_receiving->setText("Stop receiving");
         }
@@ -110,6 +109,7 @@ void MainMapWindow::toogleReceivingMessages(){
         btn_toogle_receiving->setText("Start receiving");
 
         processHandler.stopReceiving();
+        statusBar()->showMessage("Receiving stopped...");
     }
 }
 void MainMapWindow::setupMaps(){
@@ -129,11 +129,13 @@ void MainMapWindow::toogleGPS()
         gpsEnabled = true;
         btnToogleGPS->setIcon(QIcon(":/resources/images/gps_on.png"));
         emit startTracker();
+        statusBar()->showMessage("GPS started...");
     } else {
         gpsEnabled = false;
         btnToogleGPS->setIcon(QIcon(":/resources/images/gps_off.png"));
         visualizer->removeGPSPositionPoint();
         tracker->stop();
+        statusBar()->showMessage("GPS stopped...");
     }
 }
 void MainMapWindow::modeSelected(QAction* action){
@@ -174,8 +176,11 @@ void MainMapWindow::modeSelected(QAction* action){
         toggleFollowGPS(true);
 
         // start receiving process
-        processHandler.startReceiving();
-        statusBar()->showMessage("Mode auto, GPS started, receiving started...");
+        if(!receivingEnabled){
+            toogleReceivingMessages();
+            statusBar()->showMessage("Mode auto, GPS started, receiving started...");
+        }
+        statusBar()->showMessage("Mode auto, GPS started, already receiving");
     } else {
         qInfo() << "Something went wrong";
     }
@@ -672,6 +677,7 @@ void MainMapWindow::deleteLogWidgetByMessage(std::shared_ptr<Message> message){
                 if (oldDenm->originatingStationID == newDenm->originatingStationID &&
                       oldDenm->sequenceNumber == newDenm->sequenceNumber) {
                     scrollVerticalLayout->removeWidget(tmp);
+                    tmp->timerRunning = false;
                     tmp->setVisible(false);
                     delete tmp;
                     break;
@@ -683,6 +689,7 @@ void MainMapWindow::deleteLogWidgetByMessage(std::shared_ptr<Message> message){
           LogWidget * tmp = (LogWidget*) scrollVerticalLayout->itemAt(i)->widget();
           if (tmp->message->stationID == message->stationID && tmp->message->GetProtocol() == protocol) {
               scrollVerticalLayout->removeWidget(tmp);
+              tmp->timerRunning = false;
               tmp->setVisible(false);
               delete tmp;
               break;
@@ -697,8 +704,11 @@ void MainMapWindow::deleteLogWidgets(){
 
     QLayoutItem *child;
     while ((child = scrollVerticalLayout->takeAt(0)) != 0)  {
-        scrollVerticalLayout->removeWidget(child->widget());
-        child->widget()->setVisible(false);
+        LogWidget * tmp = (LogWidget*) child->widget();
+        scrollVerticalLayout->removeWidget(tmp);
+        tmp->setVisible(false);
+        tmp->timerRunning = false;
+        delete tmp;
         delete child;
     }
 }

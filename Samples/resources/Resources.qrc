@@ -42,5 +42,9 @@
         <file>images/reset.png</file>
         <file>images/SREM_icon.png</file>
         <file>images/tram_black_srem.png</file>
+        <file>images/bus_black_srem.png</file>
+        <file>images/rsu_black_srem.png</file>
+        <file>images/unknown_black_srem.png</file>
+        <file>images/car_black_srem.png</file>
     </qresource>
 </RCC>

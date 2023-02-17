@@ -81,12 +81,12 @@ class Cam: public Message {
 
             if(this->stationType == 5){
                 this->imgSrcDefault = ":/resources/images/car_black.png";
-                this->imgSrcAttention = ":/resources/images/car_black.png";
+                this->imgSrcAttention = ":/resources/images/car_black_srem.png";
                 this->typeStr = "Car";                
             }
             else if(this->stationType == 6){
                 this->imgSrcDefault = ":/resources/images/bus_black.png";
-                this->imgSrcAttention = ":/resources/images/bus_black.png";
+                this->imgSrcAttention = ":/resources/images/bus_black_srem.png";
                 this->typeStr = "Bus";
             }
             else if(this->stationType == 11){
@@ -96,17 +96,17 @@ class Cam: public Message {
             }
             else if(this->stationType == 15){ // ROAD SIDE UNIT
                 this->imgSrcDefault = ":/resources/images/rsu_black.png";
-                this->imgSrcAttention = ":/resources/images/rsu_black.png";
+                this->imgSrcAttention = ":/resources/images/rsu_black_srem.png";
                 this->typeStr = "RSU";
             }
             else if(this->stationType == 0){ // UNKNOWN
                 this->imgSrcDefault = ":/resources/images/unknown_black.png";
-                this->imgSrcAttention = ":/resources/images/unknown_black.png";
+                this->imgSrcAttention = ":/resources/images/unknown_black_srem.png";
                 this->typeStr = "Unknown";
             }
             else {
                 this->imgSrcDefault = ":/resources/images/rsu_black.png";
-                this->imgSrcAttention = ":/resources/images/rsu_black.png";
+                this->imgSrcAttention = ":/resources/images/rsu_black_srem.png";
                 this->typeStr = "Unknown";
                 throw std::invalid_argument("This station type is not known");
             }
