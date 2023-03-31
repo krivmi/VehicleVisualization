@@ -37,7 +37,7 @@ public:
 
     std::shared_ptr<GeometryPointImageScaled> geometryPoint;
 
-    void getCauseCodeStrings();
+    void getCauseCodeStrings(); // should be renamed
     QString GetProtocol() { return "Denm"; };
 };
 

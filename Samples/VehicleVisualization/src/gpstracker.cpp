@@ -1,21 +1,34 @@
 #include "gpstracker.h"
+
 #include "libgpsmm.h"
 #include <cmath>
 
 // Qt includes.
 #include <QtCore/QDebug>
+#include <QSettings>
 
 GPSTracker::GPSTracker(){}
 
-void GPSTracker::start(){
+void GPSTracker::start()
+{
     m_running = true;
     trackGPS();
 }
-void GPSTracker::stop(){
+void GPSTracker::stop()
+{
     m_running = false;
+    emit GPSstopped();
 }
-void GPSTracker::trackGPS(){
-    gpsmm gps_rec("127.0.0.1", DEFAULT_GPSD_PORT);
+void GPSTracker::trackGPS()
+{
+    QSettings settings(":/resources/config/app.ini", QSettings::IniFormat);
+    QString host = settings.value("GPSD/host").toString();
+    QString port = settings.value("GPSD/port").toString();
+
+    std::string str_host = host.toStdString();
+    std::string str_port = port.toStdString();
+
+    gpsmm gps_rec(str_host.c_str(), str_port.c_str()); // "127.0.0.1", DEFAULT_GPSD_PORT
 
     if (gps_rec.stream(WATCH_ENABLE|WATCH_JSON) == NULL) {
         qInfo() << "No GPSD running.\n";
@@ -24,7 +37,7 @@ void GPSTracker::trackGPS(){
     while(m_running) {
         struct gps_data_t* newdata;
 
-        if (!gps_rec.waiting(50000000)){ // in mikro-seconds
+        if (!gps_rec.waiting(5000000)){ // in mikro-seconds
               qInfo() << "Waiting...";
               continue;
         }

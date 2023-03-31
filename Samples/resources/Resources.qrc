@@ -1,10 +1,5 @@
 <RCC>
     <qresource prefix="/resources">
-        <file>images/note.png</file>
-        <file>images/bus.png</file>
-        <file>images/tram.png</file>
-        <file>images/rsu.png</file>
-        <file>images/unknown.png</file>
         <file>images/bus_black.png</file>
         <file>images/rsu_black.png</file>
         <file>images/tram_black.png</file>
@@ -15,7 +10,6 @@
         <file>images/yellowPermission.png</file>
         <file>images/car_black.png</file>
         <file>images/navigationBlue.png</file>
-        <file>images/navigationGray.png</file>
         <file>images/left.png</file>
         <file>images/right.png</file>
         <file>images/straight.png</file>
@@ -46,5 +40,6 @@
         <file>images/rsu_black_srem.png</file>
         <file>images/unknown_black_srem.png</file>
         <file>images/car_black_srem.png</file>
+        <file>config/app.ini</file>
     </qresource>
 </RCC>

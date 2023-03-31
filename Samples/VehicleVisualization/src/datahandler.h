@@ -77,7 +77,7 @@ public:
 
     GPSInfo gpsInfo;
 
-    bool autoModeOn = true;
+    bool autoModeOn = false;
 
     void GPSPositionReceived(PointWorldCoord position, float orientation);
 

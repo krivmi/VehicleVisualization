@@ -65,6 +65,7 @@ public slots:
     void hazardClicked(long originationgStationID, int sequenceNumber);
     void trafficLightClick(int crossroadID, int adjacentIngressLanesIndex, bool sameTrafficLight);
     void handleGPSData(float longitude, float latitude, float orientation);
+    void GPSstopped();
     void toogleReceivingMessages();
     void newMessageToLog(std::shared_ptr<Message> message);
     void toogleGPS();

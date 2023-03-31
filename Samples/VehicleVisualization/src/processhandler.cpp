@@ -2,18 +2,23 @@
 #include <QProcess>
 #include <QDebug>
 #include <QDir>
+#include <QSettings>
 
 #include "messageparser.h"
 
 ProcessHandler::ProcessHandler(QObject *parent): QObject{parent}
 {
+    QSettings settings(":/resources/config/app.ini", QSettings::IniFormat);
+    this->receivingCommand = settings.value("receivingCommand").toString();
+    this->loadingCommand = settings.value("loadingCommand").toString();
+    QString projectPath = settings.value("projectPath").toString();
+    //qInfo() << settings.fileName();
+
     this->fileChanged = false;
-    //this->currentFile = "/home/krivmi/QT_projects/QMapControl/Samples/resources/trafficFiles/ukazka_80211p.pcap";
-    this->currentFile = "/home/krivmi/QT_projects/QMapControl/Samples/resources/trafficFiles/capture_X1_02.pcap";
+    this->currentFile = projectPath + "Samples/resources/trafficFiles/capture_X1_02.pcap";
 }
 int ProcessHandler::startReceiving(){
-    //QString cmd2 = "/bin/sh -c \"echo krivanek | sudo -S stdbuf -i0 -o0 -e0 tshark -i hwsim0 -T json"; //
-    QString cmd2 = "/bin/sh -c \"tshark -r /tmp/tcpdump_data -T json";
+    //QString cmd2 = "/bin/sh -c \"tshark -r /tmp/tcpdump_data -T json";
 
     QObject::connect(&receiveDataProcess, &QProcess::started, [=]{
         qDebug() << "Receiving started...";
@@ -27,7 +32,7 @@ int ProcessHandler::startReceiving(){
         emit error(receiveDataProcess.readAllStandardError());
     });
 
-    receiveDataProcess.start(cmd2);
+    receiveDataProcess.start(this->receivingCommand);
 
     if(receiveDataProcess.state() != QProcess::NotRunning){
         return 0;
@@ -42,7 +47,10 @@ void ProcessHandler::stopReceiving(){
 
 int ProcessHandler::startLoading(){
     qInfo() << this->currentFile;
-    QString cmd = "/bin/sh -c \"tshark -r " + this->currentFile +" -T json";
+
+    //QString cmd = "/bin/sh -c \"tshark -r " + this->currentFile +" -T json";
+    QString cmd = this->loadingCommand;
+    cmd.replace("%FILE", this->currentFile);
 
     loadDataProcess.start(cmd);
     loadDataProcess.waitForFinished(-1); // will wait forever until finished

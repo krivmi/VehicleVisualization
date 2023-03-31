@@ -212,16 +212,27 @@ void Visualizer::drawLanesConnections(QVector<Lane> lanes, PointWorldCoord refPo
     }
 }
 void Visualizer::drawVehiclePath(Cam * cam){
+
+    std::vector<PointWorldCoord> points;
     for(int i = 0; i < cam->path.size(); i++){
-        cam->path[i].point = std::make_shared<GeometryPointCircle>(PointWorldCoord(cam->refPoint.longitude() + cam->path[i].dLongitude, cam->refPoint.latitude() + cam->path[i].dLatitude), QSizeF(10.0, 10.0));
+        PointWorldCoord pt = PointWorldCoord(cam->refPoint.longitude() + cam->path[i].dLongitude, cam->refPoint.latitude() + cam->path[i].dLatitude);
+
+        cam->path[i].point = std::make_shared<GeometryPointCircle>(pt, QSizeF(10.0, 10.0));
         cam->path[i].point->setPen(pointPen);
         custom_layer->addGeometry(cam->path[i].point);
+
+        points.push_back(pt);
     }
+    cam->pathString = std::make_shared<GeometryLineString>(points);
+    cam->pathString->setPen(linePen);
+
+    custom_layer->addGeometry(cam->pathString);
 }
 void Visualizer::removeVehiclePath(Cam * cam){
     for(int i = 0; i < cam->path.size(); i++){
         custom_layer->removeGeometry(cam->path[i].point);
     }
+    custom_layer->removeGeometry(cam->pathString);
 }
 void Visualizer::addCamStationToLayer(Cam * cam){
     cam->geometryPoint = std::make_shared<GeometryPointImageScaled>(cam->refPoint, (cam->isSrcAttention) ? cam->imgSrcAttention : cam->imgSrcDefault, 19);

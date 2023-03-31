@@ -26,9 +26,6 @@
 #include <QJsonParseError>
 #include <QScrollArea>
 
-#include <qimage.h>
-#include <qmatrix.h>
-
 // QMapControl includes.
 #include <QMapControl/GeometryLineString.h>
 #include <QMapControl/GeometryPointCircle.h>
@@ -58,7 +55,6 @@ MainMapWindow::MainMapWindow(QWidget *parent) : QMainWindow(parent) {
     QObject::connect(dataHandler.get(), &DataHandler::changeInfo, this, &MainMapWindow::changeInfo);
     QObject::connect(dataHandler.get(), &DataHandler::MessageToLog, this, &MainMapWindow::newMessageToLog);
 
-
     QObject::connect(dataHandler.get(), &DataHandler::trafficLightHide, this, &MainMapWindow::closeTLW);
     QObject::connect(dataHandler.get(), &DataHandler::trafficLightShow, this, &MainMapWindow::trafficLightClick);
 
@@ -78,12 +74,19 @@ MainMapWindow::MainMapWindow(QWidget *parent) : QMainWindow(parent) {
     QObject::connect(&gpsThread, &QThread::finished, tracker, &QObject::deleteLater);
     QObject::connect(this, &MainMapWindow::startTracker, tracker, &GPSTracker::start);
     QObject::connect(tracker, &GPSTracker::resultReady, this, &MainMapWindow::handleGPSData);
+    QObject::connect(tracker, &GPSTracker::GPSstopped, this, &MainMapWindow::GPSstopped);
     gpsThread.start();
 
     QObject::connect(&processHandler, &ProcessHandler::error, this, &MainMapWindow::handleError);
 
     processHandler.startLoading();
     eventCounter.setMessageSize(dataHandler->allMessages.size());
+}
+void MainMapWindow::GPSstopped(){
+    gpsEnabled = false;
+    btnToogleGPS->setIcon(QIcon(":/resources/images/gps_off.png"));
+    visualizer->removeGPSPositionPoint();
+    statusBar()->showMessage("No GPSD running, GPS could not be started...");
 }
 void MainMapWindow::focusPointChanged(){
     if(dataHandler->autoModeOn){
@@ -118,6 +121,7 @@ void MainMapWindow::setupMaps(){
 
     // layer pro openstreet mapy
     m_map_control->addLayer(std::make_shared<LayerMapAdapter>("Map", std::make_shared<MapAdapterOSM>()));
+    //m_map_control->addLayer(std::make_shared<LayerMapAdapter>("Map", std::make_shared<MapAdapterGoogle>()));
 
     // nastavení bodu zaměření a přiblížení na Ostravu
     m_map_control->setMapFocusPoint(PointWorldCoord(18.284743, 49.838337));
@@ -139,22 +143,26 @@ void MainMapWindow::toogleGPS()
     }
 }
 void MainMapWindow::modeSelected(QAction* action){
-    if(action == mode_manual){
+    if ( action == mode_manual )
+    {
         // stop following GPS point
         toggleFollowGPS(false);
+
         // show top bar
         topBar->setVisible(true);
 
+        // turn off the auto mode
         dataHandler->autoModeOn = false;
 
         statusBar()->showMessage("Mode manual...");
-    } else if(mode_auto){
-        topBar->setVisible(false);
-
+    }
+    else if( mode_auto )
+    {
         // start GPS
-        if(!gpsEnabled){
-            toogleGPS();
-        }
+        if(!gpsEnabled){ toogleGPS(); }
+
+        // hide top bar
+        topBar->setVisible(false);
 
         // clear data from playing
         eventCounter.reset();
@@ -176,54 +184,65 @@ void MainMapWindow::modeSelected(QAction* action){
         toggleFollowGPS(true);
 
         // start receiving process
-        if(!receivingEnabled){
+        if( !receivingEnabled )
+        {
             toogleReceivingMessages();
             statusBar()->showMessage("Mode auto, GPS started, receiving started...");
         }
         statusBar()->showMessage("Mode auto, GPS started, already receiving");
-    } else {
-        qInfo() << "Something went wrong";
-    }
+    } else { qInfo() << "That mode has not been added yet..."; }
 }
-void MainMapWindow::setupTopMenu(){
-    QPixmap openpix("open.png");
-    QPixmap quitpix("quit.png");
+void MainMapWindow::setupTopMenu()
+{
+    qApp->setAttribute(Qt::AA_DontShowIconsInMenus, false);
 
-    auto *load = new QAction(openpix, "&Load traffic file", this);
-    auto *quit = new QAction(quitpix, "&Quit", this);
+    // define actions
+    QAction *load = new QAction(QIcon::fromTheme("document-open"), "&Load traffic file", this);
+    QAction *quit = new QAction(QIcon::fromTheme("application-exit"), "&Quit", this);
+    QAction *fullscreen = new QAction(QIcon::fromTheme("view-fullscreen"), "&Toogle fullscreeen", this);
+    QAction *maximize = new QAction("&Maximize window", this); // this->style()->standardIcon(QStyle::SP_TitleBarMaxButton)
+    QAction *minimize = new QAction("&Minimize window", this); // this->style()->standardIcon(QStyle::SP_TitleBarMinButton)
+
+    // set shortcuts
     quit->setShortcut(tr("CTRL+Q"));
     load->setShortcut(tr("CTRL+L"));
+    fullscreen->setShortcut(tr("CTRL+F"));
 
-    // FILE
+    // *** FILE *** //
     QMenu *file = menuBar()->addMenu("&File");
     file->addAction(load);
     file->addSeparator();
     file->addAction(quit);
 
-    // MODE
+    // *** MODE *** //
     QActionGroup* mode_group = new QActionGroup(this);
-    mode_manual = new QAction(tr("Manual"), mode_group);
-    mode_auto = new QAction(tr("Auto"), mode_group);
+    mode_manual = new QAction("Manual", mode_group);
+    mode_auto = new QAction("Auto", mode_group);
 
-    // Ensure the map provider actions are checkable.
+    // Ensure the mode actions are checkable.
     mode_manual->setCheckable(true);
-    mode_auto->setCheckable(true);
-
-    // Default to OSM map.
     mode_manual->setChecked(true);
-
-    // Connect signal/slot to set the map provider.
-    QObject::connect(mode_group, &QActionGroup::triggered, this, &MainMapWindow::modeSelected);
+    mode_auto->setCheckable(true);
 
     QMenu *mode = menuBar()->addMenu("&Mode");
     mode->addAction(mode_manual);
     mode->addAction(mode_auto);
 
-    qApp->setAttribute(Qt::AA_DontShowIconsInMenus, false);
+    // *** SETTINGS *** //
+    QMenu *settings = menuBar()->addMenu("&Settings");
+    settings->addAction(fullscreen);
+    settings->addAction(minimize);
+    settings->addAction(maximize);
 
-    connect(quit, &QAction::triggered, qApp, &QApplication::quit);
-    connect(load, &QAction::triggered, this, &MainMapWindow::openFile);
+    // *** Connects *** /
+    QObject::connect(mode_group, &QActionGroup::triggered, this, &MainMapWindow::modeSelected);
+    QObject::connect(quit, &QAction::triggered, qApp, &QApplication::quit);
+    QObject::connect(load, &QAction::triggered, this, &MainMapWindow::openFile);
+    QObject::connect(maximize, &QAction::triggered, this, [=]() { this->showMaximized();});
+    QObject::connect(minimize, &QAction::triggered, this, [=]() { this->showMinimized();});
+    QObject::connect(fullscreen, &QAction::triggered, this, [=]() { (!this->isFullScreen()) ? this->showFullScreen() : this->showNormal();});
 }
+
 void MainMapWindow::setupMainLayout(){
     QWidget * main = new QWidget(this);
     mainAppLayout = new QVBoxLayout(main);
@@ -799,6 +818,7 @@ void MainMapWindow::resizeEvent(QResizeEvent * resize_event)
 void MainMapWindow::openFile(){
     QString fileName = QFileDialog::getOpenFileName(this,
         tr("Open File"), "/home/krivmi/Desktop/", tr("Traffic Files (*.pcap *.pcapng)"));
+    // TODO - delete /home/krivmi/Desktop/ at the end
 
     if(!fileName.isEmpty()){
         qInfo() << fileName;

@@ -26,7 +26,8 @@ signals:
 private:
     QProcess receiveDataProcess;
     QProcess loadDataProcess;
-
+    QString receivingCommand;
+    QString loadingCommand;
 };
 
 #endif // PROCESSHANDLER_H

@@ -11,6 +11,7 @@
 #include <QMapControl/GeometryPointImage.h>
 #include <QMapControl/GeometryPolygon.h>
 #include <QMapControl/GeometryPointImageScaled.h>
+#include <QMapControl/GeometryLineString.h>
 
 using namespace qmapcontrol;
 
@@ -50,6 +51,7 @@ class Cam: public Message {
         std::shared_ptr<GeometryPointImageScaled> geometryPoint; // musí být shared ptr
         std::shared_ptr<GeometryPoint> point; // musí být shared ptr
         std::shared_ptr<GeometryPolygon> polygon;
+        std::shared_ptr<GeometryLineString> pathString;
 
         Cam(qreal longitude, qreal latitude, qreal altitude, int messageID, long stationID, int stationType,
             float speed, float heading, QVector<VehiclePath> vehiclePath, float vehicleLength, float vehicleWidth,
@@ -79,7 +81,28 @@ class Cam: public Message {
                 this->vehicleRoleStr = "Public transport";
             } // ...TODO
 
-            if(this->stationType == 5){
+            // see: en 302 636-04 1.2.1
+            if(this->stationType == 1){
+                this->imgSrcDefault = ":/resources/images/unknown_black.png";
+                this->imgSrcAttention = ":/resources/images/unknown_black_srem.png";
+                this->typeStr = "Pedestrian";
+            }
+            else if(this->stationType == 2){
+                this->imgSrcDefault = ":/resources/images/unknown_black.png";
+                this->imgSrcAttention = ":/resources/images/unknown_black_srem.png";
+                this->typeStr = "Cyclist";
+            }
+            else if(this->stationType == 3){
+                this->imgSrcDefault = ":/resources/images/unknown_black.png";
+                this->imgSrcAttention = ":/resources/images/unknown_black_srem.png";
+                this->typeStr = "Moped";
+            }
+            else if(this->stationType == 4){
+                this->imgSrcDefault = ":/resources/images/unknown_black.png";
+                this->imgSrcAttention = ":/resources/images/unknown_black_srem.png";
+                this->typeStr = "Motorcycle";
+            }
+            else if(this->stationType == 5){
                 this->imgSrcDefault = ":/resources/images/car_black.png";
                 this->imgSrcAttention = ":/resources/images/car_black_srem.png";
                 this->typeStr = "Car";                
@@ -88,6 +111,26 @@ class Cam: public Message {
                 this->imgSrcDefault = ":/resources/images/bus_black.png";
                 this->imgSrcAttention = ":/resources/images/bus_black_srem.png";
                 this->typeStr = "Bus";
+            }
+            else if(this->stationType == 7){
+                this->imgSrcDefault = ":/resources/images/unknown_black.png";
+                this->imgSrcAttention = ":/resources/images/unknown_black_srem.png";
+                this->typeStr = "Light truck";
+            }
+            else if(this->stationType == 8){
+                this->imgSrcDefault = ":/resources/images/unknown_black.png";
+                this->imgSrcAttention = ":/resources/images/unknown_black_srem.png";
+                this->typeStr = "Heavy truck";
+            }
+            else if(this->stationType == 9){
+                this->imgSrcDefault = ":/resources/images/unknown_black.png";
+                this->imgSrcAttention = ":/resources/images/unknown_black_srem.png";
+                this->typeStr = "Trailer";
+            }
+            else if(this->stationType == 10){
+                this->imgSrcDefault = ":/resources/images/unknown_black.png";
+                this->imgSrcAttention = ":/resources/images/unknown_black_srem.png";
+                this->typeStr = "Special vehicle";
             }
             else if(this->stationType == 11){
                 this->imgSrcDefault = ":/resources/images/tram_black.png";
@@ -105,10 +148,9 @@ class Cam: public Message {
                 this->typeStr = "Unknown";
             }
             else {
-                this->imgSrcDefault = ":/resources/images/rsu_black.png";
-                this->imgSrcAttention = ":/resources/images/rsu_black_srem.png";
+                this->imgSrcDefault = ":/resources/images/unknown_black.png";
+                this->imgSrcAttention = ":/resources/images/unknown_black_srem.png";
                 this->typeStr = "Unknown";
-                throw std::invalid_argument("This station type is not known");
             }
         };
         void update(std::shared_ptr<Cam> newUnit);

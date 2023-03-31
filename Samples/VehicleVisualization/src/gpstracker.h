@@ -18,6 +18,9 @@ public slots:
     void trackGPS();
 signals:
     void resultReady(float longitude, float latitude, float orientation);
+    void GPSstopped();
 private:
     bool m_running = false;
+    const char* host;
+    const char* port;
 };
