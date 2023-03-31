@@ -42,17 +42,21 @@ void GPSTracker::trackGPS()
               continue;
         }
 
-        if ((newdata = gps_rec.read()) == NULL) {
+        if ((newdata = gps_rec.read()) == NULL)
+        {
             qInfo() << "Read error.\n";
             return stop();
-        } else {
+        }
+        else
+        {
             // PROCESS newdata
             //qInfo() << "Lat: " << QString::number(newdata->fix.latitude) << "Long: " << QString::number(newdata->fix.longitude);
             float latitude = newdata->fix.latitude;
             float longitude = newdata->fix.longitude;
             float orientation = newdata->fix.track;
 
-            if(!std::isnan(latitude) && !std::isnan(longitude) && !std::isnan(orientation) && m_running){
+            if(!std::isnan(latitude) && !std::isnan(longitude) && !std::isnan(orientation) && m_running)
+            {
                 emit resultReady(longitude, latitude, orientation);
             }
 
