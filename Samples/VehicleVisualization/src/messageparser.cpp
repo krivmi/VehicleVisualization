@@ -10,7 +10,15 @@
 #include <QJsonArray>
 #include <QJsonParseError>
 
-MessageParser::MessageParser(){}
+MessageParser::MessageParser(){
+    stack = new QStack<QChar>();
+}
+
+void MessageParser::clear()
+{
+    json_message = "";
+    stack->clear();
+}
 
 int MessageParser::loadJSONFromString(QString jsonString){
     QByteArray jsonBytes = jsonString.toLocal8Bit();
@@ -88,27 +96,29 @@ void MessageParser::processMessage()
 bool MessageParser::findMessagesInStream(QString messageStream){
     bool message_completed = false;
     int completed_at_index = -1;
+    //qInfo() << "LStream:" << messageStream;
 
     for (int i = 0; i < messageStream.length(); i++) {
         if(messageStream[i] == '}'){
-            if ( (stack.top() == '{')) {
+            if ( (stack->top() == '{')) {
                 // if we found any complete pair of bracket then pop
-                stack.pop();
+                stack->pop();
 
-                if (stack.empty()) { // if stack is empty, we have a complete message
+                if (stack->empty()) { // if stack is empty, we have a complete message
                     json_message.append(messageStream.mid(0, i + 1)); // append the end of the message
                     processMessage();
+                    //qInfo() <<  "process message";
 
                     message_completed = true;
                     completed_at_index = i;
                 }
             }
             else {
-                stack.push(messageStream[i]);
+                stack->push(messageStream[i]);
             }
         }
         else if(messageStream[i] == '{'){
-            stack.push(messageStream[i]);
+            stack->push(messageStream[i]);
         }
     }
     if(message_completed){ // nebude to fungovat, pokud se do jednoho řádku vleze více zpráv
@@ -117,6 +127,7 @@ bool MessageParser::findMessagesInStream(QString messageStream){
     else{
         json_message.append(messageStream);
     }
+
 }
 QString MessageParser::printMessage()
 {
@@ -173,6 +184,13 @@ void MessageParser::parseCAM(QJsonObject packetObj){
     bool reverseLightOn = camExteriorLightsTree["its.ExteriorLights.reverseLightOn"].toString().toInt();
     bool fogLightOn = camExteriorLightsTree["its.ExteriorLights.fogLightOn"].toString().toInt();
     bool parkingLightsOn = camExteriorLightsTree["its.ExteriorLights.parkingLightsOn"].toString().toInt();
+
+    if(leftTurnSignalOn){
+        qInfo() << "leftTurnSignalOn works";
+    }
+    if(rightTurnSignalOn){
+        qInfo() << "rightTurnSignalOn works";
+    }
 
     int vehicleRole = camBasicVehicleContainerLowFrequency_element["cam.vehicleRole"].toString().toInt();
 

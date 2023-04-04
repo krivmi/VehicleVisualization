@@ -1213,10 +1213,10 @@ namespace qmapcontrol
         m_zoom_control_button_out.setGeometry(margin_left, slider_height + 31, 24, 24);
 
         // Set the geometries of the follow button
-        const int follow_btn_size = 32;
+        const int follow_btn_size = 50;
         //qInfo() << this->height();
-        m_recenter_GPS_point_button.setGeometry(margin_left, m_viewport_size_px.height() - follow_btn_size - margin - 100, follow_btn_size, follow_btn_size);
-        m_recenter_GPS_point_button.setIconSize(QSize(32, 32));
+        m_recenter_GPS_point_button.setGeometry(margin_left, m_viewport_size_px.height() - follow_btn_size - margin - 70, follow_btn_size, follow_btn_size);
+        m_recenter_GPS_point_button.setIconSize(QSize(follow_btn_size, follow_btn_size));
         m_recenter_GPS_point_button.setStyleSheet("border: none");
 
         // Set the default location of the progress indicator to the opposite side.
@@ -1230,6 +1230,13 @@ namespace qmapcontrol
             // Place the progress indicator on the left.
             m_progress_indicator.setGeometry(margin, margin, slider_width, slider_width);
         }
+    }
+    void QMapControl::changeGPSButtonGeometry(int w, int h, QSize size)
+    {
+        // Default values.
+        const int margin = 10;
+
+        m_recenter_GPS_point_button.setGeometry(margin, m_viewport_size_px.height() - m_recenter_GPS_point_button.height() - margin - h, m_recenter_GPS_point_button.width(), m_recenter_GPS_point_button.height());
     }
 
     // Drawing management.

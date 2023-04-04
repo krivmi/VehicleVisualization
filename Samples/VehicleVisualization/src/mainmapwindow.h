@@ -78,6 +78,7 @@ public slots:
 signals:
     void startTracker();
     void GPSPositionReceived(PointWorldCoord position, float orientation);
+    void changeGPSButtonGeometry(int w, int h, QSize size);
 private:    
     ProcessHandler processHandler;
     EventCounter eventCounter;
@@ -95,8 +96,10 @@ private:
     QPushButton * btn_toogle_receiving;
     QPushButton * btnToogleGPS;
     QPushButton * btnFollowGeometry;
-    QTextEdit * infoTe;
-    QLabel * typeTe;
+
+    QLabel * infoLbl;
+    QLabel * typeLbl;
+    QLabel * vehicleImageLbl;
     QLabel * lblFileName;
     QLabel * lblMessageIndex;
 
@@ -127,6 +130,12 @@ private:
 
     LogWidget * lastMessageLogW;
     QVBoxLayout * scrollVerticalLayout;
+
+    QLabel * GPSstatusLbl;
+    QLabel * receivingStatusLbl;
+
+    bool fontLarge = false;
+    void changeFont(int size);
 
     void setupTopMenu();
     void setupTopBar();

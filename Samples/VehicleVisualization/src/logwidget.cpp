@@ -17,7 +17,7 @@ LogWidget::LogWidget(QWidget *parent) {
     this->setMaximumHeight(40);
 
     lblProtocol = new QLabel();
-    lblProtocol->setFixedWidth(65);
+    lblProtocol->setFixedWidth(85);
     lblImage = new QLabel();
     lblImage->setFixedWidth(32);
     lblTime = new QLabel();

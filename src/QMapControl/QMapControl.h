@@ -445,6 +445,8 @@ namespace qmapcontrol
          */
         void requestRedraw();
 
+        void changeGPSButtonGeometry(int w, int h, QSize size);
+
     private:
         // Map management.
         /*!

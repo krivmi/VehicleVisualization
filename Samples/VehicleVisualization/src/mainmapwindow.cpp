@@ -44,6 +44,7 @@ MainMapWindow::MainMapWindow(QWidget *parent) : QMainWindow(parent) {
     setupMainLayout();
 
     QObject::connect(m_map_control, &QMapControl::recenterGPSPoint, this, &MainMapWindow::recenterGPSPoint);
+    QObject::connect(this, &MainMapWindow::changeGPSButtonGeometry, m_map_control, &QMapControl::changeGPSButtonGeometry);
     QObject::connect(m_map_control, &QMapControl::scrollViewChangedByMouse, this, &MainMapWindow::focusPointChanged);
 
     visualizer = std::make_shared<Visualizer>(m_map_control);
@@ -81,11 +82,17 @@ MainMapWindow::MainMapWindow(QWidget *parent) : QMainWindow(parent) {
 
     processHandler.startLoading();
     eventCounter.setMessageSize(dataHandler->allMessages.size());
+    changeFont(17); // default
+}
+
+void MainMapWindow::changeFont(int size){
+    middleWidget->setStyleSheet("font-size: " + QString::number(size) + "px;");
 }
 void MainMapWindow::GPSstopped(){
     gpsEnabled = false;
     btnToogleGPS->setIcon(QIcon(":/resources/images/gps_off.png"));
     visualizer->removeGPSPositionPoint();
+    GPSstatusLbl->setText("GPS: off");
     statusBar()->showMessage("No GPSD running, GPS could not be started...");
 }
 void MainMapWindow::focusPointChanged(){
@@ -94,22 +101,28 @@ void MainMapWindow::focusPointChanged(){
     }
 }
 void MainMapWindow::handleError(QString error){
+    receivingEnabled = false;
+    receivingStatusLbl->setText("Receiving: off");
+    btn_toogle_receiving->setIcon(QIcon(":/resources/images/rec_off.png"));
     statusBar()->showMessage("Receiving could not be started, error: " + error);
 }
 void MainMapWindow::handleGPSData(float longitude, float latitude, float orientation){
     PointWorldCoord GPSPosition = PointWorldCoord(longitude, latitude);
     emit GPSPositionReceived(GPSPosition, orientation);
+    GPSstatusLbl->setText("GPS: on");
 }
 void MainMapWindow::toogleReceivingMessages(){
     if(!receivingEnabled){
         if(processHandler.startReceiving() == 0){
             statusBar()->showMessage("Receiving started...");
             receivingEnabled = true;
-            btn_toogle_receiving->setText("Stop receiving");
+            btn_toogle_receiving->setIcon(QIcon(":/resources/images/rec_on.png"));
+            receivingStatusLbl->setText("Receiving: on");
         }
     } else {
         receivingEnabled = false;
-        btn_toogle_receiving->setText("Start receiving");
+        btn_toogle_receiving->setIcon(QIcon(":/resources/images/rec_off.png"));
+        receivingStatusLbl->setText("Receiving: off");
 
         processHandler.stopReceiving();
         statusBar()->showMessage("Receiving stopped...");
@@ -132,6 +145,7 @@ void MainMapWindow::toogleGPS()
     if(!gpsEnabled){
         gpsEnabled = true;
         btnToogleGPS->setIcon(QIcon(":/resources/images/gps_on.png"));
+        GPSstatusLbl->setText("GPS: connecting");
         emit startTracker();
         statusBar()->showMessage("GPS started...");
     } else {
@@ -139,6 +153,7 @@ void MainMapWindow::toogleGPS()
         btnToogleGPS->setIcon(QIcon(":/resources/images/gps_off.png"));
         visualizer->removeGPSPositionPoint();
         tracker->stop();
+        GPSstatusLbl->setText("GPS: off");
         statusBar()->showMessage("GPS stopped...");
     }
 }
@@ -155,6 +170,12 @@ void MainMapWindow::modeSelected(QAction* action){
         dataHandler->autoModeOn = false;
 
         statusBar()->showMessage("Mode manual...");
+
+        leftMiddleWidget->setMinimumWidth(285);
+        leftMiddleWidget->setMaximumWidth(285);
+        changeFont(17);
+
+        emit changeGPSButtonGeometry(0, 90, QSize(50, 50));
     }
     else if( mode_auto )
     {
@@ -177,6 +198,9 @@ void MainMapWindow::modeSelected(QAction* action){
         lblFileName->setText("Current file: none");
         lblMessageIndex->setText("Messages: 0");
 
+        closeTLW();
+        toogleInfo(false);
+
         // start auto mode for crossroads
         dataHandler->autoModeOn = true;
 
@@ -189,6 +213,13 @@ void MainMapWindow::modeSelected(QAction* action){
             toogleReceivingMessages();
             statusBar()->showMessage("Mode auto, GPS started, receiving started...");
         }
+
+        leftMiddleWidget->setMinimumWidth(340);
+        leftMiddleWidget->setMaximumWidth(340);
+        changeFont(22);
+
+        emit changeGPSButtonGeometry(0, 58, QSize(50, 50));
+
         statusBar()->showMessage("Mode auto, GPS started, already receiving");
     } else { qInfo() << "That mode has not been added yet..."; }
 }
@@ -202,6 +233,7 @@ void MainMapWindow::setupTopMenu()
     QAction *fullscreen = new QAction(QIcon::fromTheme("view-fullscreen"), "&Toogle fullscreeen", this);
     QAction *maximize = new QAction("&Maximize window", this); // this->style()->standardIcon(QStyle::SP_TitleBarMaxButton)
     QAction *minimize = new QAction("&Minimize window", this); // this->style()->standardIcon(QStyle::SP_TitleBarMinButton)
+    QAction *font = new QAction("&Font toogle", this);
 
     // set shortcuts
     quit->setShortcut(tr("CTRL+Q"));
@@ -233,6 +265,7 @@ void MainMapWindow::setupTopMenu()
     settings->addAction(fullscreen);
     settings->addAction(minimize);
     settings->addAction(maximize);
+    settings->addAction(font);
 
     // *** Connects *** /
     QObject::connect(mode_group, &QActionGroup::triggered, this, &MainMapWindow::modeSelected);
@@ -241,6 +274,7 @@ void MainMapWindow::setupTopMenu()
     QObject::connect(maximize, &QAction::triggered, this, [=]() { this->showMaximized();});
     QObject::connect(minimize, &QAction::triggered, this, [=]() { this->showMinimized();});
     QObject::connect(fullscreen, &QAction::triggered, this, [=]() { (!this->isFullScreen()) ? this->showFullScreen() : this->showNormal();});
+    QObject::connect(font, &QAction::triggered, this, [=]() { (fontLarge) ? this->changeFont(17) : this->changeFont(22); fontLarge = !fontLarge;});
 }
 
 void MainMapWindow::setupMainLayout(){
@@ -331,8 +365,8 @@ void MainMapWindow::setupLeftMiddleLayout(){
     //leftMiddleWidget->setStyleSheet("border: 2px solid red");
     leftMiddleWidget->setStyleSheet("background-color: #f5f5f5");
     //leftMiddleWidget->setStyleSheet("background-color: green");
-    leftMiddleWidget->setMinimumWidth(260);
-    leftMiddleWidget->setMaximumWidth(280);
+    leftMiddleWidget->setMinimumWidth(285);
+    leftMiddleWidget->setMaximumWidth(285);
 
     QWidget * gpsToogleWidget = new QWidget();
     QHBoxLayout * gpsToogleLayout = new QHBoxLayout(gpsToogleWidget);
@@ -340,18 +374,19 @@ void MainMapWindow::setupLeftMiddleLayout(){
     gpsToogleLayout->setMargin(0);
 
     btnToogleGPS = new QPushButton(QIcon(":/resources/images/gps_off.png"), "");
-    btnToogleGPS->setIconSize(QSize(64, 64));
+    btnToogleGPS->setIconSize(QSize(80, 80));
     btnToogleGPS->setMinimumSize(80, 80);
     //btnToogleGPS->setStyleSheet("border: none");
     QObject::connect(btnToogleGPS, &QPushButton::clicked, this, &MainMapWindow::toogleGPS);
 
-    btn_toogle_receiving = new QPushButton("Start\nreceiving");
+    btn_toogle_receiving = new QPushButton(QIcon(":/resources/images/rec_off.png"), "");
+    btn_toogle_receiving->setIconSize(QSize(80, 80));
     btn_toogle_receiving->setMinimumSize(80, 80);
-    //btn_start_receiving->setMaximumHeight(20);
-    btn_toogle_receiving->setFont(QFont("Verdana", 12));
+    //btnToogleGPS->setStyleSheet("border: none");
     QObject::connect(btn_toogle_receiving, &QPushButton::clicked, this, &MainMapWindow::toogleReceivingMessages);
 
     QWidget * logWidget = new QWidget();
+    logWidget->setContentsMargins(0, 8, 0, 0);
     //logWidget->setMaximumHeight(400);
     //logWidget->setStyleSheet("background-color: blue");
     QVBoxLayout * logWidgetLayout = new QVBoxLayout(logWidget);
@@ -382,6 +417,27 @@ void MainMapWindow::setupLeftMiddleLayout(){
 
     techScroll->setWidget(techArea);
 
+    // *** STATUS *** //
+    QWidget * logStatusWidget = new QWidget();
+    logStatusWidget->setStyleSheet("border: none; border-bottom: 1px solid grey;");
+    logStatusWidget->setContentsMargins(0, 0, 0, 8);
+
+    QHBoxLayout * logWidgetStatusLayout = new QHBoxLayout(logStatusWidget);
+    logWidgetLayout->setMargin(0);
+
+    GPSstatusLbl = new QLabel("GPS: off");
+    GPSstatusLbl->setAlignment(Qt::AlignCenter);
+    GPSstatusLbl->setStyleSheet("border: none;");
+
+    receivingStatusLbl = new QLabel("Receiving: off");
+    receivingStatusLbl->setAlignment(Qt::AlignCenter);
+    receivingStatusLbl->setStyleSheet("border: none;");
+
+
+    logWidgetStatusLayout->addWidget(GPSstatusLbl);
+    logWidgetStatusLayout->addWidget(receivingStatusLbl);
+    // *** END OF STATUS *** //
+
     logWidgetLayout->addWidget(lblLastMessage);
     logWidgetLayout->addWidget(lastMessageLogW);
     logWidgetLayout->addWidget(lblUnitLog);
@@ -391,6 +447,7 @@ void MainMapWindow::setupLeftMiddleLayout(){
     gpsToogleLayout->addWidget(btn_toogle_receiving);
 
     leftMiddleLayout->addWidget(gpsToogleWidget);
+    leftMiddleLayout->addWidget(logStatusWidget);
     leftMiddleLayout->addWidget(logWidget);
     //leftMiddleLayout->addStretch();
 }
@@ -435,9 +492,10 @@ void MainMapWindow::setupRightMiddleLayout(){
 void MainMapWindow::setupInfoWidget(){
     infoW = new QWidget();
     QVBoxLayout* infoLayout = new QVBoxLayout(infoW);
-    infoW->setMinimumSize(260, 200);
+    infoW->setMinimumSize(280, 220);
     infoLayout->setMargin(0);
-    infoLayout->setSpacing(0); // removes spaces between widgets
+    //infoLayout->setSpacing(0); // removes spaces between widgets
+    //infoLayout->setSizeConstraint(QLayout::SetMinimumSize);
 
     //infoW->setStyleSheet("border: 1px solid blue");
     infoW->setStyleSheet("background-color: #efefef");
@@ -445,32 +503,42 @@ void MainMapWindow::setupInfoWidget(){
     QSizePolicy sp_retain = infoW->sizePolicy();
     sp_retain.setRetainSizeWhenHidden(true);
     infoW->setSizePolicy(sp_retain);
-    /*
-    sp_retain = miniMap->sizePolicy();
-    sp_retain.setRetainSizeWhenHidden(true);
-    miniMap->setSizePolicy(sp_retain);
-    miniMap->hide();*/
-    //miniMap->setStyleSheet("border: 1px solid blue");
 
-    typeTe = new QLabel();
-    typeTe->setContentsMargins(5, 0, 0, 0);
-    infoTe = new QTextEdit();
+    typeLbl = new QLabel();
+    typeLbl->setContentsMargins(5, 0, 0, 0);
+    typeLbl->setFixedHeight(30);
+    typeLbl->setStyleSheet("border-bottom: 1px solid grey;");
+
+    infoLbl = new QLabel();
+    infoLbl->setAlignment(Qt::AlignTop);
+    infoLbl->setContentsMargins(5, 0, 0, 0);
+    //infoLbl->setStyleSheet("background-color: red");
+
+    vehicleImageLbl = new QLabel();
+    vehicleImageLbl->setAlignment(Qt::AlignCenter);
+    //vehicleImageLbl->setMinimumHeight(170);
+    //vehicleImageLbl->setStyleSheet("background-color: blue");
+
+    QPixmap pixmap(":/resources/images/car_top.png");
+    vehicleImageLbl->setPixmap(pixmap.scaled(150, 150, Qt::KeepAspectRatio));
 
     QPushButton * closeInfoBtn = new QPushButton(QIcon(":/resources/images/close.png"), "");
     closeInfoBtn->setFixedSize(30, 30);
     closeInfoBtn->setIconSize(QSize(closeInfoBtn->width() - 10, closeInfoBtn->height() - 10));
-    closeInfoBtn->setStyleSheet("border: none");
+    closeInfoBtn->setStyleSheet("border: none; border-bottom: 1px solid grey;");
     connect(closeInfoBtn, &QPushButton::clicked, this, &MainMapWindow::toogleInfo);
 
     QWidget * topW = new QWidget();
     QHBoxLayout* layoutInInfoTop = new QHBoxLayout(topW);
     layoutInInfoTop->setSpacing(0);
     layoutInInfoTop->setMargin(0);
-    layoutInInfoTop->addWidget(typeTe, 5);
+    layoutInInfoTop->addWidget(typeLbl, 5, Qt::AlignTop);
     layoutInInfoTop->addWidget(closeInfoBtn, 1, Qt::AlignTop);
 
     infoLayout->addWidget(topW);
-    infoLayout->addWidget(infoTe);
+    infoLayout->addWidget(infoLbl);
+    infoLayout->addWidget(vehicleImageLbl);
+    infoLayout->addStretch(0);
 }
 void MainMapWindow::setupLayoutTrafficLights(){
     trafficLightsW = new QWidget();
@@ -544,19 +612,33 @@ void MainMapWindow::hazardClicked(long originatingStationID, int sequenceNumber)
     if(dataHandler->currentInfoStation != nullptr){
         // remove path and information from preveiously selected station
         visualizer->removeVehiclePath(dataHandler->currentInfoStation);
-        infoTe->setText("");
-        typeTe->setText("");
+        typeLbl->setText("");
+        infoLbl->setText("");
         dataHandler->currentInfoStation = nullptr;
     }
+    vehicleImageLbl->clear();
+
+    typeLbl->setText("<strong>" + hazard->causeCodeStr + "</strong>");
 
     QString boxText;
-    // show information about new station
 
-    typeTe->setText("<strong>" + hazard->causeCodeStr + "</strong>");
-    boxText += "Detection time: " + QString::number(hazard->detectionTime) + "\n";
+    if(hazard->detectionTime > 1680523524){
+        boxText += "Detection time: unknown\n";
+    }
+    else{
+        boxText += "Detection time: " + QString::number(hazard->detectionTime) + "\n";
+    }
+
     boxText += "Specification: " + hazard->subCauseCodeStr + "\n";
 
-    infoTe->setText(boxText);
+    if(hazard->termination){
+        boxText += "Has terminated? yes\n";
+    }
+    else{
+       boxText  += "Has terminated? no\n";
+    }
+
+    infoLbl->setText(boxText);
     toogleInfo(true);
 
 }
@@ -573,8 +655,9 @@ void MainMapWindow::unitClicked(long stationID){
         if(dataHandler->currentInfoStation != nullptr){
             visualizer->removeVehiclePath(dataHandler->currentInfoStation);
         }
-        infoTe->setText("");
-        typeTe->setText("");
+        typeLbl->setText("");
+        infoLbl->setText("");
+        vehicleImageLbl->clear();
         dataHandler->currentInfoStation = unit;
     }
 
@@ -583,26 +666,71 @@ void MainMapWindow::unitClicked(long stationID){
     changeInfo();
     toogleInfo(true);
 }
-void MainMapWindow::changeInfo(){
+void MainMapWindow::changeInfo()
+{
     QString boxText;
-    // show information about new station
+    QPixmap pixmap;
+    QMatrix rm;
 
-    typeTe->setText("<strong>" + dataHandler->currentInfoStation->typeStr + "</strong>");
-    boxText += "Speed: " + QString::number(dataHandler->currentInfoStation->speed) + " km/h\n";
-    boxText += "Heading: " + QString::number(dataHandler->currentInfoStation->heading) + "˚\n";
-    boxText += "Vehicle length: " + QString::number(dataHandler->currentInfoStation->vehicleLength) + "m\n";
-    boxText += "Vehicle width: " + QString::number(dataHandler->currentInfoStation->vehicleWidth) + "m\n";
-    boxText += "Vehicle role: " + dataHandler->currentInfoStation->vehicleRoleStr + "\n";
-    boxText += "Left turn signal on: " + QString::number(dataHandler->currentInfoStation->leftTurnSignalOn) + "\n";
-    boxText += "Right turn signal on: " + QString::number(dataHandler->currentInfoStation->rightTurnSignalOn) + "\n";
-    boxText += "Position: " + QString::number(dataHandler->currentInfoStation->longitude, 'f', 7) + ", " + QString::number(dataHandler->currentInfoStation->latitude, 'f', 7) + "\n";
-    boxText += "Last update: " + dataHandler->currentInfoStation->getTimeFormatted(dataHandler->currentInfoStation->timeEpoch) + "\n";
+    typeLbl->setText("<strong>" + dataHandler->currentInfoStation->typeStr + "</strong>");
 
-    infoTe->setText(boxText);
+    if(dataHandler->currentInfoStation->stationType == 11)
+    {
+        // Tram
+        if(dataHandler->currentInfoStation->leftTurnSignalOn)
+        {
+            pixmap.load(":/resources/images/tram_top_left.png");
+        }
+        else if(dataHandler->currentInfoStation->rightTurnSignalOn)
+        {
+            pixmap.load(":/resources/images/tram_top_right.png");
+        }
+        else
+        {
+            pixmap.load(":/resources/images/tram_top.png");
+        }
+        boxText += "Speed: " + QString::number(dataHandler->currentInfoStation->speed) + " km/h\n";
+        boxText += "Length, width: " + QString::number(dataHandler->currentInfoStation->vehicleLength) + ", " +
+                QString::number(dataHandler->currentInfoStation->vehicleWidth) + " m\n";
+        boxText += "Role: " + dataHandler->currentInfoStation->vehicleRoleStr + "\n";
+    }
+    else if(dataHandler->currentInfoStation->stationType == 15)
+    {
+        // RSU
+        pixmap.load(":/resources/images/rsu_info.png");
+    }
+    else
+    {
+        // anything else
+        if(dataHandler->currentInfoStation->leftTurnSignalOn)
+        {
+            pixmap.load(":/resources/images/car_top_left.png");
+        }
+        else if(dataHandler->currentInfoStation->rightTurnSignalOn)
+        {
+            pixmap.load(":/resources/images/car_top_right.png");
+        }
+        else
+        {
+            pixmap.load(":/resources/images/car_top.png");
+        }
+        boxText += "Speed: " + QString::number(dataHandler->currentInfoStation->speed) + " km/h\n";
+        boxText += "Length, width: " + QString::number(dataHandler->currentInfoStation->vehicleLength) + ", " +
+                QString::number(dataHandler->currentInfoStation->vehicleWidth) + " m\n";
+        boxText += "Role: " + dataHandler->currentInfoStation->vehicleRoleStr + "\n";
+    }
+
+    boxText += "Last update: " + dataHandler->currentInfoStation->getTimeFormatted(dataHandler->currentInfoStation->timeEpoch, true);
+
+    rm.rotate(dataHandler->currentInfoStation->heading - 270.0f);
+    pixmap = pixmap.transformed(rm);
+    vehicleImageLbl->setPixmap(pixmap.scaled(250, 250, Qt::KeepAspectRatio));
+
+    infoLbl->setText(boxText);
 }
 
-void MainMapWindow::newMessageToLog(std::shared_ptr<Message> message){
-
+void MainMapWindow::newMessageToLog(std::shared_ptr<Message> message)
+{
     // update last message
     lastMessageLogW->setWidgetInfo(message);
 

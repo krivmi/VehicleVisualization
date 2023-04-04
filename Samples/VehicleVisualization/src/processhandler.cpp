@@ -19,30 +19,33 @@ ProcessHandler::ProcessHandler(QObject *parent): QObject{parent}
 }
 int ProcessHandler::startReceiving(){
     //QString cmd2 = "/bin/sh -c \"tshark -r /tmp/tcpdump_data -T json";
+    //QString cmd2 = "/bin/sh -c \"echo krivanek | sudo -S stdbuf -i0 -o0 -e0 tshark -i hwsim0 -T json"; //
 
     QObject::connect(&receiveDataProcess, &QProcess::started, [=]{
-        qDebug() << "Receiving started...";
+        qInfo() << "Receiving started...";
     });
     QObject::connect(&receiveDataProcess, &QProcess::readyReadStandardOutput, [=]{
-        //qDebug() << receiveDataProcess->readAllStandardOutput();
+        //qInfo() << receiveDataProcess->readAllStandardOutput();
+        //MessageParser::getInstance().clear();
         MessageParser::getInstance().findMessagesInStream((QString)receiveDataProcess.readAllStandardOutput());
     });
     QObject::connect(&receiveDataProcess, &QProcess::readyReadStandardError, [=]{
-        //qDebug() << receiveDataProcess.readAllStandardError();
-        emit error(receiveDataProcess.readAllStandardError());
+        qInfo() << receiveDataProcess.readAllStandardError();
     });
 
-    receiveDataProcess.start(this->receivingCommand);
+    receiveDataProcess.start(this->receivingCommand); // cmd2
 
     if(receiveDataProcess.state() != QProcess::NotRunning){
         return 0;
     }
     qInfo() << "Process could not be started.";
+    //emit error(receiveDataProcess.readAllStandardError());
     return 1;
 }
 void ProcessHandler::stopReceiving(){
     receiveDataProcess.close();
-    qDebug() << "Receiving stoped...";
+    qInfo() << "Receiving stoped...";
+    MessageParser::getInstance().clear();
 }
 
 int ProcessHandler::startLoading(){

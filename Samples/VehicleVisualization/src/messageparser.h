@@ -32,13 +32,16 @@ public:
     void parseSPATEM(QJsonObject packetObj);
     void parseGEONW(QJsonObject packetObj);
 
+    void clear();
+
 signals:
     void messagesParsed(QString message);
     void messageParsed(std::shared_ptr<Message> message);
 
 private:
     MessageParser();
-    QStack <QChar> stack;
+    QStack <QChar> * stack;
     QString json_message;
+
 };
 

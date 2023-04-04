@@ -1,7 +1,8 @@
 #include "cam.h"
 #include <ctime>
 
-QString Cam::getTimeFormatted(double timeEpoch){
+QString Cam::getTimeFormatted(double timeEpoch, bool justHMS)
+{
     time_t time = static_cast<time_t>(timeEpoch);
 
     // Convert time_t to tm structure
@@ -11,10 +12,18 @@ QString Cam::getTimeFormatted(double timeEpoch){
     char buffer[20];
 
     // Format the date string using strftime function
-    std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", tm);
+    if(justHMS)
+    {
+        std::strftime(buffer, sizeof(buffer), "%H:%M:%S", tm);
+    }
+    else
+    {
+        std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", tm);
+    }
 
     return buffer;
 }
+
 void Cam::update(std::shared_ptr<Cam> newUnit){
     this->longitude = newUnit->longitude;
     this->latitude = newUnit->latitude;

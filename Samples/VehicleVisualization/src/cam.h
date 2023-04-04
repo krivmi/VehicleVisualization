@@ -66,7 +66,7 @@ class Cam: public Message {
             this->vehicleLength = vehicleLength;
             this->vehicleWidth = vehicleWidth;
             this->vehicleRole = vehicleRole;
-            this->vehicleRoleStr = "";
+            this->vehicleRoleStr = "Unknown";
             this->lowBeamHeadlightsOn = lowBeamHeadlightsOn;
             this->highBeamHeadlightsOn = highBeamHeadlightsOn;
             this->leftTurnSignalOn = leftTurnSignalOn;
@@ -77,9 +77,11 @@ class Cam: public Message {
             this->parkingLightsOn = parkingLightsOn;
             this->timeEpoch = timeEpoch;
 
-            if(this->vehicleRole == 1){
+            if(this->vehicleRole == 1)
+            {
                 this->vehicleRoleStr = "Public transport";
-            } // ...TODO
+            }
+            // ...TODO
 
             // see: en 302 636-04 1.2.1
             if(this->stationType == 1){
@@ -156,7 +158,7 @@ class Cam: public Message {
         void update(std::shared_ptr<Cam> newUnit);
 
         QString GetProtocol() { return "Cam"; };
-        QString getTimeFormatted(double timeEpoch);
+        QString getTimeFormatted(double timeEpoch, bool justHMS = false);
 };
 
 #endif // CAM_H
