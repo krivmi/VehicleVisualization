@@ -1,5 +1,4 @@
-#ifndef LOGWIDGET_H
-#define LOGWIDGET_H
+#pragma once
 
 #include "message.h"
 #include "cam.h"
@@ -41,5 +40,3 @@ signals:
     void clicked(std::shared_ptr <Message> message);
     void lifeTimeExceeded(std::shared_ptr <Message> message);
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef MESSAGE_H
-#define MESSAGE_H
+#pragma once
 
 #include <QMapControl/QMapControl.h>
 
@@ -26,5 +25,3 @@ public:
     virtual QString GetProtocol() = 0;
 
 };
-
-#endif // MESSAGE_H

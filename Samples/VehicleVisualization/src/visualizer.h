@@ -1,5 +1,4 @@
-#ifndef VISUALIZER_H
-#define VISUALIZER_H
+#pragma once
 
 #include "message.h"
 #include "cam.h"
@@ -77,5 +76,3 @@ private:
     std::shared_ptr<LayerGeometry> navigation_layer;
 
 };
-
-#endif // VISUALIZER_H

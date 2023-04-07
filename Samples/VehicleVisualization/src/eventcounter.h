@@ -1,5 +1,4 @@
-#ifndef EVENTCOUNTER_H
-#define EVENTCOUNTER_H
+#pragma once
 
 #include "cam.h"
 #include "datahandler.h"
@@ -39,8 +38,4 @@ private:
     int messagesIndex = 0;
     int messagesSize = 0;
     int TPS = 10;
-
-    //QVector <Message*> messages;
 };
-
-#endif // EVENTCOUNTER_H

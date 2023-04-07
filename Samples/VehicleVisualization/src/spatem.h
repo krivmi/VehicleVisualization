@@ -1,5 +1,4 @@
-#ifndef SPATEM_H
-#define SPATEM_H
+#pragma once
 
 #include "message.h"
 #include "QVector"
@@ -45,5 +44,3 @@ public:
 
     QString GetProtocol() { return "Spatem"; };
 };
-
-#endif // SPATEM_H

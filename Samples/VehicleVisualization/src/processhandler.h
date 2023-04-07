@@ -1,5 +1,4 @@
-#ifndef PROCESSHANDLER_H
-#define PROCESSHANDLER_H
+#pragma once
 
 #include <QObject>
 #include <QProcess>
@@ -21,6 +20,11 @@ public:
 
     bool fileChanged;
     QString currentFile;
+public slots:
+    void readyReadOutput();
+    void readyReadError();
+    void processStarted();
+
 signals:
     void error(QString error);
 private:
@@ -29,5 +33,3 @@ private:
     QString receivingCommand;
     QString loadingCommand;
 };
-
-#endif // PROCESSHANDLER_H

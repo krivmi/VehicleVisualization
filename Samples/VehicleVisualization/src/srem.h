@@ -1,5 +1,4 @@
-#ifndef SREM_H
-#define SREM_H
+#pragma once
 
 #include "message.h"
 #include "QVector"
@@ -43,5 +42,3 @@ public:
 
     QString GetProtocol() { return "Srem"; };
 };
-
-#endif // SREM_H

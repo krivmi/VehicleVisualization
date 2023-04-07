@@ -1,5 +1,4 @@
-#ifndef TRAFFICLIGHTWIDGET_H
-#define TRAFFICLIGHTWIDGET_H
+#pragma once
 
 #include "mapem.h"
 
@@ -34,9 +33,4 @@ private:
     QPixmap trafficLightPixmap;
     QPixmap directionPixmap;
 private slots:
-
-signals:
-
 };
-
-#endif // TRAFFICLIGHTWIDGET_H

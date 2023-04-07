@@ -1,5 +1,4 @@
-#ifndef DATAHANDLER_H
-#define DATAHANDLER_H
+#pragma once
 
 #include <QObject>
 #include <sys/time.h>
@@ -103,5 +102,3 @@ private:
     Visualizer * visualizer;
     QQueue <GPSInfo> gpsHistory;
 };
-
-#endif // DATAHANDLER_H

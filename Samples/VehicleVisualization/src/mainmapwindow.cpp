@@ -171,8 +171,8 @@ void MainMapWindow::modeSelected(QAction* action){
 
         statusBar()->showMessage("Mode manual...");
 
-        leftMiddleWidget->setMinimumWidth(285);
-        leftMiddleWidget->setMaximumWidth(285);
+        leftMiddleWidget->setMinimumWidth(300);
+        leftMiddleWidget->setMaximumWidth(300);
         changeFont(17);
 
         emit changeGPSButtonGeometry(0, 90, QSize(50, 50));
@@ -365,8 +365,8 @@ void MainMapWindow::setupLeftMiddleLayout(){
     //leftMiddleWidget->setStyleSheet("border: 2px solid red");
     leftMiddleWidget->setStyleSheet("background-color: #f5f5f5");
     //leftMiddleWidget->setStyleSheet("background-color: green");
-    leftMiddleWidget->setMinimumWidth(285);
-    leftMiddleWidget->setMaximumWidth(285);
+    leftMiddleWidget->setMinimumWidth(300);
+    leftMiddleWidget->setMaximumWidth(300);
 
     QWidget * gpsToogleWidget = new QWidget();
     QHBoxLayout * gpsToogleLayout = new QHBoxLayout(gpsToogleWidget);

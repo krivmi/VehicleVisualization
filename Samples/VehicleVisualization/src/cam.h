@@ -1,5 +1,4 @@
-﻿#ifndef CAM_H
-#define CAM_H
+﻿#pragma once
 
 #include "message.h"
 #include "srem.h"
@@ -160,5 +159,3 @@ class Cam: public Message {
         QString GetProtocol() { return "Cam"; };
         QString getTimeFormatted(double timeEpoch, bool justHMS = false);
 };
-
-#endif // CAM_H

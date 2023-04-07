@@ -1,5 +1,4 @@
-#ifndef MAPEM_H
-#define MAPEM_H
+#pragma once
 
 #include "message.h"
 #include "QVector"
@@ -85,7 +84,3 @@ class Mapem : public Message {
 
         QString GetProtocol() { return "Mapem"; };
 };
-
-
-#endif // MAPEM_H
-

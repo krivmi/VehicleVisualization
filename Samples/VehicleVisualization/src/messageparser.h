@@ -10,6 +10,7 @@
 #include <QChar>
 #include <QObject>
 
+// Singleton class
 class MessageParser : public QObject
 {
     Q_OBJECT
@@ -18,12 +19,16 @@ public:
         static MessageParser instance; // Guaranteed to be destroyed, Instantiated on first use.
         return instance;
     }
-
-    bool findMessagesInStream(QString messageStream);
-    void processMessage();
     int loadJSONFromString(QString jsonString);
-    QString printMessage();
+    void findMessagesInStream(QString messageStream);
+    void clear();
+signals:
+    void messagesParsed(QString message);
+    void messageParsed(std::shared_ptr<Message> message);
+private:
+    MessageParser();
 
+    void processMessage();
     void recognizeMessage(QJsonObject jsonObject);
     void parseCAM(QJsonObject packetObj);
     void parseDENM(QJsonObject packetObj);
@@ -32,15 +37,7 @@ public:
     void parseSPATEM(QJsonObject packetObj);
     void parseGEONW(QJsonObject packetObj);
 
-    void clear();
-
-signals:
-    void messagesParsed(QString message);
-    void messageParsed(std::shared_ptr<Message> message);
-
-private:
-    MessageParser();
-    QStack <QChar> * stack;
+    QStack <QChar> stack;
     QString json_message;
 
 };

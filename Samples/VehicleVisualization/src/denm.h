@@ -1,5 +1,4 @@
-#ifndef DENM_H
-#define DENM_H
+#pragma once
 
 #include "message.h"
 #include "QVector"
@@ -40,5 +39,3 @@ public:
     void getCauseCodeStrings(); // should be renamed
     QString GetProtocol() { return "Denm"; };
 };
-
-#endif

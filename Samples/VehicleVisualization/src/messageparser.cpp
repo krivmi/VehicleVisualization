@@ -1,5 +1,6 @@
 #include "messageparser.h"
 #include "message.h"
+
 #include <stdexcept>
 #include <memory>
 
@@ -10,14 +11,12 @@
 #include <QJsonArray>
 #include <QJsonParseError>
 
-MessageParser::MessageParser(){
-    stack = new QStack<QChar>();
-}
+MessageParser::MessageParser(){}
 
 void MessageParser::clear()
 {
     json_message = "";
-    stack->clear();
+    stack.clear();
 }
 
 int MessageParser::loadJSONFromString(QString jsonString){
@@ -37,11 +36,13 @@ int MessageParser::loadJSONFromString(QString jsonString){
         return 1;
     }
 
+    // loop over all messages and recognize them
     for(int i = 0; i< loadedMessagesArray.count(); i++){
         QJsonObject packetObj = loadedMessagesArray.at(i).toObject();
         this->recognizeMessage(packetObj);
     }
 
+    // emit success after success
     emit messagesParsed("loadedMessagesArray");
 
     return 0;
@@ -93,18 +94,18 @@ void MessageParser::processMessage()
 
     json_message.clear();
 }
-bool MessageParser::findMessagesInStream(QString messageStream){
+void MessageParser::findMessagesInStream(QString messageStream){
     bool message_completed = false;
     int completed_at_index = -1;
     //qInfo() << "LStream:" << messageStream;
 
     for (int i = 0; i < messageStream.length(); i++) {
         if(messageStream[i] == '}'){
-            if ( (stack->top() == '{')) {
+            if ( !stack.isEmpty() && (stack.top() == '{')) {
                 // if we found any complete pair of bracket then pop
-                stack->pop();
+                stack.pop();
 
-                if (stack->empty()) { // if stack is empty, we have a complete message
+                if (stack.empty()) { // if stack is empty, we have a complete message
                     json_message.append(messageStream.mid(0, i + 1)); // append the end of the message
                     processMessage();
                     //qInfo() <<  "process message";
@@ -114,11 +115,11 @@ bool MessageParser::findMessagesInStream(QString messageStream){
                 }
             }
             else {
-                stack->push(messageStream[i]);
+                stack.push(messageStream[i]);
             }
         }
         else if(messageStream[i] == '{'){
-            stack->push(messageStream[i]);
+            stack.push(messageStream[i]);
         }
     }
     if(message_completed){ // nebude to fungovat, pokud se do jednoho řádku vleze více zpráv
@@ -127,11 +128,6 @@ bool MessageParser::findMessagesInStream(QString messageStream){
     else{
         json_message.append(messageStream);
     }
-
-}
-QString MessageParser::printMessage()
-{
-    return json_message;
 }
 void MessageParser::parseCAM(QJsonObject packetObj){
     QJsonObject _source = packetObj["_source"].toObject();
