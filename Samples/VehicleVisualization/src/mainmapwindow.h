@@ -136,6 +136,8 @@ private:
 
     bool fontLarge = false;
     void changeFont(int size);
+    void initSettingsDialog();
+    void initSettings();
 
     void setupTopMenu();
     void setupTopBar();

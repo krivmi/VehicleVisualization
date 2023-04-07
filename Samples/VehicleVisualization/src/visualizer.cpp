@@ -1,5 +1,5 @@
 #include "visualizer.h"
-#include "dialogs.h"
+//#include "dialogs.h"
 #include <math.h>
 #include <qrandom.h>
 
@@ -273,11 +273,11 @@ void Visualizer::geometryClickEvent(const Geometry* geometry)
         {
             long laneID = geometry->metadata("id").toLongLong();
 
-            InfoDialog* info_dialog = new InfoDialog(this->m_map_control);
+            /*InfoDialog* info_dialog = new InfoDialog(this->m_map_control);
             info_dialog->setWindowTitle("Lane");
             QString infoText = "ID: " + QString::number(laneID);
             info_dialog->setInfotext(infoText);
-            //info_dialog->show();
+            //info_dialog->show();*/
         }
         else if(geometry->metadata("name").toString() == "trafficLight")
         {
@@ -287,10 +287,10 @@ void Visualizer::geometryClickEvent(const Geometry* geometry)
             QString sameTrafficLightStr = geometry->metadata("sameTrafficLight").toString();
             bool sameTrafficLight = (sameTrafficLightStr == "true") ? true : false;
 
-            InfoDialog* info_dialog = new InfoDialog(this->m_map_control);
+            /*InfoDialog* info_dialog = new InfoDialog(this->m_map_control);
             info_dialog->setWindowTitle("Traffic Light");
             info_dialog->setInfotext(text);
-            //info_dialog->show();
+            //info_dialog->show();*/
 
             emit trafficLightClick(crossroadID, adjacentIngressLanesIndex, sameTrafficLight);
         }

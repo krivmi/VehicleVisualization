@@ -6,34 +6,41 @@
 
 #include "messageparser.h"
 
-ProcessHandler::ProcessHandler(QObject *parent): QObject{parent}
+ProcessHandler::ProcessHandler(QObject *parent): QObject{parent},
+    fileChanged(false), currentFile("")
 {
-    QSettings settings(":/resources/config/app.ini", QSettings::IniFormat);
+    this->changeCommandsFromSettings();
+}
+ProcessHandler::~ProcessHandler()
+{
+    loadDataProcess.close();
+    receiveDataProcess.close();
+}
+
+void ProcessHandler::changeCommandsFromSettings()
+{
+    QSettings settings("krivmi", "VehicleVisualization");
     this->receivingCommand = settings.value("receivingCommand").toString();
     this->loadingCommand = settings.value("loadingCommand").toString();
-    QString projectPath = settings.value("projectPath").toString();
-    //qInfo() << settings.fileName();
-
-    this->fileChanged = false;
-    this->currentFile = projectPath + "Samples/resources/trafficFiles/capture_X1_02.pcap";
 }
+
 void ProcessHandler::readyReadOutput(){
-    //qInfo() << receiveDataProcess->readAllStandardOutput();
-    //MessageParser::getInstance().clear();
+    // get MessageParser and parse messages in a ready output stream
     MessageParser::getInstance().findMessagesInStream((QString)receiveDataProcess.readAllStandardOutput());
 }
 void ProcessHandler::readyReadError(){
-    qInfo() << "Ajaaaj";
+    // oftenly it is not actually an error but a warning
     qInfo() << receiveDataProcess.readAllStandardError();
 }
 void ProcessHandler::processStarted(){
-    qInfo() << "Receiving started...";
+    qInfo() << "Receiving started: " << this->receivingCommand;
 }
 int ProcessHandler::startReceiving(){
     //QString cmd2 = "/bin/sh -c \"tshark -r /tmp/tcpdump_data -T json";
     QString cmd2 = "/bin/sh -c \"echo krivanek | sudo -S stdbuf -i0 -o0 -e0 tshark -i hwsim0 -T json"; //
 
-    receiveDataProcess.start(cmd2); // this->receivingCommand
+    receiveDataProcess.start(this->receivingCommand); // cmd2
+    qInfo() << "Receiving command: " << this->receivingCommand;
 
     QObject::connect(&receiveDataProcess, &QProcess::started, this, &ProcessHandler::processStarted);
     QObject::connect(&receiveDataProcess, &QProcess::readyReadStandardOutput, this, &ProcessHandler::readyReadOutput);
@@ -53,11 +60,15 @@ void ProcessHandler::stopReceiving(){
 }
 
 int ProcessHandler::startLoading(){
+
+    if(this->currentFile.isEmpty()){
+        qInfo() << "Loading file has not yet been specified...";
+    }
     qInfo() << "Loading file: " << this->currentFile;
 
     //QString cmd = "/bin/sh -c \"tshark -r " + this->currentFile +" -T json";
     QString cmd = this->loadingCommand;
-    cmd.replace("%FILE", this->currentFile);
+    cmd.replace("%FILE", this->currentFile); // path + filename
 
     loadDataProcess.start(cmd);
     loadDataProcess.waitForFinished(-1); // will wait forever until finished

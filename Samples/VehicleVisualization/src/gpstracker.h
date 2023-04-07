@@ -9,7 +9,6 @@ class GPSTracker: public QObject
 
 public:
     GPSTracker();
-    ~GPSTracker() { }
     void stop();
     void start();
 

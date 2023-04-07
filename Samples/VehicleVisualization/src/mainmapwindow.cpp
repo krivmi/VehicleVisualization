@@ -1,5 +1,5 @@
 #include "mainmapwindow.h"
-#include "dialogs.h"
+#include "initdialog.h"
 #include "cam.h"
 #include "mapem.h"
 #include "messageparser.h"
@@ -25,6 +25,7 @@
 #include <QJsonArray>
 #include <QJsonParseError>
 #include <QScrollArea>
+#include <QSettings>
 
 // QMapControl includes.
 #include <QMapControl/GeometryLineString.h>
@@ -37,9 +38,10 @@
 #include <QMapControl/MapAdapterGoogle.h>
 #include <QMapControl/MapAdapterOSM.h>
 
-MainMapWindow::MainMapWindow(QWidget *parent) : QMainWindow(parent) {
-
-    setupMaps(); // Setup the maps
+MainMapWindow::MainMapWindow(QWidget *parent) : QMainWindow(parent)
+{
+    initSettings();
+    setupMaps();
     setupTopMenu();
     setupMainLayout();
 
@@ -80,11 +82,12 @@ MainMapWindow::MainMapWindow(QWidget *parent) : QMainWindow(parent) {
 
     QObject::connect(&processHandler, &ProcessHandler::error, this, &MainMapWindow::handleError);
 
+    // *** delete before release
+    processHandler.currentFile = "/home/krivmi/QT_projects/QMapControl/Samples/resources/trafficFiles/capture_X1_02.pcap";
+    lblFileName->setText("Current file: " + getFileNameFromPath(processHandler.currentFile));
     processHandler.startLoading();
     eventCounter.setMessageSize(dataHandler->allMessages.size());
-    changeFont(17); // default
 }
-
 void MainMapWindow::changeFont(int size){
     middleWidget->setStyleSheet("font-size: " + QString::number(size) + "px;");
 }
@@ -136,7 +139,7 @@ void MainMapWindow::setupMaps(){
     m_map_control->addLayer(std::make_shared<LayerMapAdapter>("Map", std::make_shared<MapAdapterOSM>()));
     //m_map_control->addLayer(std::make_shared<LayerMapAdapter>("Map", std::make_shared<MapAdapterGoogle>()));
 
-    // nastavení bodu zaměření a přiblížení na Ostravu
+    // set focus on Ostrava
     m_map_control->setMapFocusPoint(PointWorldCoord(18.284743, 49.838337));
     m_map_control->setZoom(18);
 }
@@ -234,6 +237,7 @@ void MainMapWindow::setupTopMenu()
     QAction *maximize = new QAction("&Maximize window", this); // this->style()->standardIcon(QStyle::SP_TitleBarMaxButton)
     QAction *minimize = new QAction("&Minimize window", this); // this->style()->standardIcon(QStyle::SP_TitleBarMinButton)
     QAction *font = new QAction("&Font toogle", this);
+    QAction *init = new QAction("&Change settings", this);
 
     // set shortcuts
     quit->setShortcut(tr("CTRL+Q"));
@@ -266,6 +270,7 @@ void MainMapWindow::setupTopMenu()
     settings->addAction(minimize);
     settings->addAction(maximize);
     settings->addAction(font);
+    settings->addAction(init);
 
     // *** Connects *** /
     QObject::connect(mode_group, &QActionGroup::triggered, this, &MainMapWindow::modeSelected);
@@ -275,8 +280,36 @@ void MainMapWindow::setupTopMenu()
     QObject::connect(minimize, &QAction::triggered, this, [=]() { this->showMinimized();});
     QObject::connect(fullscreen, &QAction::triggered, this, [=]() { (!this->isFullScreen()) ? this->showFullScreen() : this->showNormal();});
     QObject::connect(font, &QAction::triggered, this, [=]() { (fontLarge) ? this->changeFont(17) : this->changeFont(22); fontLarge = !fontLarge;});
+    QObject::connect(init, &QAction::triggered, this, &MainMapWindow::initSettingsDialog);
 }
+void MainMapWindow::initSettings(){
+    QSettings settings("krivmi", "VehicleVisualization");
+    QString path = settings.value("projectPath").toString();
+    QString recCommand = settings.value("receivingCommand").toString();
+    QString loadCommand = settings.value("loadingCommand").toString();
+    QString host = settings.value("GPSD/host").toString();
+    QString port = settings.value("GPSD/port").toString();
+    qInfo() << settings.fileName();
 
+    if (path.isEmpty() || recCommand.isEmpty() || loadCommand.isEmpty() ||
+            host.isEmpty() || port.isEmpty()) {
+        settings.setValue("projectPath", "/home/krivmi/QT_projects/QMapControl/");
+        settings.setValue("receivingCommand", "/bin/sh -c \"tshark -r /tmp/tcpdump_data -T json");
+        settings.setValue("loadingCommand", "/bin/sh -c \"tshark -r %FILE -T json");
+        settings.setValue("GPSD/host", "127.0.0.1");
+        settings.setValue("GPSD/port", "2947");
+
+        statusBar()->showMessage("Default settings loaded...");
+        return;
+    }
+    statusBar()->showMessage("Settings have been already loaded...");
+}
+void MainMapWindow::initSettingsDialog(){
+    InitDialog * initDialog = new InitDialog(this->m_map_control);
+    QObject::connect(initDialog, &InitDialog::submitOK, &processHandler, &ProcessHandler::changeCommandsFromSettings);
+
+    initDialog->show();
+}
 void MainMapWindow::setupMainLayout(){
     QWidget * main = new QWidget(this);
     mainAppLayout = new QVBoxLayout(main);
@@ -952,35 +985,6 @@ void MainMapWindow::openFile(){
         qInfo() << fileName;
         processHandler.fileChanged = true;
         processHandler.currentFile = fileName;
-/*
-        // clear data from playing
-        eventCounter.reset();
-        eventCounter.setMessageSize(0);
-        eventCounter.newPlayingCycle = true;
-
-        // clear data on canvas
-        visualizer->removeAllGeometries(false);
-
-        dataHandler->clearData();
-        deleteLogWidgets();
-
-        lblFileName->setText("Current file: " + getFileNameFromPath(fileName));
-        lblMessageIndex->setText("Message: 0");
-
-        // load messages here
-        statusBar()->showMessage("Loading messages...");
-        processHandler.startLoading();
-        eventCounter.setMessageSize(dataHandler->allMessages.size());
-        visualizer->removeAllGeometries(false);
-        dataHandler->deleteCamUnits();
-        dataHandler->deleteMapemUnits();
-        dataHandler->deleteSpatemMessages();
-        dataHandler->deleteDenmMessages();
-        deleteLogWidgets();
-        statusBar()->showMessage("Messages loaded...");
-
-        statusBar()->showMessage("Ready for playing...");
-        */
 
         // clear data from playing
         eventCounter.reset();

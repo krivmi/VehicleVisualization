@@ -15,9 +15,9 @@ HEADERS +=                      \
     src/cam.h \
     src/datahandler.h \
     src/denm.h \
-    src/dialogs.h \
     src/eventcounter.h \
     src/gpstracker.h \
+    src/initdialog.h \
     src/logwidget.h \
     src/mainmapwindow.h \
     src/mapem.h \
@@ -34,9 +34,9 @@ SOURCES +=                      \
     src/cam.cpp \
     src/datahandler.cpp \
     src/denm.cpp \
-    src/dialogs.cpp \
     src/eventcounter.cpp \
     src/gpstracker.cpp \
+    src/initdialog.cpp \
     src/logwidget.cpp \
     src/main.cpp                \
     src/mainmapwindow.cpp \

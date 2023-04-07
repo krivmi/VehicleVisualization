@@ -5,7 +5,7 @@
 #include "mapem.h"
 #include "spatem.h"
 #include "denm.h"
-#include "dialogs.h"
+//#include "dialogs.h"
 
 // Qt includes.
 #include <QApplication>

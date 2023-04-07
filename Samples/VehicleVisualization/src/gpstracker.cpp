@@ -21,7 +21,7 @@ void GPSTracker::stop()
 }
 void GPSTracker::trackGPS()
 {
-    QSettings settings(":/resources/config/app.ini", QSettings::IniFormat);
+    QSettings settings("krivmi", "VehicleVisualization");
     QString host = settings.value("GPSD/host").toString();
     QString port = settings.value("GPSD/port").toString();
 
