@@ -19,6 +19,7 @@ public:
     void setDirectionPixmap(int state);
     void setAllowedDirection();
     void setResidualTime(int timeStamp, int moy, int likelyTime);
+    void setResidualTime(bool noData);
 
     int signalGroup;
     QVector <QString> maneuvers;

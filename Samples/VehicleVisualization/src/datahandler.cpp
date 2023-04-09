@@ -249,8 +249,34 @@ void DataHandler::SPATEMReceived(std::shared_ptr<Spatem> newSPATEM)
                         int signalGroupState = newSPATEM->movementStates[k].movementEvents[0].eventState;
 
                         int likelyTime = newSPATEM->movementStates[k].movementEvents[0].likelyTime;
+                        int startTime = newSPATEM->movementStates[k].movementEvents[0].startTime;
+                        int minEndTime = newSPATEM->movementStates[k].movementEvents[0].minEndTime;
+                        int maxEndTime = newSPATEM->movementStates[k].movementEvents[0].maxEndTime;
 
-                        w->setResidualTime(timeStamp, moy, likelyTime);
+                        if(likelyTime > 0)
+                        {
+                            // if likelyTime is defined (time is likely, not certain)
+                            w->setResidualTime(timeStamp, moy, likelyTime);
+                        }
+                        else if(startTime > 0 && minEndTime > 0 && maxEndTime > 0 && (minEndTime == maxEndTime))
+                        {
+                            // if minEndTime is the same as maxEndtime and they are not null (time is certainly known)
+                            w->setResidualTime(timeStamp, moy, likelyTime);
+                        }
+                        else if(startTime > 0 && minEndTime > 0 && maxEndTime > 0 && (minEndTime != maxEndTime))
+                        {
+                            // if minEndTime and maxEndtime are different and there is no likely time
+                            // TODO - make better prediction maybe ?
+                            likelyTime = (maxEndTime - minEndTime) / 2; // make an average
+                            w->setResidualTime(timeStamp, moy, likelyTime);
+                        }
+                        else
+                        {
+                            // if no timing is defined
+                            w->setResidualTime(true); // no data = true
+                        }
+
+
                         w->setTrafficLightPixmap(signalGroupState);
 
                         //visualizer->changeTrafficLight(w->trafficLightMapPoint, signalGroupState);

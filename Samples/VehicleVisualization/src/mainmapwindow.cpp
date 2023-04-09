@@ -2,6 +2,7 @@
 #include "initdialog.h"
 #include "cam.h"
 #include "mapem.h"
+#include "math.h"
 
 #include <QMenu>
 #include <QStyle>
@@ -522,13 +523,13 @@ void MainMapWindow::setupInfoWidget()
 {
     infoW = new QWidget();
     QVBoxLayout* infoLayout = new QVBoxLayout(infoW);
-    infoW->setMinimumSize(280, 220);
     infoLayout->setMargin(0);
     //infoLayout->setSpacing(0); // removes spaces between widgets
     //infoLayout->setSizeConstraint(QLayout::SetMinimumSize);
 
     //infoW->setStyleSheet("border: 1px solid blue");
     infoW->setStyleSheet("background-color: #efefef");
+    //infoW->setStyleSheet("background-color: green");
 
     QSizePolicy sp_retain = infoW->sizePolicy();
     sp_retain.setRetainSizeWhenHidden(true);
@@ -546,11 +547,9 @@ void MainMapWindow::setupInfoWidget()
 
     vehicleImageLbl = new QLabel();
     vehicleImageLbl->setAlignment(Qt::AlignCenter);
-    //vehicleImageLbl->setMinimumHeight(170);
+    vehicleImageLbl->setMinimumHeight(150); // for some reason, 150 is a maximum that I can define as minimum
     //vehicleImageLbl->setStyleSheet("background-color: blue");
-
-    QPixmap pixmap(":/resources/images/car_top.png");
-    vehicleImageLbl->setPixmap(pixmap.scaled(150, 150, Qt::KeepAspectRatio));
+    vehicleImageLbl->setScaledContents(false);
 
     QPushButton * closeInfoBtn = new QPushButton(QIcon(":/resources/images/close.png"), "");
     closeInfoBtn->setFixedSize(30, 30);
@@ -565,10 +564,14 @@ void MainMapWindow::setupInfoWidget()
     layoutInInfoTop->addWidget(typeLbl, 5, Qt::AlignTop);
     layoutInInfoTop->addWidget(closeInfoBtn, 1, Qt::AlignTop);
 
+    topW->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    infoLbl->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    vehicleImageLbl->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+
     infoLayout->addWidget(topW);
     infoLayout->addWidget(infoLbl);
     infoLayout->addWidget(vehicleImageLbl);
-    infoLayout->addStretch(0);
+    infoLayout->setAlignment(Qt::AlignTop);
 }
 void MainMapWindow::setupLayoutTrafficLights()
 {
@@ -757,9 +760,13 @@ void MainMapWindow::changeInfo()
 
     boxText += "Last update: " + dataHandler->currentInfoStation->getTimeFormatted(dataHandler->currentInfoStation->timeEpoch, true);
 
-    rm.rotate(dataHandler->currentInfoStation->heading - 270.0f);
-    pixmap = pixmap.transformed(rm);
-    vehicleImageLbl->setPixmap(pixmap.scaled(250, 250, Qt::KeepAspectRatio));
+    float angle = dataHandler->currentInfoStation->heading - 270.0f;
+    float dimension = 150;
+
+    rm.rotate(angle);
+    pixmap = pixmap.scaled(dimension, dimension);
+    pixmap = pixmap.transformed(rm, Qt::SmoothTransformation);
+    vehicleImageLbl->setPixmap(pixmap);
 
     infoLbl->setText(boxText);
 }
