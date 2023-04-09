@@ -1,5 +1,6 @@
 #pragma once
 
+#include "message.h"
 #include "cam.h"
 #include "mapem.h"
 #include "spatem.h"
@@ -10,15 +11,13 @@
 #include <QChar>
 #include <QObject>
 
-// Singleton class
 class MessageParser : public QObject
 {
+    // Singleton class
     Q_OBJECT
 public:
-    static MessageParser& getInstance(){
-        static MessageParser instance; // Guaranteed to be destroyed, Instantiated on first use.
-        return instance;
-    }
+    static MessageParser& getInstance();
+
     int loadJSONFromString(QString jsonString);
     void findMessagesInStream(QString messageStream);
     void clear();
@@ -39,6 +38,5 @@ private:
 
     QStack <QChar> stack;
     QString json_message;
-
 };
 

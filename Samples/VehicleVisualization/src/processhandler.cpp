@@ -1,10 +1,9 @@
 #include "processhandler.h"
+
 #include <QProcess>
 #include <QDebug>
 #include <QDir>
 #include <QSettings>
-
-#include "messageparser.h"
 
 ProcessHandler::ProcessHandler(QObject *parent): QObject{parent},
     fileChanged(false), currentFile("")
@@ -35,7 +34,8 @@ void ProcessHandler::readyReadError(){
 void ProcessHandler::processStarted(){
     qInfo() << "Receiving started: " << this->receivingCommand;
 }
-int ProcessHandler::startReceiving(){
+int ProcessHandler::startReceiving()
+{
     //QString cmd2 = "/bin/sh -c \"tshark -r /tmp/tcpdump_data -T json";
     QString cmd2 = "/bin/sh -c \"echo krivanek | sudo -S stdbuf -i0 -o0 -e0 tshark -i hwsim0 -T json"; //
 
@@ -53,7 +53,8 @@ int ProcessHandler::startReceiving(){
     //emit error(receiveDataProcess.readAllStandardError());
     return 1;
 }
-void ProcessHandler::stopReceiving(){
+void ProcessHandler::stopReceiving()
+{
     receiveDataProcess.close();
     qInfo() << "Receiving stoped...";
     MessageParser::getInstance().clear();

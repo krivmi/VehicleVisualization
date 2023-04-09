@@ -1,8 +1,9 @@
 #pragma once
 
+#include "messageparser.h"
+
 #include <QObject>
 #include <QProcess>
-#include "messageparser.h"
 
 class ProcessHandler : public QObject
 {
@@ -13,7 +14,6 @@ public:
 
     int startReceiving();
     void stopReceiving();
-
     int startLoading();
 
     bool fileChanged;
@@ -23,10 +23,11 @@ public slots:
     void readyReadOutput();
     void readyReadError();
     void processStarted();
-
     void changeCommandsFromSettings();
+
 signals:
     void error(QString error);
+
 private:
     QProcess receiveDataProcess;
     QProcess loadDataProcess;

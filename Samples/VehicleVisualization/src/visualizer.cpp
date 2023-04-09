@@ -1,5 +1,6 @@
 #include "visualizer.h"
 //#include "dialogs.h"
+
 #include <math.h>
 #include <qrandom.h>
 
@@ -7,7 +8,7 @@ Visualizer::Visualizer(QMapControl * mapWidget)
 {
     this->m_map_control = mapWidget;
 
-    // Vytvoření vlastní vrstvy bodů pro zobrazení vozidel
+    // custom layer to dislpay traffic participants
     custom_layer = std::make_shared<LayerGeometry>("Custom Layer");
     navigation_layer = std::make_shared<LayerGeometry>("Navigation Layer");
     m_map_control->addLayer(custom_layer);
@@ -22,26 +23,17 @@ Visualizer::Visualizer(QMapControl * mapWidget)
     linePen = QPen(QColor(0,255,0));
     linePen.setWidth(3);
 }
-Lane Visualizer::getLaneByID(long id, QVector<Lane> lanes){
 
-    for (int i = 0; i < lanes.size(); i++){
-        if (lanes[i].laneID == id){
-            return lanes[i];
-        }
-    }
-    Lane empty;
-    empty.laneID = -1;
-    return empty;
-};
-
-void Visualizer::drawLane(Lane & lane, std::vector <PointWorldCoord> points, QColor color, bool drawPointsOfLane){
+void Visualizer::drawLane(Lane & lane, std::vector <PointWorldCoord> points, QColor color, bool drawPointsOfLane)
+{
     linePen.setColor(color);
     lane.laneMapPtr = std::make_shared<GeometryLineString>(points);
     lane.laneMapPtr->setPen(linePen);
     custom_layer->addGeometry(lane.laneMapPtr);
 
     if(drawPointsOfLane){
-        for(int i = 0; i < points.size(); i++){
+        for(int i = 0; i < points.size(); i++)
+        {
             std::shared_ptr<GeometryPoint> nodePoint = std::make_shared<GeometryPointCircle>(points[i], QSize(10.0, 10.0));
             pointPen.setColor(color);
             nodePoint->setMetadata("id", QVariant::fromValue(lane.laneID));
@@ -52,7 +44,8 @@ void Visualizer::drawLane(Lane & lane, std::vector <PointWorldCoord> points, QCo
         }
     }
 }
-void Visualizer::removeAllGeometries(bool deletePointGPS){
+void Visualizer::removeAllGeometries(bool deletePointGPS)
+{
     custom_layer->clearGeometries();
 
     if(deletePointGPS){
@@ -61,11 +54,13 @@ void Visualizer::removeAllGeometries(bool deletePointGPS){
     // I have to redraw canvas, do not know why
     m_map_control->requestRedraw();
 }
+
 void Visualizer::removeGeometry(const std::shared_ptr<Geometry> & geometry){
     custom_layer->removeGeometry(geometry);
 }
-void Visualizer::addTrafficLight(Mapem * crossroad, std::shared_ptr<GeometryPointImageScaled> & geometryPoint, int adjacentIngressLanesIndex, bool sameTrafficLight){
 
+void Visualizer::addTrafficLight(Mapem * crossroad, std::shared_ptr<GeometryPointImageScaled> & geometryPoint, int adjacentIngressLanesIndex, bool sameTrafficLight)
+{
     // image is set to the first lane if the traffic lights have the same signal group
     Lane lane = crossroad->adjacentIngressLanes[adjacentIngressLanesIndex][0];
 
@@ -118,24 +113,27 @@ void Visualizer::addTrafficLight(Mapem * crossroad, std::shared_ptr<GeometryPoin
     custom_layer->addGeometry(geometryPoint);
 }
 
-QColor Visualizer::getColorByLaneType(QString type){
+QColor Visualizer::getColorByLaneType(QString type)
+{
     QColor color;
 
-    if(type == "CrossWalk"){ color = QColor("blue");}
-    else if(type == "Vehicle"){ color = QColor("orange");}
-    else{color = QColor("yellow");}
+    if(type == "CrossWalk") { color = QColor("blue");}
+    else if(type == "Vehicle") { color = QColor("orange");}
+    else { color = QColor("yellow"); }
 
     return color;
 }
-QColor Visualizer::getColorByApproach(bool isIngress){
+QColor Visualizer::getColorByApproach(bool isIngress)
+{
     QColor color;
 
-    if(isIngress){ color = QColor("blue");}
-    else{color = QColor("orange");}
+    if(isIngress){ color = QColor("blue"); }
+    else{ color = QColor("orange"); }
 
     return color;
 }
-void Visualizer::drawPoint(PointWorldCoord point, QColor color, QSize size){
+void Visualizer::drawPoint(PointWorldCoord point, QColor color, QSize size)
+{
     std::shared_ptr<GeometryPoint> node_point = std::make_shared<GeometryPointCircle>(point, size);
     pointPen.setColor(color);
     node_point->setPen(pointPen);
@@ -147,55 +145,36 @@ void Visualizer::drawPoints(std::vector <PointWorldCoord> points, QColor color){
         drawPoint(points[i], color);
     }
 }*/
-std::vector <PointWorldCoord> Visualizer::getLanePoints(Lane lane, PointWorldCoord refPoint){
-    std::vector<PointWorldCoord> raw_points;
-    for (int j = 0; j < lane.nodes.size(); j++){
-        qreal f_long = refPoint.longitude() + (qreal)lane.nodes[j].x / 10000000.0;
-        qreal f_lat = refPoint.latitude() + (qreal)lane.nodes[j].y / 10000000.0;
-        PointWorldCoord node_coor = PointWorldCoord(f_long, f_lat);
-
-        raw_points.emplace_back(node_coor);
-    }
-    return raw_points;
-}
-
-void Visualizer::drawLanes(QVector<Lane>& lanes, PointWorldCoord refPoint, int laneType, bool drawPointsOfLane){
-    for (int i = 0; i < lanes.size(); i++){
+void Visualizer::drawLanes(QVector<Lane>& lanes, PointWorldCoord refPoint, int laneType, bool drawPointsOfLane)
+{
+    for (int i = 0; i < lanes.size(); i++)
+    {
         if(lanes[i].type != laneType){
             continue;
-        }
+        }        
         // get the points of current lane from the crossroad
-        std::vector <PointWorldCoord> lanePoints = getLanePoints(lanes[i], refPoint);
+        std::vector <PointWorldCoord> lanePoints = Mapem::getLanePoints(lanes[i], refPoint);
+
         // draw the lane from the points
-        //drawLane(lanes[i], lanePoints, getColorByLaneType(lanes[i].strType), drawPointsOfLane);
         drawLane(lanes[i], lanePoints, getColorByApproach(lanes[i].directionIngressPath), drawPointsOfLane);
     }
 }
-long Visualizer::getConnectedLaneID(ConnectingLane lane, QVector <Lane> lanes){
-    // find lane to connect to
-    long foundLaneId = -1;
-    for (int l = 0; l < lanes.size(); l++){
-        if (lanes[l].laneID == lane.laneNumber){
-            //qInfo() << "Connection found";
-            foundLaneId = lanes[l].laneID;
-            break;
-        }
-    }
-    return foundLaneId;
-}
 
-void Visualizer::drawLanesConnections(QVector<Lane> lanes, PointWorldCoord refPoint, QColor color){
-    for (int i = 0; i < lanes.size(); i++){
+void Visualizer::drawLanesConnections(QVector<Lane> lanes, PointWorldCoord refPoint, QColor color)
+{
+    for (int i = 0; i < lanes.size(); i++)
+    {
         // get the first point of the crossroad lane (thus the starting point)
         PointWorldCoord ptFrom = Mapem::getFirstPointOfLane(lanes[i], refPoint);
 
         // find all the connection lines connected to the line[i]
-        for (int j = 0; j < lanes[i].connectingLanes.size(); j++){
+        for (int j = 0; j < lanes[i].connectingLanes.size(); j++)
+        {
             // get the line that is connected to the connecting lane (there must be only one)
-            long connectedLaneId = getConnectedLaneID(lanes[i].connectingLanes[j], lanes);
+            long connectedLaneId = Mapem::getConnectedLaneID(lanes[i].connectingLanes[j], lanes);
 
             if(connectedLaneId >= 0){
-                Lane connectionLane = getLaneByID(connectedLaneId, lanes);
+                Lane connectionLane = Mapem::getLaneByID(connectedLaneId, lanes);
                 PointWorldCoord ptTo = Mapem::getFirstPointOfLane(connectionLane, refPoint);
 
                 std::vector<PointWorldCoord> raw_points;
@@ -204,15 +183,15 @@ void Visualizer::drawLanesConnections(QVector<Lane> lanes, PointWorldCoord refPo
 
                 drawLane(connectionLane, raw_points, color);
 
-            } else{
+            } else {
                 qInfo() << "Something is wrong with the lanes connections";
                 throw std::invalid_argument("Something is wrong with the lanes connections");
             }
         }
     }
 }
-void Visualizer::drawVehiclePath(Cam * cam){
-
+void Visualizer::drawVehiclePath(Cam * cam)
+{
     std::vector<PointWorldCoord> points;
     for(int i = 0; i < cam->path.size(); i++){
         PointWorldCoord pt = PointWorldCoord(cam->refPoint.longitude() + cam->path[i].dLongitude, cam->refPoint.latitude() + cam->path[i].dLatitude);
@@ -228,13 +207,16 @@ void Visualizer::drawVehiclePath(Cam * cam){
 
     custom_layer->addGeometry(cam->pathString);
 }
-void Visualizer::removeVehiclePath(Cam * cam){
-    for(int i = 0; i < cam->path.size(); i++){
+void Visualizer::removeVehiclePath(Cam * cam)
+{
+    for(int i = 0; i < cam->path.size(); i++)
+    {
         custom_layer->removeGeometry(cam->path[i].point);
     }
     custom_layer->removeGeometry(cam->pathString);
 }
-void Visualizer::addCamStationToLayer(Cam * cam){
+void Visualizer::addCamStationToLayer(Cam * cam)
+{
     cam->geometryPoint = std::make_shared<GeometryPointImageScaled>(cam->refPoint, (cam->isSrcAttention) ? cam->imgSrcAttention : cam->imgSrcDefault, 19);
     cam->geometryPoint->setZIndex(2);
     cam->geometryPoint->setMetadata("id", QVariant::fromValue(cam->stationID));
@@ -243,7 +225,8 @@ void Visualizer::addCamStationToLayer(Cam * cam){
 
     //drawBoundingBox(cam->geometryPoint->boundingBox(19), cam);
 }
-void Visualizer::addDenmHazardToLayer(Denm * denm){
+void Visualizer::addDenmHazardToLayer(Denm * denm)
+{
     denm->geometryPoint = std::make_shared<GeometryPointImageScaled>(denm->refPoint, ":/resources/images/DENM_icon.png", 19);
     denm->geometryPoint->setMetadata("originatingStationID", QVariant::fromValue(denm->originatingStationID));
     denm->geometryPoint->setMetadata("sequenceNumber", QVariant::fromValue(denm->sequenceNumber));
@@ -305,7 +288,8 @@ void Visualizer::drawBoundingBox(RectWorldCoord rect, Cam * cam)
     //custom_layer->addGeometry(cam->polygon);
 }
 
-void Visualizer::updateGPSPositionPoint(PointWorldCoord position){
+void Visualizer::updateGPSPositionPoint(PointWorldCoord position)
+{
     if(GPSpositionPoint != nullptr){
         // update position
         GPSpositionPoint->setCoord(position);
@@ -314,12 +298,14 @@ void Visualizer::updateGPSPositionPoint(PointWorldCoord position){
         drawGPSPositionPoint(position);
     }
 }
-void Visualizer::drawGPSPositionPoint(PointWorldCoord position){
+void Visualizer::drawGPSPositionPoint(PointWorldCoord position)
+{
     GPSpositionPoint = std::make_shared<GeometryPointImageScaled>(position, ":/resources/images/navigationBlue.png", 19);
     GPSpositionPoint->setZIndex(3);
     navigation_layer->addGeometry(GPSpositionPoint);
 }
-void Visualizer::removeGPSPositionPoint(){
+void Visualizer::removeGPSPositionPoint()
+{
     navigation_layer->removeGeometry(GPSpositionPoint);
     GPSpositionPoint = nullptr;
 }

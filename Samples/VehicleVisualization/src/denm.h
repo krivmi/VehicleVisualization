@@ -9,20 +9,11 @@ using namespace qmapcontrol;
 class Denm : public Message {
 public:
     Denm(double longitude, double latitude, double altitude, int messageID, long stationID, int stationType, long itsOriginatingStationID,
-         int itsSequenceNumber, long denmDetectionTime, long denmReferenceTime, bool denmTermination, int itsCauseCode, int itsSubCauseCode)
-        : Message(longitude, latitude, altitude, messageID, stationID, stationType){
+         int itsSequenceNumber, long denmDetectionTime, long denmReferenceTime, bool denmTermination, int itsCauseCode, int itsSubCauseCode);
 
-        this->originatingStationID = itsOriginatingStationID;
-        this->sequenceNumber = itsSequenceNumber;
-        this->detectionTime = denmDetectionTime;
-        this->referenceTime = denmReferenceTime;
-        this->termination = denmTermination;
-        this->causeCode = itsCauseCode;
-        this->subCauseCode = itsSubCauseCode;
-        refPoint = PointWorldCoord(longitude, latitude);
+    void getCauseCodeStrings(); // should be renamed
+    QString GetProtocol() { return "Denm"; };
 
-        getCauseCodeStrings();
-    }
     long originatingStationID;
     int sequenceNumber;
     long detectionTime;
@@ -35,7 +26,4 @@ public:
     QString subCauseCodeStr;
 
     std::shared_ptr<GeometryPointImageScaled> geometryPoint;
-
-    void getCauseCodeStrings(); // should be renamed
-    QString GetProtocol() { return "Denm"; };
 };

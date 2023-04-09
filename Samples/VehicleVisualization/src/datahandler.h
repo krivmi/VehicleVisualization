@@ -1,9 +1,5 @@
 #pragma once
 
-#include <QObject>
-#include <sys/time.h>
-#include <QQueue>
-
 #include "visualizer.h"
 #include "message.h"
 #include "cam.h"
@@ -12,6 +8,11 @@
 #include "srem.h"
 #include "denm.h"
 #include "trafficlightwidget.h"
+
+#include <sys/time.h>
+
+#include <QQueue>
+#include <QObject>
 
 struct GPSInfo {
     float longitude;
@@ -41,6 +42,7 @@ public:
     Mapem * getMapemByCrossroadID(long id);
     Spatem * findSpatemByTime(int moy, int timeStamp);
     Denm * getDenmByActionID(long stationID, int sequenceNumber);
+    Mapem * getClosestCrossroad();
 
     void addTrafficLightsFromSignalGroups(Mapem * crossroad);
     void createTrafficLightWidgets(int crossroadID, int adjacentLaneIndex, bool sameTrafficLight);
@@ -55,12 +57,14 @@ public:
     void deleteSpatemMessages();
     void deleteDenmMessages();
     void deleteAllMessages();
-    void clearData();
-    void clearUnitsAndMessages();
-
     void deleteCamUnitByID(long id);
     void deleteMapemUnitByID(long id);
     void deleteDenmMessageByActionID(long stationID, int sequenceNumber);
+
+    void clearData();
+    void clearUnitsAndMessages();
+
+    void GPSPositionReceived(PointWorldCoord position, float orientation);
 
     QVector <std::shared_ptr<Message>> allMessages;
     QVector <std::shared_ptr<Cam>> camUnits;
@@ -75,12 +79,7 @@ public:
     QVector <TrafficLightStruct> trafficLightStructVector;
 
     GPSInfo gpsInfo;
-
-    bool autoModeOn = false;
-
-    void GPSPositionReceived(PointWorldCoord position, float orientation);
-
-    Mapem * getClosestCrossroad();
+    bool autoModeOn;
 
 signals:
     void trafficLightShow(int crossroadID, int adjacentIngressLanesIndex, bool sameTrafficLight);
@@ -98,6 +97,7 @@ public slots:
     void messagePlay(int index);
     void handleCrossroadProximity();
     void checkCamsForSrem();
+
 private:
     Visualizer * visualizer;
     QQueue <GPSInfo> gpsHistory;

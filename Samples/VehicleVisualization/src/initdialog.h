@@ -11,10 +11,11 @@ class InitDialog : public QDialog
     Q_OBJECT
 public:
     InitDialog(QWidget* parent = 0);
-
     void setSettings();
+
 signals:
     void submitOK();
+
 private:
     QLineEdit * projectPathEdit;
     QLineEdit * receivingCommandLineEdit;

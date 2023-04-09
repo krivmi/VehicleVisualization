@@ -4,10 +4,10 @@
 #include <cmath>
 
 // Qt includes.
-#include <QtCore/QDebug>
+#include <QDebug>
 #include <QSettings>
 
-GPSTracker::GPSTracker(){}
+GPSTracker::GPSTracker(): m_running(false) { }
 
 void GPSTracker::start()
 {
@@ -59,7 +59,6 @@ void GPSTracker::trackGPS()
             {
                 emit resultReady(longitude, latitude, orientation);
             }
-
         }
     }
 }

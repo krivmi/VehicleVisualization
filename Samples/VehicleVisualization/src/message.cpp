@@ -1,14 +1,7 @@
 #include "message.h"
 
-Message::Message(double longitude, double latitude, double altitude,
-                 int messageID, long stationID, int stationType)
-{
-    this->longitude = longitude;
-    this->latitude = latitude;
-    this->altitude = altitude;
-    this->messageID = messageID;
-    this->stationID = stationID;
-    this->stationType = stationType;
-    this->refPoint = PointWorldCoord(longitude, latitude);
-}
+Message::Message(qreal longitude, qreal latitude, qreal altitude,
+    int messageID, long stationID, int stationType) : longitude(longitude),
+    latitude(latitude), altitude(altitude), messageID(messageID), stationID(stationID),
+    stationType(stationType), refPoint(PointWorldCoord(longitude, latitude)){}
 

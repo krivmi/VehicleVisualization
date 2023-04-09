@@ -2,12 +2,7 @@
 #include "initdialog.h"
 #include "cam.h"
 #include "mapem.h"
-#include "messageparser.h"
-#include "processhandler.h"
-#include "eventcounter.h"
-#include "visualizer.h"
 
-// Qt includes.
 #include <QMenu>
 #include <QStyle>
 #include <QMenuBar>
@@ -19,23 +14,12 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QProcess>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonValue>
-#include <QJsonArray>
-#include <QJsonParseError>
 #include <QScrollArea>
 #include <QSettings>
 
-// QMapControl includes.
-#include <QMapControl/GeometryLineString.h>
-#include <QMapControl/GeometryPointCircle.h>
-#include <QMapControl/GeometryPointImage.h>
-#include <QMapControl/GeometryPointImageScaled.h>
-#include <QMapControl/GeometryPolygon.h>
 #include <QMapControl/LayerGeometry.h>
 #include <QMapControl/LayerMapAdapter.h>
-#include <QMapControl/MapAdapterGoogle.h>
+//#include <QMapControl/MapAdapterGoogle.h>
 #include <QMapControl/MapAdapterOSM.h>
 
 MainMapWindow::MainMapWindow(QWidget *parent) : QMainWindow(parent)
@@ -45,6 +29,7 @@ MainMapWindow::MainMapWindow(QWidget *parent) : QMainWindow(parent)
     setupTopMenu();
     setupMainLayout();
 
+    // QMapControl connects
     QObject::connect(m_map_control, &QMapControl::recenterGPSPoint, this, &MainMapWindow::recenterGPSPoint);
     QObject::connect(this, &MainMapWindow::changeGPSButtonGeometry, m_map_control, &QMapControl::changeGPSButtonGeometry);
     QObject::connect(m_map_control, &QMapControl::scrollViewChangedByMouse, this, &MainMapWindow::focusPointChanged);
@@ -57,29 +42,31 @@ MainMapWindow::MainMapWindow(QWidget *parent) : QMainWindow(parent)
     dataHandler = std::make_shared<DataHandler>(visualizer.get(), this);
     QObject::connect(dataHandler.get(), &DataHandler::changeInfo, this, &MainMapWindow::changeInfo);
     QObject::connect(dataHandler.get(), &DataHandler::MessageToLog, this, &MainMapWindow::newMessageToLog);
-
     QObject::connect(dataHandler.get(), &DataHandler::trafficLightHide, this, &MainMapWindow::closeTLW);
     QObject::connect(dataHandler.get(), &DataHandler::trafficLightShow, this, &MainMapWindow::trafficLightClick);
 
-    // connect message parsed event
+    // message parsed event
     QObject::connect(&MessageParser::getInstance(), &MessageParser::messageParsed, dataHandler.get(), &DataHandler::MessageReceived);
 
+    // GPS position received
     QObject::connect(this, &MainMapWindow::GPSPositionReceived, dataHandler.get(), &DataHandler::GPSPositionReceived);
 
+    // event counter connects
     QObject::connect(&eventCounter, &EventCounter::messageShow, dataHandler.get(), &DataHandler::messagePlay);
     QObject::connect(&eventCounter, &EventCounter::messageShow, this, &MainMapWindow::messageEmitted);
     QObject::connect(&eventCounter, &EventCounter::messagesPlayed, this, &MainMapWindow::messagesPlayed);
     QObject::connect(&eventCounter, &EventCounter::playingStarted, this, &MainMapWindow::playingStarted);
 
+    // GPS tracker connects
     tracker = new GPSTracker();
     tracker->moveToThread(&gpsThread);
-
     QObject::connect(&gpsThread, &QThread::finished, tracker, &QObject::deleteLater);
     QObject::connect(this, &MainMapWindow::startTracker, tracker, &GPSTracker::start);
     QObject::connect(tracker, &GPSTracker::resultReady, this, &MainMapWindow::handleGPSData);
     QObject::connect(tracker, &GPSTracker::GPSstopped, this, &MainMapWindow::GPSstopped);
     gpsThread.start();
 
+    // process handler connect
     QObject::connect(&processHandler, &ProcessHandler::error, this, &MainMapWindow::handleError);
 
     // *** delete before release
@@ -98,23 +85,27 @@ void MainMapWindow::GPSstopped(){
     GPSstatusLbl->setText("GPS: off");
     statusBar()->showMessage("No GPSD running, GPS could not be started...");
 }
-void MainMapWindow::focusPointChanged(){
+void MainMapWindow::focusPointChanged()
+{
     if(dataHandler->autoModeOn){
         toggleFollowGPS(false);
     }
 }
-void MainMapWindow::handleError(QString error){
+void MainMapWindow::handleError(QString error)
+{
     receivingEnabled = false;
     receivingStatusLbl->setText("Receiving: off");
     btn_toogle_receiving->setIcon(QIcon(":/resources/images/rec_off.png"));
     statusBar()->showMessage("Receiving could not be started, error: " + error);
 }
-void MainMapWindow::handleGPSData(float longitude, float latitude, float orientation){
+void MainMapWindow::handleGPSData(float longitude, float latitude, float orientation)
+{
     PointWorldCoord GPSPosition = PointWorldCoord(longitude, latitude);
     emit GPSPositionReceived(GPSPosition, orientation);
     GPSstatusLbl->setText("GPS: on");
 }
-void MainMapWindow::toogleReceivingMessages(){
+void MainMapWindow::toogleReceivingMessages()
+{
     if(!receivingEnabled){
         if(processHandler.startReceiving() == 0){
             statusBar()->showMessage("Receiving started...");
@@ -131,11 +122,11 @@ void MainMapWindow::toogleReceivingMessages(){
         statusBar()->showMessage("Receiving stopped...");
     }
 }
-void MainMapWindow::setupMaps(){
+void MainMapWindow::setupMaps()
+{
     m_map_control = new QMapControl(QSizeF(1280.0f, 640.0f));
-    //m_map_control = new QMapControl(QSizeF(1520.0, 740.0));
 
-    // layer pro openstreet mapy
+    // layer for openstreet maps
     m_map_control->addLayer(std::make_shared<LayerMapAdapter>("Map", std::make_shared<MapAdapterOSM>()));
     //m_map_control->addLayer(std::make_shared<LayerMapAdapter>("Map", std::make_shared<MapAdapterGoogle>()));
 
@@ -182,6 +173,9 @@ void MainMapWindow::modeSelected(QAction* action){
     }
     else if( mode_auto )
     {
+        closeTLW();
+        toogleInfo(false);
+
         // start GPS
         if(!gpsEnabled){ toogleGPS(); }
 
@@ -200,9 +194,6 @@ void MainMapWindow::modeSelected(QAction* action){
         deleteLogWidgets();
         lblFileName->setText("Current file: none");
         lblMessageIndex->setText("Messages: 0");
-
-        closeTLW();
-        toogleInfo(false);
 
         // start auto mode for crossroads
         dataHandler->autoModeOn = true;
@@ -282,7 +273,8 @@ void MainMapWindow::setupTopMenu()
     QObject::connect(font, &QAction::triggered, this, [=]() { (fontLarge) ? this->changeFont(17) : this->changeFont(22); fontLarge = !fontLarge;});
     QObject::connect(init, &QAction::triggered, this, &MainMapWindow::initSettingsDialog);
 }
-void MainMapWindow::initSettings(){
+void MainMapWindow::initSettings()
+{
     QSettings settings("krivmi", "VehicleVisualization");
     QString path = settings.value("projectPath").toString();
     QString recCommand = settings.value("receivingCommand").toString();
@@ -304,13 +296,15 @@ void MainMapWindow::initSettings(){
     }
     statusBar()->showMessage("Settings have been already loaded...");
 }
-void MainMapWindow::initSettingsDialog(){
+void MainMapWindow::initSettingsDialog()
+{
     InitDialog * initDialog = new InitDialog(this->m_map_control);
     QObject::connect(initDialog, &InitDialog::submitOK, &processHandler, &ProcessHandler::changeCommandsFromSettings);
 
     initDialog->show();
 }
-void MainMapWindow::setupMainLayout(){
+void MainMapWindow::setupMainLayout()
+{
     QWidget * main = new QWidget(this);
     mainAppLayout = new QVBoxLayout(main);
     mainAppLayout->setMargin(0);
@@ -327,7 +321,8 @@ void MainMapWindow::setupMainLayout(){
 
     setCentralWidget(main);
 }
-void MainMapWindow::setupMiddleSection(){
+void MainMapWindow::setupMiddleSection()
+{
     middleWidget = new QWidget();
     middleLayout = new QHBoxLayout(middleWidget);
     //middleWidget->setStyleSheet("border: 2px solid orange");
@@ -338,7 +333,8 @@ void MainMapWindow::setupMiddleSection(){
     middleLayout->addWidget(leftMiddleWidget, 2);
     middleLayout->addWidget(rightMiddleWidget, 3);
 }
-void MainMapWindow::setupTopBar(){
+void MainMapWindow::setupTopBar()
+{
     topBar = new QWidget();
     QHBoxLayout * topBarLayout = new QHBoxLayout(topBar);
     topBar->setStyleSheet("border-bottom: 1px solid gray");
@@ -391,8 +387,8 @@ void MainMapWindow::setupTopBar(){
     topBarLayout->addWidget(lblFileName);
 
 }
-void MainMapWindow::setupLeftMiddleLayout(){
-
+void MainMapWindow::setupLeftMiddleLayout()
+{
     leftMiddleWidget = new QWidget();
     QVBoxLayout * leftMiddleLayout = new QVBoxLayout(leftMiddleWidget);
     //leftMiddleWidget->setStyleSheet("border: 2px solid red");
@@ -484,8 +480,8 @@ void MainMapWindow::setupLeftMiddleLayout(){
     leftMiddleLayout->addWidget(logWidget);
     //leftMiddleLayout->addStretch();
 }
-void MainMapWindow::setupRightMiddleLayout(){
-
+void MainMapWindow::setupRightMiddleLayout()
+{
     rightMiddleWidget = new QWidget();
     QHBoxLayout * rightMiddleLayout = new QHBoxLayout(rightMiddleWidget);
     //rightMiddleWidget->setStyleSheet("border: 2px solid green");
@@ -522,7 +518,8 @@ void MainMapWindow::setupRightMiddleLayout(){
     layoutH->addWidget(left, 2);
     layoutH->addWidget(right, 1);
 }
-void MainMapWindow::setupInfoWidget(){
+void MainMapWindow::setupInfoWidget()
+{
     infoW = new QWidget();
     QVBoxLayout* infoLayout = new QVBoxLayout(infoW);
     infoW->setMinimumSize(280, 220);
@@ -573,7 +570,8 @@ void MainMapWindow::setupInfoWidget(){
     infoLayout->addWidget(vehicleImageLbl);
     infoLayout->addStretch(0);
 }
-void MainMapWindow::setupLayoutTrafficLights(){
+void MainMapWindow::setupLayoutTrafficLights()
+{
     trafficLightsW = new QWidget();
     QVBoxLayout* layoutInTrafficLights = new QVBoxLayout(trafficLightsW);
     trafficLightsW->setMinimumSize(260, 270);
@@ -615,7 +613,8 @@ void MainMapWindow::setupLayoutTrafficLights(){
     layoutInTrafficLights->addWidget(topW);
     layoutInTrafficLights->addWidget(bottomW);
 }
-void MainMapWindow::toogleInfo(bool open){
+void MainMapWindow::toogleInfo(bool open)
+{
     if(open){
         infoW->setVisible(true);
     } else {
@@ -626,16 +625,19 @@ void MainMapWindow::toogleInfo(bool open){
         infoW->setVisible(false);
     }
 }
-void MainMapWindow::closeTLW(){
+void MainMapWindow::closeTLW()
+{
     trafficLightsW->setVisible(false);
     removeTrafficLights();
     currentDisplayedStructIndex = -1;
 }
-void MainMapWindow::openTLW(){
+void MainMapWindow::openTLW()
+{
     trafficLightsW->setVisible(true);
 }
 
-void MainMapWindow::hazardClicked(long originatingStationID, int sequenceNumber){
+void MainMapWindow::hazardClicked(long originatingStationID, int sequenceNumber)
+{
     Denm * hazard = dataHandler->getDenmByActionID(originatingStationID, sequenceNumber);
 
     if(hazard == nullptr){
@@ -676,8 +678,8 @@ void MainMapWindow::hazardClicked(long originatingStationID, int sequenceNumber)
 
 }
 
-void MainMapWindow::unitClicked(long stationID){
-
+void MainMapWindow::unitClicked(long stationID)
+{
     Cam * unit = dataHandler->getCamUnitByID(stationID);
 
     if(dataHandler->currentInfoStation == nullptr){
@@ -814,8 +816,8 @@ void MainMapWindow::newMessageToLog(std::shared_ptr<Message> message)
         widget->setWidgetInfo(message);
     }
 }
-void MainMapWindow::unitLifeTimeExceeded(std::shared_ptr<Message> message){
-
+void MainMapWindow::unitLifeTimeExceeded(std::shared_ptr<Message> message)
+{
     QString protocol = message->GetProtocol();
 
     if(protocol == "Cam"){
@@ -842,8 +844,8 @@ void MainMapWindow::unitLifeTimeExceeded(std::shared_ptr<Message> message){
 
     deleteLogWidgetByMessage(message);
 }
-void MainMapWindow::deleteLogWidgetByMessage(std::shared_ptr<Message> message){
-
+void MainMapWindow::deleteLogWidgetByMessage(std::shared_ptr<Message> message)
+{
     QString protocol = message->GetProtocol();
 
     if(protocol == "Denm"){
@@ -878,8 +880,8 @@ void MainMapWindow::deleteLogWidgetByMessage(std::shared_ptr<Message> message){
     }
 }
 
-void MainMapWindow::deleteLogWidgets(){
-
+void MainMapWindow::deleteLogWidgets()
+{
     lastMessageLogW->setWidgetInfo(nullptr);
 
     QLayoutItem *child;
@@ -892,7 +894,8 @@ void MainMapWindow::deleteLogWidgets(){
         delete child;
     }
 }
-void MainMapWindow::logUnitClicked(std::shared_ptr <Message> message){
+void MainMapWindow::logUnitClicked(std::shared_ptr <Message> message)
+{
     QString protocol = message->GetProtocol();
 
     if(protocol != "Cam" && protocol != "Mapem" && protocol != "Denm"){
@@ -903,7 +906,8 @@ void MainMapWindow::logUnitClicked(std::shared_ptr <Message> message){
     m_map_control->setMapFocusPoint(PointWorldCoord(message->longitude, message->latitude));
 
 }
-void MainMapWindow::playingStarted(){
+void MainMapWindow::playingStarted()
+{
     visualizer->removeAllGeometries(false);
     dataHandler->currentInfoStation = nullptr;
     dataHandler->clearUnitsAndMessages();
@@ -916,7 +920,8 @@ void MainMapWindow::playingStarted(){
 void MainMapWindow::messageEmitted(int index){
     lblMessageIndex->setText("Message: " + QString::number(index + 1));
 }
-void MainMapWindow::resetPlaying(){
+void MainMapWindow::resetPlaying()
+{
     eventCounter.reset();
 
     visualizer->removeAllGeometries(false);
@@ -929,11 +934,13 @@ void MainMapWindow::resetPlaying(){
     deleteLogWidgets();
 
 }
-void MainMapWindow::messagesPlayed(){
+void MainMapWindow::messagesPlayed()
+{
     statusBar()->showMessage("Messages have been played...");
     btn_play->setIcon(QIcon(":/resources/images/play.png"));
 }
-void MainMapWindow::tooglePlay(){
+void MainMapWindow::tooglePlay()
+{
     if(!eventCounter.isRunning()){
         if(eventCounter.areMessagesPlayed()){
             // check if the mode was switched and
@@ -957,7 +964,8 @@ void MainMapWindow::tooglePlay(){
     }
 
 }
-void MainMapWindow::playNextMessage(){
+void MainMapWindow::playNextMessage()
+{
     if(!eventCounter.isRunning()){
         if(eventCounter.areMessagesPlayed()){
             if(eventCounter.messagesNotSet() && !eventCounter.newPlayingCycle){
@@ -976,7 +984,8 @@ void MainMapWindow::resizeEvent(QResizeEvent * resize_event)
     //miniMap->setViewportSize(resize_event->size());
 }
 
-void MainMapWindow::openFile(){
+void MainMapWindow::openFile()
+{
     QString fileName = QFileDialog::getOpenFileName(this,
         tr("Open File"), "/home/krivmi/Desktop/", tr("Traffic Files (*.pcap *.pcapng)"));
     // TODO - delete /home/krivmi/Desktop/ at the end
@@ -1013,15 +1022,16 @@ void MainMapWindow::openFile(){
     }
 
 }
-QString MainMapWindow::getFileNameFromPath(QString path){
+QString MainMapWindow::getFileNameFromPath(QString path)
+{
     QRegExp rx("(\\/)"); //RegEx for ' ' or ',' or '.' or ':' or '\t'
     QStringList query = path.split(rx);
 
     return query.back();
 }
 
-void MainMapWindow::trafficLightClick(int crossroadID, int adjacentIngressLanesIndex, bool sameTrafficLight){
-
+void MainMapWindow::trafficLightClick(int crossroadID, int adjacentIngressLanesIndex, bool sameTrafficLight)
+{
     Mapem * crossroad = dataHandler->getMapemByCrossroadID(crossroadID);
 
     if(crossroad == nullptr){
@@ -1050,7 +1060,8 @@ void MainMapWindow::trafficLightClick(int crossroadID, int adjacentIngressLanesI
 
 
 }
-void MainMapWindow::removeTrafficLights(){
+void MainMapWindow::removeTrafficLights()
+{
     if(currentDisplayedStructIndex < 0){
         return;
     }
@@ -1062,8 +1073,8 @@ void MainMapWindow::removeTrafficLights(){
     }
 }
 
-void MainMapWindow::recenterGPSPoint(){
-
+void MainMapWindow::recenterGPSPoint()
+{
     if(!gpsEnabled){
         statusBar()->showMessage("You have to start GPS...");
         //qInfo() << "You have to start GPS";
@@ -1091,3 +1102,10 @@ void MainMapWindow::toggleFollowGPS(bool enable)
         statusBar()->showMessage("Following geometry was stopped...");
     }
 }
+
+MainMapWindow::~MainMapWindow(){
+    tracker->stop();
+
+    gpsThread.quit();
+    gpsThread.wait();
+};

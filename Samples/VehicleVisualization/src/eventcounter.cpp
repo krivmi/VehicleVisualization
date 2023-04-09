@@ -4,16 +4,9 @@
 #include <QtCore/QTimer>
 #include<QDebug>
 
-EventCounter::EventCounter(){}
-// i need to clear the vector when the class will be closed
-/*
-void EventCounter::setMessages(QVector <Message*> messages){
-    this->messages = messages;
-    //qInfo() << "Size: " + (QString)this->messages.size();
-}
-void EventCounter::clearMessages(){
-    this->messages.clear();
-}*/
+EventCounter::EventCounter() : newPlayingCycle(true), m_running(false),
+    messagesPlayedFlag(true), messagesIndex(0), messagesSize(0), TPS(10) { }
+
 void EventCounter::start()
 {
     // check if we are not already running

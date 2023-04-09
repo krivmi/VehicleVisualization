@@ -1,5 +1,4 @@
 #include "messageparser.h"
-#include "message.h"
 
 #include <stdexcept>
 #include <memory>
@@ -12,6 +11,11 @@
 #include <QJsonParseError>
 
 MessageParser::MessageParser(){}
+
+MessageParser& MessageParser::getInstance(){
+    static MessageParser instance; // Guaranteed to be destroyed, Instantiated on first use.
+    return instance;
+}
 
 void MessageParser::clear()
 {
@@ -97,7 +101,6 @@ void MessageParser::processMessage()
 void MessageParser::findMessagesInStream(QString messageStream){
     bool message_completed = false;
     int completed_at_index = -1;
-    //qInfo() << "LStream:" << messageStream;
 
     for (int i = 0; i < messageStream.length(); i++) {
         if(messageStream[i] == '}'){
@@ -108,7 +111,6 @@ void MessageParser::findMessagesInStream(QString messageStream){
                 if (stack.empty()) { // if stack is empty, we have a complete message
                     json_message.append(messageStream.mid(0, i + 1)); // append the end of the message
                     processMessage();
-                    //qInfo() <<  "process message";
 
                     message_completed = true;
                     completed_at_index = i;
@@ -606,50 +608,3 @@ void MessageParser::parseMAPEM(QJsonObject packetObj){
     std::shared_ptr<Mapem> newMessage = std::make_shared<Mapem>(dsrcLong, dsrcLat, dsrcElevation, messageID, stationID, 0, dsrcLaneWidth, dsrcName, dsrcID, lanes);
     emit messageParsed(newMessage);
 }
-/*
-void MessageParser::addReceivedMessages(){
-    // Vytvoření LineString různých bodů.
-    std::vector<std::shared_ptr<GeometryPoint>> points;
-
-    int cam_cnt = 0, denm_cnt = 0, srem_cnt = 0, spatem_cnt = 0, mapem_cnt = 0, geonw_cnt = 0;
-
-    for(int i = 0; i< loaded_messages_array->count(); i++){
-        QJsonObject packetObj = loaded_messages_array->at(i).toObject();
-
-        QJsonObject _source = packetObj["_source"].toObject();
-        QJsonObject layers = _source["layers"].toObject();
-        QJsonObject its = layers["its"].toObject();
-        QJsonObject its_ItsPduHeader_element = its["its.ItsPduHeader_element"].toObject();
-
-        if(its_ItsPduHeader_element["its.messageID"].toString() == "2"){
-            cam_cnt += 1;
-            parseCAM(packetObj);
-        }
-        else if(its_ItsPduHeader_element["its.messageID"].toString() == "1"){
-            denm_cnt += 1;
-            parseDENM(packetObj);
-        }
-        else if(its_ItsPduHeader_element["its.messageID"].toString() == "9"){
-            srem_cnt += 1;
-            parseSREM(packetObj);
-        }
-        else if(its_ItsPduHeader_element["its.messageID"].toString() == "4"){
-            spatem_cnt += 1;
-            parseSPATEM(packetObj);
-        }
-        else if(its_ItsPduHeader_element["its.messageID"].toString() == "5"){
-            mapem_cnt += 1;
-            parseMAPEM(packetObj);
-        }
-        else{
-            geonw_cnt += 1;
-            qInfo() << "GEONW message";
-        }
-    }
-    qInfo() << "CAM: " << cam_cnt << "SREM: " << srem_cnt;
-    qInfo() << "DENM: " << denm_cnt << "MAPEM: " << mapem_cnt;
-    qInfo() << "SPATEM: " << spatem_cnt << "GEONW: " << geonw_cnt;
-
-    qInfo() << messages.size();
-}
-*/

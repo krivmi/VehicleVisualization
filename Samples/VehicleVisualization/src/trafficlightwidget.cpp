@@ -1,6 +1,5 @@
 #include "trafficlightwidget.h"
 
-
 #include <QDebug>
 #include <QDate>
 #include <QDateTime>
@@ -46,7 +45,8 @@ TrafficLightWidget::TrafficLightWidget(int signalGroup, QVector <QString> maneuv
     setAllowedDirection();
 
 }
-void TrafficLightWidget::setResidualTime(int timeStamp, int moy, int likelyTime){
+void TrafficLightWidget::setResidualTime(int timeStamp, int moy, int likelyTime)
+{
     // Data elements of type TimeMark (i.e. ‘startTime’, ‘minEndTime’, ‘maxEndTime’, ‘likelyTime’, ‘nextTime’)
     // shall represent 1/10 s in the hour in which the state change may occur
 
@@ -112,7 +112,8 @@ void TrafficLightWidget::setAllowedDirection(){
         setDirectionPixmap(-1);
     }
 }
-void TrafficLightWidget::setTrafficLightPixmap(int state){
+void TrafficLightWidget::setTrafficLightPixmap(int state)
+{
     int w = 100;
     int h = 100;
 
@@ -152,11 +153,11 @@ void TrafficLightWidget::setTrafficLightPixmap(int state){
 
     if(this->trafficLightMapPoint != nullptr){
         this->trafficLightMapPoint->setImage(pixmap2, true);
-        //qInfo() << "changed";
     }
 
 }
-void TrafficLightWidget::setDirectionPixmap(int state){
+void TrafficLightWidget::setDirectionPixmap(int state)
+{
     int w = 100;
     int h = 100;
 

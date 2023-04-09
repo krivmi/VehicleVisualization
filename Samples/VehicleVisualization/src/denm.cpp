@@ -1,5 +1,15 @@
 #include "denm.h"
 
+Denm::Denm(double longitude, double latitude, double altitude, int messageID, long stationID, int stationType, long itsOriginatingStationID,
+     int itsSequenceNumber, long denmDetectionTime, long denmReferenceTime, bool denmTermination, int itsCauseCode, int itsSubCauseCode)
+    : Message(longitude, latitude, altitude, messageID, stationID, stationType),
+      originatingStationID(itsOriginatingStationID), sequenceNumber(itsSequenceNumber),
+      detectionTime(denmDetectionTime), referenceTime(denmReferenceTime), termination(denmTermination),
+      causeCode(itsCauseCode), subCauseCode(itsSubCauseCode), refPoint(PointWorldCoord(longitude, latitude))
+{
+    getCauseCodeStrings();
+}
+
 void Denm::getCauseCodeStrings(){
     if(this->subCauseCode == 0){
         this->subCauseCodeStr = "No specific information";

@@ -2,17 +2,15 @@
 
 #include "cam.h"
 #include "datahandler.h"
+
 #include <QtCore/QObject>
 #include <QMapControl/Point.h>
-
-using namespace qmapcontrol;
 
 class EventCounter : public QObject
 {
     Q_OBJECT
 public:
     EventCounter();
-    ~EventCounter() { }
 
     void start();
     void stop();
@@ -22,7 +20,7 @@ public:
     bool messagesNotSet();
     bool areMessagesPlayed();
 
-    bool newPlayingCycle = true;
+    bool newPlayingCycle;
 
 public slots:
     void tick();
@@ -33,9 +31,9 @@ signals:
     void playingStarted();
 
 private:
-    bool m_running = false;
-    bool messagesPlayedFlag = true;
-    int messagesIndex = 0;
-    int messagesSize = 0;
-    int TPS = 10;
+    bool m_running;
+    bool messagesPlayedFlag;
+    int messagesIndex;
+    int messagesSize;
+    int TPS;
 };

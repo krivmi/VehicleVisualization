@@ -1,6 +1,7 @@
 #pragma once
 
 #include "message.h"
+
 #include "QVector"
 #include <QMap>
 
@@ -8,19 +9,14 @@
 #include <QMapControl/GeometryLineString.h>
 #include <QMapControl/GeometryPoint.h>
 
-using namespace qmapcontrol;
-
 struct SignalGroupInfo {
     long laneID;
     long connectingLaneID;
     QString manouver;
-
 };
 
 struct Node {
-    int x;
-    int y;
-    int delta;
+    int x, y, delta;
 };
 
 struct ConnectingLane {
@@ -43,38 +39,27 @@ struct Lane {
     bool directionIngressPath;
     bool directionEgressPath;
 
-
     QVector <Node> nodes;
     QVector <ConnectingLane> connectingLanes;
     std::shared_ptr<GeometryLineString> laneMapPtr;
     QVector<std::shared_ptr<GeometryPoint>> lanePointsVectorPtr;
 
     QVector <QPair<int, QVector<SignalGroupInfo>>> signalGroupInfoPairVector;
-
 };
 
 
 class Mapem : public Message {
-
     public:    
-        static QVector<QString> laneTypes;
-        float laneWidth;
-        QString crossroadName;
-        int crossroadID;
-        QVector <Lane> lanes;
-        QVector <QVector<Lane>> adjacentIngressLanes;
-
         Mapem(qreal longitude, qreal latitude, qreal altitude, int messageID, long stationID, int stationType,
-              float laneWidth, QString crossroadName, long crossroadID, QVector<Lane> lanes) :
-              Message(longitude, latitude, altitude, messageID, stationID, stationType){
-            this->crossroadID = crossroadID;
-            this->crossroadName = crossroadName;
-            this->lanes = lanes;            
-        };
+              float laneWidth, QString crossroadName, long crossroadID, QVector<Lane> lanes);
+
         int findAdjIngVehLaneByOrientation(float orientation);
 
+        static Lane getLaneByID(long id, QVector<Lane> lanes);
+        static long getConnectedLaneID(ConnectingLane lane, QVector <Lane> lanes);
         static PointWorldCoord getFirstPointOfLane(Lane lane, PointWorldCoord refPoint);
         static PointWorldCoord getLastPointOfLane(Lane lane, PointWorldCoord refPoint);
+        static std::vector <PointWorldCoord> getLanePoints(Lane lane, PointWorldCoord refPoint);
 
         bool haveAdjacentLanesSameSignalGroup(QVector<Lane> adjacentIngressLanes);
         void prepareCrossroadSignalGroups();
@@ -83,4 +68,13 @@ class Mapem : public Message {
         QVector <QPair<int, QVector<SignalGroupInfo>>> getLaneSignalGroupsVector(Lane lane);
 
         QString GetProtocol() { return "Mapem"; };
+
+        int crossroadID;
+        QString crossroadName;
+        float laneWidth;
+        QVector <Lane> lanes;
+
+        QVector <QVector<Lane>> adjacentIngressLanes;
+
+        static QVector<QString> laneTypes;
 };

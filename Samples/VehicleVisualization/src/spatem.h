@@ -3,8 +3,6 @@
 #include "message.h"
 #include "QVector"
 
-#include <QMapControl/QMapControl.h>
-
 struct MovementEvent {
     int eventState;
     int startTime;
@@ -23,24 +21,14 @@ struct MovementState {
 class Spatem : public Message
 {
 public:
-    Spatem();
+    // SPATEM messages does not contain location information, it is based on the corresponding MAPEM
+    Spatem(qreal longitude, qreal latitude, qreal altitude, int messageID, long stationID, int stationType, QString name, int id, int dsrcTimeStamp, int moy, QVector <MovementState> movementStates);
+
+    QString GetProtocol() { return "Spatem"; };
 
     QString crossroadName;
     int crossroadID;
     int timeStamp;
     int moy;
-
     QVector <MovementState> movementStates;
-    // SPATEM messages does not contain location information, it is based on the corresponding MAPEM
-
-    Spatem(qreal longitude, qreal latitude, qreal altitude, int messageID, long stationID, int stationType, QString name, int id, int dsrcTimeStamp, int moy, QVector <MovementState> movementStates) :
-          Message(longitude, latitude, altitude, messageID, stationID, stationType){
-        this->movementStates = movementStates;
-        this->crossroadName = name;
-        this->crossroadID = id;
-        this->timeStamp = dsrcTimeStamp;
-        this->moy = moy;
-    };
-
-    QString GetProtocol() { return "Spatem"; };
 };

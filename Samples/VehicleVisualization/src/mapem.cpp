@@ -3,11 +3,18 @@
 
 QVector<QString> Mapem::laneTypes = {"Vehicle", "CrossWalk", "BikeLane", "Unknown", "Unknown", "Unknown", "TrackedVehicle"};
 
-QVector <Lane> Mapem::getAllIngressVehicleLanes(){
+Mapem::Mapem(qreal longitude, qreal latitude, qreal altitude, int messageID, long stationID, int stationType,
+      float laneWidth, QString crossroadName, long crossroadID, QVector<Lane> lanes) :
+      Message(longitude, latitude, altitude, messageID, stationID, stationType), crossroadID(crossroadID),
+      crossroadName(crossroadName), laneWidth(laneWidth), lanes(lanes) { };
+
+QVector <Lane> Mapem::getAllIngressVehicleLanes()
+{
     QVector <Lane> ingressVehicleLanes;
 
     for(int i = 0; i < this->lanes.size(); i++){
         // if the lane is INGRESS LANE and it is for VEHICLES
+
         if(this->lanes[i].directionIngressPath && this->lanes[i].type == 0){
             ingressVehicleLanes.append(this->lanes[i]);
         }
@@ -15,21 +22,66 @@ QVector <Lane> Mapem::getAllIngressVehicleLanes(){
     return ingressVehicleLanes;
 }
 
-PointWorldCoord Mapem::getFirstPointOfLane(Lane lane, PointWorldCoord refPoint){
+PointWorldCoord Mapem::getFirstPointOfLane(Lane lane, PointWorldCoord refPoint)
+{
     qreal f_long = refPoint.longitude() + (qreal)lane.nodes[0].x / 10000000.0;
     qreal f_lat = refPoint.latitude() + (qreal)lane.nodes[0].y / 10000000.0;
     return PointWorldCoord(f_long, f_lat);
 }
-PointWorldCoord Mapem::getLastPointOfLane(Lane lane, PointWorldCoord refPoint){
+PointWorldCoord Mapem::getLastPointOfLane(Lane lane, PointWorldCoord refPoint)
+{
     qreal f_long = refPoint.longitude() + (float)lane.nodes[1].x / 10000000.0;
     qreal f_lat = refPoint.latitude() + (float)lane.nodes[1].y / 10000000.0;
     return PointWorldCoord(f_long, f_lat);
 }
+Lane Mapem::getLaneByID(long id, QVector<Lane> lanes)
+{
+    for (int i = 0; i < lanes.size(); i++){
+        if (lanes[i].laneID == id){
+            return lanes[i];
+        }
+    }
+    Lane empty;
+    empty.laneID = -1;
+    return empty;
+};
 
-int Mapem::findAdjIngVehLaneByOrientation(float orientation){
+long Mapem::getConnectedLaneID(ConnectingLane lane, QVector <Lane> lanes)
+{
+    // find lane to connect to
+    long foundLaneId = -1;
+    for (int l = 0; l < lanes.size(); l++){
+        if (lanes[l].laneID == lane.laneNumber){
+            //qInfo() << "Connection found";
+            foundLaneId = lanes[l].laneID;
+            break;
+        }
+    }
+    return foundLaneId;
+}
+
+std::vector <PointWorldCoord> Mapem::getLanePoints(Lane lane, PointWorldCoord refPoint)
+{
+    std::vector<PointWorldCoord> raw_points;
+
+    for (int j = 0; j < lane.nodes.size(); j++)
+    {
+        qreal f_long = refPoint.longitude() + (qreal)lane.nodes[j].x / 10000000.0;
+        qreal f_lat = refPoint.latitude() + (qreal)lane.nodes[j].y / 10000000.0;
+        PointWorldCoord node_coor = PointWorldCoord(f_long, f_lat);
+
+        raw_points.emplace_back(node_coor);
+    }
+    return raw_points;
+}
+
+int Mapem::findAdjIngVehLaneByOrientation(float orientation)
+{
     int index = -1;
     float minimalDifference = 361.0f;
-    for(int i = 0; i < adjacentIngressLanes.size(); i++){
+
+    for(int i = 0; i < adjacentIngressLanes.size(); i++)
+    {
         // take the first lane
         Lane lane = adjacentIngressLanes.at(i).at(0);
         PointWorldCoord ptFrom = getFirstPointOfLane(lane, refPoint);
@@ -60,7 +112,8 @@ int Mapem::findAdjIngVehLaneByOrientation(float orientation){
     return index;
 }
 
-QVector <QVector<Lane>> Mapem::findAdjacentIngressVehicleLanes(){
+QVector <QVector<Lane>> Mapem::findAdjacentIngressVehicleLanes()
+{
     QVector <Lane> ingressVehicleLanes = getAllIngressVehicleLanes();
     QVector <Lane> adjacentLanes;
     QVector <QVector<Lane>> adjacentLanesList;
@@ -108,8 +161,8 @@ QVector <QVector<Lane>> Mapem::findAdjacentIngressVehicleLanes(){
     return adjacentLanesList;
 }
 
-QVector <QPair<int, QVector<SignalGroupInfo>>> Mapem::getLaneSignalGroupsVector(Lane lane){
-
+QVector <QPair<int, QVector<SignalGroupInfo>>> Mapem::getLaneSignalGroupsVector(Lane lane)
+{
     QVector <QPair<int, QVector<SignalGroupInfo>>> signalGroupPairVector;
 
     for (int i = 0; i < lane.connectingLanes.size(); i++){
@@ -161,60 +214,11 @@ QVector <QPair<int, QVector<SignalGroupInfo>>> Mapem::getLaneSignalGroupsVector(
             }
         }
         signalGroupPairVectorChanged.append(currentPair);
-
     }
-
     return signalGroupPairVectorChanged;
-/*
-    QVector <SignalGroupInfo> signalGroupInfoArray;
-    QVector <QVector<SignalGroupInfo>> signalGroupInfoArrayList;
-
-
-    for (int i = 0; i < lane.connectingLanes.size(); i++){
-        SignalGroupInfo signalGroupInfo;
-        signalGroupInfo.laneID = lane.laneID;
-        signalGroupInfo.connectingLaneID = lane.connectingLanes[i].laneNumber;
-        signalGroupInfo.signalGroup = lane.connectingLanes[i].signalGroup;
-
-        if(lane.connectingLanes[i].maneuverStraightAllowed){
-            signalGroupInfo.manouver = "straight";
-            signalGroupInfoArray.append(signalGroupInfo);
-        }
-        if(lane.connectingLanes[i].maneuverLeftAllowed){
-            signalGroupInfo.manouver = "left";
-            signalGroupInfoArray.append(signalGroupInfo);
-        }
-        if(lane.connectingLanes[i].maneuverRightAllowed){
-            signalGroupInfo.manouver = "right";
-            signalGroupInfoArray.append(signalGroupInfo);
-        }
-
-    }
-    if(signalGroupInfoArray.isEmpty()){
-        return {};
-    }
-    // sort an array to finally create
-    std::sort(signalGroupInfoArray.begin(), signalGroupInfoArray.end());
-    // TODO - find out if it is well sorted
-
-    int firstGroupID = signalGroupInfoArray[0].signalGroup;
-    QVector <SignalGroupInfo> currentGroup = {signalGroupInfoArray[0]};
-
-    for(int i = 1; i < signalGroupInfoArray.size(); i++){
-        if(firstGroupID == signalGroupInfoArray[i].signalGroup){
-            currentGroup.append(signalGroupInfoArray[i]);
-        } else{
-            signalGroupInfoArrayList.append(currentGroup);
-            currentGroup.empty();
-            firstGroupID = signalGroupInfoArray[i].signalGroup;
-            currentGroup.append(signalGroupInfoArray[i]);
-        }
-    }
-    signalGroupInfoArrayList.append(currentGroup);
-
-    return signalGroupInfoArrayList;*/
 }
-bool Mapem::haveAdjacentLanesSameSignalGroup(QVector<Lane> adjacentIngressLanes){
+bool Mapem::haveAdjacentLanesSameSignalGroup(QVector<Lane> adjacentIngressLanes)
+{
     QVector <int> signalGroupVector;
 
     // for every lane in adjacent lanes
@@ -231,13 +235,12 @@ bool Mapem::haveAdjacentLanesSameSignalGroup(QVector<Lane> adjacentIngressLanes)
     }
     if(signalGroupVector.size() == 1){
         // all lanes describes the same signal group (they have one traffic light)
-
         return true;
     }
     return false;
 }
-void Mapem::prepareCrossroadSignalGroups(){
-
+void Mapem::prepareCrossroadSignalGroups()
+{
     adjacentIngressLanes = this->findAdjacentIngressVehicleLanes();
 
     for(int i = 0; i < adjacentIngressLanes.size(); i++){
@@ -246,5 +249,4 @@ void Mapem::prepareCrossroadSignalGroups(){
             adjacentIngressLanes[i][j].signalGroupInfoPairVector = getLaneSignalGroupsVector(adjacentIngressLanes[i][j]);
         }
     }
-
 }

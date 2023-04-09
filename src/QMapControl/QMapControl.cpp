@@ -1215,7 +1215,7 @@ namespace qmapcontrol
         // Set the geometries of the follow button
         const int follow_btn_size = 50;
         //qInfo() << this->height();
-        m_recenter_GPS_point_button.setGeometry(margin_left, m_viewport_size_px.height() - follow_btn_size - margin - 70, follow_btn_size, follow_btn_size);
+        m_recenter_GPS_point_button.setGeometry(margin_left, m_viewport_size_px.height() - follow_btn_size - margin - 90, follow_btn_size, follow_btn_size);
         m_recenter_GPS_point_button.setIconSize(QSize(follow_btn_size, follow_btn_size));
         m_recenter_GPS_point_button.setStyleSheet("border: none");
 

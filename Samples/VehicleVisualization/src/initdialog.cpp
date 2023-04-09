@@ -10,7 +10,7 @@ InitDialog::InitDialog(QWidget* parent) : QDialog(parent)
 
     QLabel *projectPathLabel = new QLabel("Project path:");
     projectPathEdit = new QLineEdit;
-    QLabel *receivingCommandLabel = new QLabel(tr("Receiving command:"));
+    QLabel *receivingCommandLabel = new QLabel("Receiving command:");
     receivingCommandLineEdit = new QLineEdit;
     QLabel *loadingCommandLabel = new QLabel("Loading command:");
     loadingCommandLineEdit = new QLineEdit;

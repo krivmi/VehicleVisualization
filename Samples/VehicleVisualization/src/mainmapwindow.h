@@ -29,22 +29,16 @@
 #include <QMapControl/Layer.h>
 #include <QMapControl/LayerGeometry.h>
 
-using namespace qmapcontrol;
-
 class MainMapWindow : public QMainWindow
 {
     Q_OBJECT
-    QThread gpsThread;
 public:
     MainMapWindow(QWidget *parent = 0);
-    ~MainMapWindow(){
-        tracker->stop();
-
-        gpsThread.quit();
-        gpsThread.wait();
-    };
+    ~MainMapWindow();
 
     void toggleFollowGPS(bool enable);
+
+    QThread gpsThread;
 
 public slots:
     void resizeEvent(QResizeEvent* resize_event);
@@ -79,62 +73,8 @@ signals:
     void startTracker();
     void GPSPositionReceived(PointWorldCoord position, float orientation);
     void changeGPSButtonGeometry(int w, int h, QSize size);
+
 private:    
-    ProcessHandler processHandler;
-    EventCounter eventCounter;
-
-    std::shared_ptr <Visualizer> visualizer;
-    std::shared_ptr <DataHandler> dataHandler;
-
-    GPSTracker * tracker; // must be normal pointer, it is deleted when the thread finishes
-
-    QMapControl * m_map_control;
-    QMapControl * miniMap;
-    QPushButton * btn_play;
-    QPushButton * btn_nextMsg;
-    QPushButton * btn_resetPlaying;
-    QPushButton * btn_toogle_receiving;
-    QPushButton * btnToogleGPS;
-    QPushButton * btnFollowGeometry;
-
-    QLabel * infoLbl;
-    QLabel * typeLbl;
-    QLabel * vehicleImageLbl;
-    QLabel * lblFileName;
-    QLabel * lblMessageIndex;
-
-    QVBoxLayout * logWidgetUnitsLayout;
-    QVBoxLayout * mainAppLayout;
-    QHBoxLayout * middleLayout;
-    QHBoxLayout * rightMiddleLayout; // layoutH
-
-    QHBoxLayout * layoutInTLBottom;
-
-    QWidget * topBar;
-    QWidget * middleWidget;
-    QWidget * leftMiddleWidget;
-    QWidget * rightMiddleWidget;
-    QWidget * crossroadW;
-    QWidget * infoW;
-
-    QWidget * trafficLightsW;
-    QLabel * lblCrossroadName;
-    int currentDisplayedStructIndex = -1;
-
-    bool gpsEnabled = false;
-    bool receivingEnabled = false;
-    bool gpsRecentered = false;
-
-    QAction * mode_manual;
-    QAction * mode_auto;
-
-    LogWidget * lastMessageLogW;
-    QVBoxLayout * scrollVerticalLayout;
-
-    QLabel * GPSstatusLbl;
-    QLabel * receivingStatusLbl;
-
-    bool fontLarge = false;
     void changeFont(int size);
     void initSettingsDialog();
     void initSettings();
@@ -157,4 +97,56 @@ private:
     void setupMaps();
     void openFile();
     QString getFileNameFromPath(QString path);
+
+    ProcessHandler processHandler;
+    EventCounter eventCounter;
+
+    std::shared_ptr <Visualizer> visualizer;
+    std::shared_ptr <DataHandler> dataHandler;
+
+    GPSTracker * tracker; // must be normal pointer, it is deleted when the thread is finished
+
+    QMapControl * m_map_control;
+
+    QPushButton * btn_play;
+    QPushButton * btn_nextMsg;
+    QPushButton * btn_resetPlaying;
+    QPushButton * btn_toogle_receiving;
+    QPushButton * btnToogleGPS;
+    QPushButton * btnFollowGeometry;
+
+    QLabel * infoLbl;
+    QLabel * typeLbl;
+    QLabel * vehicleImageLbl;
+    QLabel * lblFileName;
+    QLabel * lblMessageIndex;
+    QLabel * GPSstatusLbl;
+    QLabel * receivingStatusLbl;
+    QLabel * lblCrossroadName;
+
+    QVBoxLayout * mainAppLayout;
+    QVBoxLayout * logWidgetUnitsLayout;
+    QVBoxLayout * scrollVerticalLayout;
+    QHBoxLayout * middleLayout;
+    QHBoxLayout * rightMiddleLayout; // layoutH
+    QHBoxLayout * layoutInTLBottom;
+
+    QWidget * topBar;
+    QWidget * middleWidget;
+    QWidget * leftMiddleWidget;
+    QWidget * rightMiddleWidget;
+    QWidget * crossroadW;
+    QWidget * infoW;
+    QWidget * trafficLightsW;
+
+    LogWidget * lastMessageLogW;
+
+    QAction * mode_manual;
+    QAction * mode_auto;
+
+    bool gpsEnabled = false;
+    bool receivingEnabled = false;
+    bool gpsRecentered = false;
+    bool fontLarge = false;
+    int currentDisplayedStructIndex = -1;
 };

@@ -1,16 +1,17 @@
 #include "logwidget.h"
 
-
 #include <QDebug>
 #include <QDate>
 #include <QDateTime>
 #include <QPixmap>
 #include <QIcon>
 
-LogWidget::LogWidget(QWidget *parent) {
+LogWidget::LogWidget(QWidget *parent)
+{
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
     layout->setSpacing(0);
+
     this->setStyleSheet("border: 1px solid grey");
     this->setStyleSheet("background-color: white");
     this->setMinimumHeight(40);
