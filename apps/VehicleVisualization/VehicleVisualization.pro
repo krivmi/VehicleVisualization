@@ -1,5 +1,5 @@
 # Include sample configurations.
-include(../Samples.pri)
+include(../apps.pri)
 
 # Target name.
 TARGET = Multidemo

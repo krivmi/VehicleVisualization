@@ -1,5 +1,5 @@
 # Include common configurations.
-include(../QMapControl.pri)
+include(../VehicleVisualization.pri)
 
 # Windows specific options.
 win32 {

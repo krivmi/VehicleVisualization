@@ -1,3 +1,6 @@
-# ignore build directory
-build-QMapControl-Desktop-Debug
-build-QMapControl-Desktop-Release
+# ignore build directories
+build-VehicleVisualization-Desktop-Debug
+build-VehicleVisualization-Desktop-Release
+
+# ignore build-pro-files
+VehicleVisualization.pro.user

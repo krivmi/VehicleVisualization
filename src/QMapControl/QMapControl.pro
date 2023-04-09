@@ -1,5 +1,5 @@
 # Include common configurations.
-include(../../QMapControl.pri)
+include(../../VehicleVisualization.pri)
 
 # Capture whether this is a release/debug build.
 CONFIG(debug, debug|release) {

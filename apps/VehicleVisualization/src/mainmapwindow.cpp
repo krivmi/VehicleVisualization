@@ -71,7 +71,7 @@ MainMapWindow::MainMapWindow(QWidget *parent) : QMainWindow(parent)
     QObject::connect(&processHandler, &ProcessHandler::error, this, &MainMapWindow::handleError);
 
     // *** delete before release
-    processHandler.currentFile = "/home/krivmi/QT_projects/QMapControl/Samples/resources/trafficFiles/capture_X1_02.pcap";
+    processHandler.currentFile = "/home/krivmi/QT_projects/VehicleVisualization/apps/resources/trafficFiles/capture_X1_02.pcap";
     lblFileName->setText("Current file: " + getFileNameFromPath(processHandler.currentFile));
     processHandler.startLoading();
     eventCounter.setMessageSize(dataHandler->allMessages.size());

@@ -7,4 +7,4 @@ CONFIG += ordered
 # Sub directory projects.
 SUBDIRS +=                  \
     src                     \
-    Samples                 \
+    apps                 \
