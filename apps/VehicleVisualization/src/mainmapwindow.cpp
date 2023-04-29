@@ -703,7 +703,7 @@ void MainMapWindow::unitClicked(long stationID)
         dataHandler->currentInfoStation = unit;
     }
 
-    //visualizer->drawVehiclePath(dataHandler->currentInfoStation);
+    visualizer->drawVehiclePath(dataHandler->currentInfoStation);
 
     changeInfo();
     toogleInfo(true);
