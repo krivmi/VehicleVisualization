@@ -254,7 +254,7 @@ void Visualizer::geometryClickEvent(const Geometry* geometry)
         }
         else if(geometry->metadata("name").toString() == "lane")
         {
-            long laneID = geometry->metadata("id").toLongLong();
+            //long laneID = geometry->metadata("id").toLongLong();
 
             /*InfoDialog* info_dialog = new InfoDialog(this->m_map_control);
             info_dialog->setWindowTitle("Lane");

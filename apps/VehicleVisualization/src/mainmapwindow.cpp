@@ -71,13 +71,21 @@ MainMapWindow::MainMapWindow(QWidget *parent) : QMainWindow(parent)
     QObject::connect(&processHandler, &ProcessHandler::error, this, &MainMapWindow::handleError);
 
     // *** delete before release
-    processHandler.currentFile = "/home/krivmi/QT_projects/VehicleVisualization/apps/resources/trafficFiles/capture_X1_02.pcap";
-    lblFileName->setText("Current file: " + getFileNameFromPath(processHandler.currentFile));
-    processHandler.startLoading();
-    eventCounter.setMessageSize(dataHandler->allMessages.size());
+    //processHandler.currentFile = "/home/krivmi/QT_projects/VehicleVisualization/apps/resources/trafficFiles/capture_X1_02.pcap";
+    //lblFileName->setText("Current file: " + getFileNameFromPath(processHandler.currentFile));
+    //processHandler.startLoading();
+    //eventCounter.setMessageSize(dataHandler->allMessages.size());
 }
 void MainMapWindow::changeFont(int size){
     middleWidget->setStyleSheet("font-size: " + QString::number(size) + "px;");
+
+    if(size < 20){
+        leftMiddleWidget->setMinimumWidth(300);
+        leftMiddleWidget->setMaximumWidth(300);
+    } else {
+        leftMiddleWidget->setMinimumWidth(340);
+        leftMiddleWidget->setMaximumWidth(340);
+    }
 }
 void MainMapWindow::GPSstopped(){
     gpsEnabled = false;
@@ -132,7 +140,7 @@ void MainMapWindow::setupMaps()
     //m_map_control->addLayer(std::make_shared<LayerMapAdapter>("Map", std::make_shared<MapAdapterGoogle>()));
 
     // set focus on Ostrava
-    m_map_control->setMapFocusPoint(PointWorldCoord(18.284743, 49.838337));
+    m_map_control->setMapFocusPoint(PointWorldCoord(18.16291460703257, 49.83076659354283));
     m_map_control->setZoom(18);
 }
 void MainMapWindow::toogleGPS()
@@ -166,8 +174,6 @@ void MainMapWindow::modeSelected(QAction* action){
 
         statusBar()->showMessage("Mode manual...");
 
-        leftMiddleWidget->setMinimumWidth(300);
-        leftMiddleWidget->setMaximumWidth(300);
         changeFont(17);
 
         emit changeGPSButtonGeometry(0, 90, QSize(50, 50));
@@ -209,8 +215,6 @@ void MainMapWindow::modeSelected(QAction* action){
             statusBar()->showMessage("Mode auto, GPS started, receiving started...");
         }
 
-        leftMiddleWidget->setMinimumWidth(340);
-        leftMiddleWidget->setMaximumWidth(340);
         changeFont(22);
 
         emit changeGPSButtonGeometry(0, 58, QSize(50, 50));
@@ -699,7 +703,7 @@ void MainMapWindow::unitClicked(long stationID)
         dataHandler->currentInfoStation = unit;
     }
 
-    visualizer->drawVehiclePath(dataHandler->currentInfoStation);
+    //visualizer->drawVehiclePath(dataHandler->currentInfoStation);
 
     changeInfo();
     toogleInfo(true);
@@ -712,7 +716,27 @@ void MainMapWindow::changeInfo()
 
     typeLbl->setText("<strong>" + dataHandler->currentInfoStation->typeStr + "</strong>");
 
-    if(dataHandler->currentInfoStation->stationType == 11)
+    if(dataHandler->currentInfoStation->stationType == 6)
+    {
+        // Bus
+        if(dataHandler->currentInfoStation->leftTurnSignalOn)
+        {
+            pixmap.load(":/resources/images/bus_top_left.png");
+        }
+        else if(dataHandler->currentInfoStation->rightTurnSignalOn)
+        {
+            pixmap.load(":/resources/images/bus_top_right.png");
+        }
+        else
+        {
+            pixmap.load(":/resources/images/bus_top.png");
+        }
+        boxText += "Speed: " + QString::number(dataHandler->currentInfoStation->speed) + " km/h\n";
+        boxText += "Length, width: " + QString::number(dataHandler->currentInfoStation->vehicleLength) + ", " +
+                QString::number(dataHandler->currentInfoStation->vehicleWidth) + " m\n";
+        boxText += "Role: " + dataHandler->currentInfoStation->vehicleRoleStr + "\n";
+    }
+    else if(dataHandler->currentInfoStation->stationType == 11)
     {
         // Tram
         if(dataHandler->currentInfoStation->leftTurnSignalOn)
@@ -935,6 +959,7 @@ void MainMapWindow::resetPlaying()
     dataHandler->currentInfoStation = nullptr;
     dataHandler->clearUnitsAndMessages();
 
+    closeTLW();
     infoW->setVisible(false);
     lblMessageIndex->setText("Messages: 0");
 
@@ -1001,6 +1026,10 @@ void MainMapWindow::openFile()
         qInfo() << fileName;
         processHandler.fileChanged = true;
         processHandler.currentFile = fileName;
+
+        // close floating widgets
+        closeTLW();
+        toogleInfo(false);
 
         // clear data from playing
         eventCounter.reset();

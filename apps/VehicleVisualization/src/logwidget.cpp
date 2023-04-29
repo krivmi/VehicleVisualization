@@ -104,7 +104,10 @@ QPixmap LogWidget::getPixmap(std::shared_ptr <Message> message){
     } else if(protocol == "Denm"){
         return QPixmap(":/resources/images/DENM_icon.png");
     }
-    else{ qInfo() << "Something went wrong"; }
+    else{
+        qInfo() << "Something went wrong";
+        return QPixmap();
+    }
 }
 
 void LogWidget::mousePressEvent(QMouseEvent *event){

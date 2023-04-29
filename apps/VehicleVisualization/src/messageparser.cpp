@@ -266,7 +266,7 @@ void MessageParser::parseDENM(QJsonObject packetObj){
     // LOCATION ELEMENT
     QJsonObject denmLocationElement = denmDecentralizedEnvironmentalNotificationMessageElement["denm.location_element"].toObject();
 
-    int denmTraces = denmLocationElement["denm.traces"].toString().toInt();
+    //int denmTraces = denmLocationElement["denm.traces"].toString().toInt();
     // TODO - path history
 
     std::shared_ptr<Denm> newMessage = std::make_shared<Denm>(itsLong, itsLat, itsAlt, messageID, stationID, denmStationType, itsOriginatingStationID, itsSequenceNumber, denmDetectionTime, denmReferenceTime, denmTermination, itsCauseCode, itsSubCauseCode);
@@ -441,7 +441,9 @@ void getGEONWInfo(QJsonObject geonw, int * geonwSrcPosAddrManual, int * geonwSrc
     * geonwSrcPosHeading = ((geonwSrcPosTree["geonw.src_pos.hdg"].toString().toFloat())/ 10) - 90.0f;
 
 }
-void MessageParser::parseGEONW(QJsonObject packetObj){
+void MessageParser::parseGEONW(QJsonObject packetObj)
+{
+    /*
     QJsonObject _source = packetObj["_source"].toObject();
     QJsonObject layers = _source["layers"].toObject();
     QJsonObject gnw = layers["gnw"].toObject();
@@ -474,7 +476,7 @@ void MessageParser::parseGEONW(QJsonObject packetObj){
         getGEONWInfo(geoBroadcastPacket, &geonwSrcPosAddrManual, &geonwSrcPosAddrType, &geonwSrcPosAddrCountry,
                      &geonwSrcPosTst, &geonwSrcPosLat, &geonwSrcPosLong, &geonwSrcPosSpeed, &geonwSrcPosHeading);
 
-        int geonwGxcRadius = geoBroadcastPacket["geonw.gxc.radius"].toString().toInt();
+        //int geonwGxcRadius = geoBroadcastPacket["geonw.gxc.radius"].toString().toInt();
         // TODO - the rest if necessary
     }
     else if(geonwCHNextHeader == 0 && geonwCHHeaderType == "0x10"){
@@ -482,6 +484,7 @@ void MessageParser::parseGEONW(QJsonObject packetObj){
         getGEONWInfo(geoBeaconPacket, &geonwSrcPosAddrManual, &geonwSrcPosAddrType, &geonwSrcPosAddrCountry,
                      &geonwSrcPosTst, &geonwSrcPosLat, &geonwSrcPosLong, &geonwSrcPosSpeed, &geonwSrcPosHeading);
     }
+    */
     // TODO - what to do with GEONW messages
 }
 void MessageParser::parseMAPEM(QJsonObject packetObj){

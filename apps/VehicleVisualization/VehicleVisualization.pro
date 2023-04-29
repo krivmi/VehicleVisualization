@@ -2,7 +2,7 @@
 include(../apps.pri)
 
 # Target name.
-TARGET = Multidemo
+TARGET = VehicleVisualization
 
 # Target version.
 VERSION = 0.1

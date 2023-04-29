@@ -4,9 +4,8 @@
 #include <algorithm>
 #include <memory>
 
-# define M_PI 3.14159265358979323846
-
-const double R = 6378.137; // Radius of earth in KM
+#define M_PI 3.14159265358979323846
+#define R 6378.137 // Radius of earth in KM
 
 DataHandler::DataHandler(Visualizer * visualizer, QWidget* parent) : QObject(parent),
     autoModeOn(false), visualizer(visualizer)

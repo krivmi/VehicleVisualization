@@ -46,7 +46,7 @@ Cam::Cam(qreal longitude, qreal latitude, qreal altitude, int messageID, long st
         this->imgSrcAttention = ":/resources/images/car_black_srem.png";
         this->typeStr = "Car";
     }
-    else if(this->stationType == 6){
+    else if(this->stationType == 6){ // BUS
         this->imgSrcDefault = ":/resources/images/bus_black.png";
         this->imgSrcAttention = ":/resources/images/bus_black_srem.png";
         this->typeStr = "Bus";

@@ -53,7 +53,7 @@ void TrafficLightWidget::setResidualTime(int timeStamp, int moy, int likelyTime)
     QTime pseudoCurrentTime = QTime(0,0).addSecs(moy * 60).addMSecs(timeStamp);
     QTime likelyTimeTime = QTime(pseudoCurrentTime.hour(),0).addMSecs(likelyTime * 100); // * 100 because I have to divide it by 10 in the first place (converting likely timemark to seconds)
 
-    qInfo() << likelyTimeTime;
+    //qInfo() << likelyTimeTime;
 
     if((likelyTime / 10) < ((moy % 60) * 60)){
         // the TimeMark corresponds to the hour following the hour represented by ‘moy’.

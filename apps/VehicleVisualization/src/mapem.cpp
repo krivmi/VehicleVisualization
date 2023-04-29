@@ -1,7 +1,7 @@
 #include "mapem.h"
 #include <math.h>
 
-QVector<QString> Mapem::laneTypes = {"Vehicle", "CrossWalk", "BikeLane", "Unknown", "Unknown", "Unknown", "TrackedVehicle"};
+QVector<QString> Mapem::laneTypes = {"Vehicle", "CrossWalk", "BikeLane", "Unknown", "Unknown", "Unknown", "TrackedVehicle", "Parking"};
 
 Mapem::Mapem(qreal longitude, qreal latitude, qreal altitude, int messageID, long stationID, int stationType,
       float laneWidth, QString crossroadName, long crossroadID, QVector<Lane> lanes) :

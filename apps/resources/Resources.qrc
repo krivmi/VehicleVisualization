@@ -50,5 +50,8 @@
         <file>images/tram_top_right.png</file>
         <file>images/rec_off.png</file>
         <file>images/rec_on.png</file>
+        <file>images/bus_top.png</file>
+        <file>images/bus_top_left.png</file>
+        <file>images/bus_top_right.png</file>
     </qresource>
 </RCC>
