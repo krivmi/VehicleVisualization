@@ -4,3 +4,6 @@ build-VehicleVisualization-Desktop-Release
 
 # ignore build-pro-files
 VehicleVisualization.pro.user
+
+#ignore old img files
+apps/resources/images/old
