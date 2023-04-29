@@ -75,7 +75,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/library
 To run the app, execute the following command in the project directory:
 
 ```
-./build/apps/VehicleVisualization/bin/VehicleVisualization
+./build/apps/bin/VehicleVisualization
 ```
 
 # Testing
