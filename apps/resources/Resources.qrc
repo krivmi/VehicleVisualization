@@ -17,11 +17,13 @@
         <file>images/straight_right.png</file>
         <file>images/straight_left_right.png</file>
         <file>images/redYellowPermission.png</file>
-        <file>trafficFiles/capture_J0_02.pcap</file>
-        <file>trafficFiles/capture_J0_03_test.pcap</file>
+        <file>trafficFiles/capture_dump_centrum.pcap</file>
+        <file>trafficFiles/capture_dump_karolina.pcap</file>
+        <file>trafficFiles/capture_dump_mistecka.pcap</file>
+        <file>trafficFiles/capture_dump_test.pcap</file>
+        <file>trafficFiles/capture_dump_trinec.pcap</file>
         <file>trafficFiles/capture_X1_02.pcap</file>
         <file>trafficFiles/capture_Z1_00.pcap</file>
-        <file>trafficFiles/capture_Z1_01.pcap</file>
         <file>trafficFiles/ukazka_80211p.pcap</file>
         <file>images/close.png</file>
         <file>images/location.png</file>
