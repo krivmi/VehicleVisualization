@@ -81,5 +81,8 @@ To run the app, execute the following command in the project directory:
 # Testing
 To test the application, I have included some sample test files in the apps/resources/trafficFiles folder. After starting the application, you can load a file by selecting "File -> Load traffic file" from the menu. Once the file is uploaded, you can play its messages.
 
+# Screenshot
+![ui_example_3](https://github.com/krivmi/VehicleVisualization/assets/35463969/10c15302-8421-49ae-883d-3a837e1d24b8)
+
 # License
 This project is licensed under the GNU General Public License. See the LICENSE file for details.
