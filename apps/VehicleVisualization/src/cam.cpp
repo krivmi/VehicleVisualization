@@ -1,6 +1,49 @@
 #include "cam.h"
 #include <ctime>
 
+const std::unordered_map<int, std::tuple<QString, QString, QString>> Cam::stationTypeStringMap = {
+    {1, std::make_tuple(":/resources/images/unknown_black.png",
+                        ":/resources/images/unknown_black_srem.png",
+                        "Pedestrian")},
+    {2, std::make_tuple(":/resources/images/unknown_black.png",
+                        ":/resources/images/unknown_black_srem.png",
+                        "Cyclist")},
+    {3, std::make_tuple(":/resources/images/unknown_black.png",
+                        ":/resources/images/unknown_black_srem.png",
+                        "Moped")},
+    {4, std::make_tuple(":/resources/images/unknown_black.png",
+                        ":/resources/images/unknown_black_srem.png",
+                        "Motorcycle")},
+    {5, std::make_tuple(":/resources/images/car_black.png",
+                        ":/resources/images/car_black_srem.png",
+                        "Car")},
+    {6, std::make_tuple(":/resources/images/bus_black.png",
+                        ":/resources/images/bus_black_srem.png",
+                        "Bus")},
+    {7, std::make_tuple(":/resources/images/unknown_black.png",
+                        ":/resources/images/unknown_black_srem.png",
+                        "Light truck")},
+    {8, std::make_tuple(":/resources/images/unknown_black.png",
+                        ":/resources/images/unknown_black_srem.png",
+                        "Heavy truck")},
+    {9, std::make_tuple(":/resources/images/unknown_black.png",
+                        ":/resources/images/unknown_black_srem.png",
+                        "Trailer")},
+    {10, std::make_tuple(":/resources/images/unknown_black.png",
+                         ":/resources/images/unknown_black_srem.png",
+                         "Special vehicle")},
+    {11, std::make_tuple(":/resources/images/tram_black.png",
+                         ":/resources/images/tram_black_srem.png",
+                         "Tram")},
+    {15, std::make_tuple(":/resources/images/rsu_black.png",
+                         ":/resources/images/rsu_black_srem.png",
+                         "RSU")},
+    {0, std::make_tuple(":/resources/images/unknown_black.png",
+                        ":/resources/images/unknown_black_srem.png",
+                        "Unknown")}
+};
+
+
 Cam::Cam(qreal longitude, qreal latitude, qreal altitude, int messageID, long stationID, int stationType,
     float speed, float heading, QVector<VehiclePath> vehiclePath, float vehicleLength, float vehicleWidth,
     int vehicleRole, bool lowBeamHeadlightsOn, bool highBeamHeadlightsOn, bool leftTurnSignalOn,
@@ -12,87 +55,30 @@ Cam::Cam(qreal longitude, qreal latitude, qreal altitude, int messageID, long st
     daytimeRunningLightsOn(daytimeRunningLightsOn), reverseLightOn(reverseLightOn), fogLightOn(fogLightOn),
     parkingLightsOn(parkingLightsOn), timeEpoch(timeEpoch), isSrcAttention(false), refPoint(PointWorldCoord(longitude, latitude))
 {
+    // get station type string
+    // see: en 302 636-04 1.2.1
+    setStationStringValues(this->stationType);
+
     // vehicle role string
     if(this->vehicleRole == 1)
     {
         this->vehicleRoleStr = "Public transport";
     }
-    // ...TODO
-
-    // station type string
-    // see: en 302 636-04 1.2.1
-    if(this->stationType == 1){
-        this->imgSrcDefault = ":/resources/images/unknown_black.png";
-        this->imgSrcAttention = ":/resources/images/unknown_black_srem.png";
-        this->typeStr = "Pedestrian";
-    }
-    else if(this->stationType == 2){
-        this->imgSrcDefault = ":/resources/images/unknown_black.png";
-        this->imgSrcAttention = ":/resources/images/unknown_black_srem.png";
-        this->typeStr = "Cyclist";
-    }
-    else if(this->stationType == 3){
-        this->imgSrcDefault = ":/resources/images/unknown_black.png";
-        this->imgSrcAttention = ":/resources/images/unknown_black_srem.png";
-        this->typeStr = "Moped";
-    }
-    else if(this->stationType == 4){
-        this->imgSrcDefault = ":/resources/images/unknown_black.png";
-        this->imgSrcAttention = ":/resources/images/unknown_black_srem.png";
-        this->typeStr = "Motorcycle";
-    }
-    else if(this->stationType == 5){
-        this->imgSrcDefault = ":/resources/images/car_black.png";
-        this->imgSrcAttention = ":/resources/images/car_black_srem.png";
-        this->typeStr = "Car";
-    }
-    else if(this->stationType == 6){ // BUS
-        this->imgSrcDefault = ":/resources/images/bus_black.png";
-        this->imgSrcAttention = ":/resources/images/bus_black_srem.png";
-        this->typeStr = "Bus";
-    }
-    else if(this->stationType == 7){
-        this->imgSrcDefault = ":/resources/images/unknown_black.png";
-        this->imgSrcAttention = ":/resources/images/unknown_black_srem.png";
-        this->typeStr = "Light truck";
-    }
-    else if(this->stationType == 8){
-        this->imgSrcDefault = ":/resources/images/unknown_black.png";
-        this->imgSrcAttention = ":/resources/images/unknown_black_srem.png";
-        this->typeStr = "Heavy truck";
-    }
-    else if(this->stationType == 9){
-        this->imgSrcDefault = ":/resources/images/unknown_black.png";
-        this->imgSrcAttention = ":/resources/images/unknown_black_srem.png";
-        this->typeStr = "Trailer";
-    }
-    else if(this->stationType == 10){
-        this->imgSrcDefault = ":/resources/images/unknown_black.png";
-        this->imgSrcAttention = ":/resources/images/unknown_black_srem.png";
-        this->typeStr = "Special vehicle";
-    }
-    else if(this->stationType == 11){
-        this->imgSrcDefault = ":/resources/images/tram_black.png";
-        this->imgSrcAttention = ":/resources/images/tram_black_srem.png";
-        this->typeStr = "Tram";
-    }
-    else if(this->stationType == 15){ // ROAD SIDE UNIT
-        this->imgSrcDefault = ":/resources/images/rsu_black.png";
-        this->imgSrcAttention = ":/resources/images/rsu_black_srem.png";
-        this->typeStr = "RSU";
-    }
-    else if(this->stationType == 0){ // UNKNOWN
-        this->imgSrcDefault = ":/resources/images/unknown_black.png";
-        this->imgSrcAttention = ":/resources/images/unknown_black_srem.png";
-        this->typeStr = "Unknown";
-    }
-    else {
-        this->imgSrcDefault = ":/resources/images/unknown_black.png";
-        this->imgSrcAttention = ":/resources/images/unknown_black_srem.png";
-        this->typeStr = "Unknown";
-    }
+    // TODO - vehicle role strings map
 };
+void Cam::setStationStringValues(int stationType)
+{
+    auto it = stationTypeStringMap.find(stationType);
 
+    if (it != stationTypeStringMap.end())
+    {
+        std::tie(this->imgSrcDefault, this->imgSrcAttention, this->typeStr) = it->second;
+    } else {
+        this->imgSrcDefault = ":/resources/images/unknown_black.png";
+        this->imgSrcAttention = ":/resources/images/unknown_black_srem.png";
+        this->typeStr = "Unknown";
+    }
+}
 QString Cam::getTimeFormatted(double timeEpoch, bool justHMS)
 {
     time_t time = static_cast<time_t>(timeEpoch);

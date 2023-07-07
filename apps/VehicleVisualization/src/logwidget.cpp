@@ -1,11 +1,5 @@
 #include "logwidget.h"
 
-#include <QDebug>
-#include <QDate>
-#include <QDateTime>
-#include <QPixmap>
-#include <QIcon>
-
 LogWidget::LogWidget(QWidget *parent)
 {
     QHBoxLayout *layout = new QHBoxLayout(this);

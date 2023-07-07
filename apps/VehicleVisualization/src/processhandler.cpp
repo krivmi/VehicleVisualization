@@ -1,10 +1,5 @@
 #include "processhandler.h"
 
-#include <QProcess>
-#include <QDebug>
-#include <QDir>
-#include <QSettings>
-
 ProcessHandler::ProcessHandler(QObject *parent): QObject{parent},
     fileChanged(false), currentFile("")
 {

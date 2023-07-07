@@ -1,13 +1,8 @@
 #pragma once
 
+#include "stdafx.h"
+
 #include "message.h"
-
-#include "QVector"
-#include <QMap>
-
-#include <QMapControl/QMapControl.h>
-#include <QMapControl/GeometryLineString.h>
-#include <QMapControl/GeometryPoint.h>
 
 struct SignalGroupInfo {
     long laneID;

@@ -1,10 +1,6 @@
 #pragma once
 
-#include <QDialog>
-#include <QFormLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QPushButton>
+#include "stdafx.h"
 
 class InitDialog : public QDialog
 {

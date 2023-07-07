@@ -1,7 +1,5 @@
 #include "initdialog.h"
 
-#include <QSettings>
-
 InitDialog::InitDialog(QWidget* parent) : QDialog(parent)
 {
     // Set the dialog flags and title

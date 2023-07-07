@@ -2,26 +2,6 @@
 #include "initdialog.h"
 #include "cam.h"
 #include "mapem.h"
-#include "math.h"
-
-#include <QMenu>
-#include <QStyle>
-#include <QMenuBar>
-#include <QStatusBar>
-#include <QtWidgets/QHBoxLayout>
-#include <QtWidgets/QMessageBox>
-#include <QtWidgets/QVBoxLayout>
-#include <QtWidgets/QLabel>
-#include <QDebug>
-#include <QFileDialog>
-#include <QProcess>
-#include <QScrollArea>
-#include <QSettings>
-
-#include <QMapControl/LayerGeometry.h>
-#include <QMapControl/LayerMapAdapter.h>
-//#include <QMapControl/MapAdapterGoogle.h>
-#include <QMapControl/MapAdapterOSM.h>
 
 MainMapWindow::MainMapWindow(QWidget *parent) : QMainWindow(parent)
 {

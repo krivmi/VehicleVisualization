@@ -1,17 +1,19 @@
 #pragma once
 
+#include "stdafx.h"
+
 #include "message.h"
-#include "QVector"
-#include <QMapControl/GeometryPointImageScaled.h>
 
 using namespace qmapcontrol;
 
 class Denm : public Message {
 public:
+    static const std::unordered_map<int, std::pair<QString, std::unordered_map<int, QString>>> causeCodeStringMap;
+
     Denm(double longitude, double latitude, double altitude, int messageID, long stationID, int stationType, long itsOriginatingStationID,
          int itsSequenceNumber, long denmDetectionTime, long denmReferenceTime, bool denmTermination, int itsCauseCode, int itsSubCauseCode);
 
-    void getCauseCodeStrings(); // should be renamed
+    void setCauseStringValues(int causeCode, int subCauseCode);
     QString GetProtocol() { return "Denm"; };
 
     long originatingStationID;

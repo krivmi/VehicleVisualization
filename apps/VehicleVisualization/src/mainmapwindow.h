@@ -1,5 +1,7 @@
 #pragma once
 
+#include "stdafx.h"
+
 #include "message.h"
 #include "eventcounter.h"
 #include "messageparser.h"
@@ -9,25 +11,6 @@
 #include "gpstracker.h"
 #include "trafficlightwidget.h"
 #include "logwidget.h"
-
-// Qt includes.
-#include <QApplication>
-#include <QtWidgets/QAction>
-#include <QtWidgets/QMainWindow>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QProcess>
-#include <QThread>
-#include <QVector>
-#include <QLabel>
-
-// QMapControl includes.
-#include <QMapControl/QMapControl.h>
-#include <QMapControl/GeometryLineString.h>
-#include <QMapControl/GeometryPointCircle.h>
-#include <QMapControl/GeometryWidget.h>
-#include <QMapControl/Layer.h>
-#include <QMapControl/LayerGeometry.h>
 
 class MainMapWindow : public QMainWindow
 {

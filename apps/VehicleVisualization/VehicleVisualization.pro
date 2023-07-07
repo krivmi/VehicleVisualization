@@ -10,6 +10,9 @@ VERSION = 0.1
 # Build a library.
 TEMPLATE = app
 
+# Add precompiled headers file
+PRECOMPILED_HEADER = src/stdafx.h
+
 # Add header files.
 HEADERS +=                      \
     src/cam.h \
@@ -26,6 +29,7 @@ HEADERS +=                      \
     src/processhandler.h \
     src/spatem.h \
     src/srem.h \
+    src/stdafx.h \
     src/trafficlightwidget.h \
     src/visualizer.h
 
@@ -46,6 +50,7 @@ SOURCES +=                      \
     src/processhandler.cpp \
     src/spatem.cpp \
     src/srem.cpp \
+    src/stdafx.cpp \
     src/trafficlightwidget.cpp \
     src/visualizer.cpp
 

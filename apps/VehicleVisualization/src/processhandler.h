@@ -1,9 +1,8 @@
 #pragma once
 
-#include "messageparser.h"
+#include "stdafx.h"
 
-#include <QObject>
-#include <QProcess>
+#include "messageparser.h"
 
 class ProcessHandler : public QObject
 {

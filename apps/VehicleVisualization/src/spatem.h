@@ -1,7 +1,8 @@
 #pragma once
 
+#include "stdafx.h"
+
 #include "message.h"
-#include "QVector"
 
 struct MovementEvent {
     int eventState;

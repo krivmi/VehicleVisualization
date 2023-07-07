@@ -1,9 +1,6 @@
 #include "visualizer.h"
 //#include "dialogs.h"
 
-#include <math.h>
-#include <qrandom.h>
-
 Visualizer::Visualizer(QMapControl * mapWidget)
 {
     this->m_map_control = mapWidget;

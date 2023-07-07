@@ -1,14 +1,6 @@
 #include "messageparser.h"
 
-#include <stdexcept>
-#include <memory>
-
-#include <QDebug>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonValue>
-#include <QJsonArray>
-#include <QJsonParseError>
+#include "stdafx.h"
 
 MessageParser::MessageParser(){}
 

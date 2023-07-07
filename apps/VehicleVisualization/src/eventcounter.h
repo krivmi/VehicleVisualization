@@ -1,10 +1,9 @@
 #pragma once
 
+#include "stdafx.h"
+
 #include "cam.h"
 #include "datahandler.h"
-
-#include <QtCore/QObject>
-#include <QMapControl/Point.h>
 
 class EventCounter : public QObject
 {

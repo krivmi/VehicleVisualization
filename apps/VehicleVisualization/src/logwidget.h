@@ -1,13 +1,9 @@
 #pragma once
 
+#include "stdafx.h"
+
 #include "message.h"
 #include "cam.h"
-
-#include <QObject>
-#include <QWidget>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QTime>
 
 class LogWidget : public QWidget
 {

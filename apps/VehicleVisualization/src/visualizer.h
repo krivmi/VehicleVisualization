@@ -1,20 +1,12 @@
 #pragma once
 
+#include "stdafx.h"
+
 #include "message.h"
 #include "cam.h"
 #include "mapem.h"
 #include "spatem.h"
 #include "denm.h"
-
-#include <QVector>
-
-#include <QMapControl/GeometryLineString.h>
-#include <QMapControl/GeometryPointCircle.h>
-//#include <QMapControl/GeometryPolygon.h>
-#include <QMapControl/GeometryWidget.h>
-#include <QMapControl/Layer.h>
-#include <QMapControl/LayerGeometry.h>
-
 
 class Visualizer : public QObject
 {

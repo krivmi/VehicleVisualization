@@ -1,15 +1,13 @@
 #pragma once
 
+#include "stdafx.h"
+
 #include "message.h"
 #include "cam.h"
 #include "mapem.h"
 #include "spatem.h"
 #include "srem.h"
 #include "denm.h"
-
-#include <QStack>
-#include <QChar>
-#include <QObject>
 
 class MessageParser : public QObject
 {

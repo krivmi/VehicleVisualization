@@ -1,9 +1,5 @@
 #include "eventcounter.h"
 
-// Qt includes.
-#include <QtCore/QTimer>
-#include<QDebug>
-
 EventCounter::EventCounter() : newPlayingCycle(true), m_running(false),
     messagesPlayedFlag(true), messagesIndex(0), messagesSize(0), TPS(10) { }
 

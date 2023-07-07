@@ -1,13 +1,8 @@
 #pragma once
 
+#include "stdafx.h"
+
 #include "mapem.h"
-
-#include <QObject>
-#include <QWidget>
-#include <QHBoxLayout>
-#include <QLabel>
-
-#include <QMapControl/GeometryPointImageScaled.h>
 
 class TrafficLightWidget : public QWidget
 {

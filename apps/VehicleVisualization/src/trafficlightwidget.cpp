@@ -1,10 +1,5 @@
 #include "trafficlightwidget.h"
 
-#include <QDebug>
-#include <QDate>
-#include <QDateTime>
-#include <QPixmap>
-
 TrafficLightWidget::TrafficLightWidget(int signalGroup, QVector <QString> maneuvers, QWidget *parent)
 {
     this->signalGroup = signalGroup;

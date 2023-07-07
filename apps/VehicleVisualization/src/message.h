@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QMapControl/QMapControl.h>
+#include "stdafx.h"
 
 using namespace qmapcontrol;
 

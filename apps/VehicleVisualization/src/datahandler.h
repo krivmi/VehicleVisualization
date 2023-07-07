@@ -1,5 +1,7 @@
 #pragma once
 
+#include "stdafx.h"
+
 #include "visualizer.h"
 #include "message.h"
 #include "cam.h"
@@ -8,11 +10,6 @@
 #include "srem.h"
 #include "denm.h"
 #include "trafficlightwidget.h"
-
-#include <sys/time.h>
-
-#include <QQueue>
-#include <QObject>
 
 struct GPSInfo {
     float longitude;

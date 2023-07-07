@@ -1,8 +1,6 @@
 #pragma once
 
-#include <QThread>
-
-#include <QtCore/QObject>
+#include "stdafx.h"
 
 class GPSTracker: public QObject
 {

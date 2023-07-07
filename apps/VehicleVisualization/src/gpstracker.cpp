@@ -1,11 +1,6 @@
 #include "gpstracker.h"
 
 #include "libgpsmm.h"
-#include <cmath>
-
-// Qt includes.
-#include <QDebug>
-#include <QSettings>
 
 GPSTracker::GPSTracker(): m_running(false) { }
 

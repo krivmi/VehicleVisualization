@@ -1,6 +1,6 @@
 #include "mapem.h"
-#include <math.h>
 
+// TODO - search for the "unknown types"
 QVector<QString> Mapem::laneTypes = {"Vehicle", "CrossWalk", "BikeLane", "Unknown", "Unknown", "Unknown", "TrackedVehicle", "Parking"};
 
 Mapem::Mapem(qreal longitude, qreal latitude, qreal altitude, int messageID, long stationID, int stationType,
