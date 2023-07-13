@@ -10,7 +10,9 @@ VERSION = 0.1
 # Build a library.
 TEMPLATE = app
 
+
 # Add precompiled headers file
+CONFIG += precompile_header
 PRECOMPILED_HEADER = src/stdafx.h
 
 # Add header files.
